@@ -1,0 +1,57 @@
+name: Publish NuGet packages
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Pack projects
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Release tag must use the format vMAJOR.MINOR.PATCH, optionally followed by a prerelease suffix."
+          }
+
+          ./scripts/pack-src.ps1 -PackageVersion $Matches.version
+
+      - name: Publish packages to NuGet.org
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
+            throw "The NUGET_API_KEY repository secret is required to publish packages."
+          }
+
+          $packages = @(Get-ChildItem -Path artifacts/packages -Filter "*.nupkg")
+          if ($packages.Count -eq 0) {
+            throw "No NuGet packages were produced."
+          }
+
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName `
+              --api-key $env:NUGET_API_KEY `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Publishing '$($package.Name)' failed with exit code $LASTEXITCODE."
+            }
+          }
