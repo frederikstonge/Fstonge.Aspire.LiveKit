@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/Fstonge.Aspire.Hosting.LiveKit/Fstonge.Aspire.Hosting.LiveKit.csproj" />
+    <Project Path="src/Fstonge.Aspire.Sdk.LiveKit/Fstonge.Aspire.Sdk.LiveKit.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fstonge.Aspire.Hosting.LiveKit.Tests/Fstonge.Aspire.Hosting.LiveKit.Tests.csproj" />
+    <Project Path="tests/Fstonge.Aspire.Sdk.LiveKit.Tests/Fstonge.Aspire.Sdk.LiveKit.Tests.csproj" />
+  </Folder>
+</Solution>
