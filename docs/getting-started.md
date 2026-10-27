@@ -104,12 +104,9 @@ var livekit = builder.AddLiveKit("livekit")
     .WithLiveKitServerConfiguration(configuration =>
     {
         configuration.LogLevel = "info";
-        configuration.Rtc = new LiveKitServerRtcConfiguration
-        {
-            UseExternalIp = true,
-            PortRangeStart = 50000,
-            PortRangeEnd = 60000
-        };
+        configuration.Rtc.UseExternalIp = true;
+        configuration.Rtc.PortRangeStart = 50000;
+        configuration.Rtc.PortRangeEnd = 60000;
     })
     .WithLiveKitAdditionalConfiguration("""
         room:
@@ -123,20 +120,17 @@ var ingress = livekit.AddIngress(
         "http://localhost:8080/whip")
     .WithIngressConfiguration(configuration =>
     {
-        configuration.CpuCost = new LiveKitIngressCpuCostConfiguration
-        {
-            RtmpCpuCost = 2,
-            WhipCpuCost = 2,
-            WhipBypassTranscodingCpuCost = 0.1,
-            UrlCpuCost = 2
-        };
+        configuration.CpuCost.RtmpCpuCost = 2;
+        configuration.CpuCost.WhipCpuCost = 2;
+        configuration.CpuCost.WhipBypassTranscodingCpuCost = 0.1;
+        configuration.CpuCost.UrlCpuCost = 2;
     });
 
 var egress = livekit.AddEgress("egress", redis)
     .WithEgressConfiguration(configuration =>
     {
         configuration.TemplatePort = 7980;
-        configuration.Logging = new LiveKitServiceLoggingConfiguration { Level = "info" };
+        configuration.Logging.Level = "info";
     });
 
 var sip = livekit.AddSip("sip", redis)
@@ -144,12 +138,14 @@ var sip = livekit.AddSip("sip", redis)
     {
         configuration.MaxCpuUtilization = 0.9;
         configuration.EnableJitterBuffer = true;
-        configuration.Logging = new LiveKitServiceLoggingConfiguration { Level = "info" };
+        configuration.Logging.Level = "info";
     });
 ```
 
 Typed configuration objects are available for common settings on all four
-services. `WithLiveKitAdditionalConfiguration`,
+services. Their nested options (`Rtc`, `CpuCost`, and `Logging`) are initialized
+and can be configured directly in the callback; unset nested options are omitted
+from the generated YAML. `WithLiveKitAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` accept additional top-level settings
 supported by each service version. Settings already managed by typed resource
