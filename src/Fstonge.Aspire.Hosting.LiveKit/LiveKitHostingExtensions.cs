@@ -206,7 +206,20 @@ public static partial class LiveKitHostingExtensions
 
     private static ReferenceExpression CreateServerConfiguration(LiveKitServerResource resource)
     {
-        var redisSection = resource.RedisConfiguration ?? ReferenceExpression.Empty;
+        var configuration = new ReferenceExpressionBuilder();
+        if (resource.IsDevelopment)
+        {
+            configuration.Append($"development: true\n");
+        }
+
+        configuration.Append(
+            $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n");
+
+        if (resource.RedisConfiguration is { } redisSection)
+        {
+            configuration.Append($"{redisSection}");
+        }
+
         var turnSection = ReferenceExpression.Empty;
         if (resource.TurnUdpPort is not null || resource.TurnTlsPort is not null)
         {
@@ -218,22 +231,27 @@ public static partial class LiveKitHostingExtensions
                 && resource.TurnCertificateFile is { } certificateFile
                 && resource.TurnKeyFile is { } keyFile
                     ? ReferenceExpression.Create(
-                        $"  tls_port: {tlsPort.ToString(CultureInfo.InvariantCulture)}\n  domain: \"{turnDomain}\"\n  cert_file: \"{certificateFile}\"\n  key_file: \"{keyFile}\"\n")
+                        $"  tls_port: {tlsPort.ToString(CultureInfo.InvariantCulture)}\n  domain: {QuoteYamlString(turnDomain)}\n  cert_file: {QuoteYamlString(certificateFile)}\n  key_file: {QuoteYamlString(keyFile)}\n")
                     : ReferenceExpression.Empty;
             turnSection = ReferenceExpression.Create($"turn:\n  enabled: true\n{udpSetting}{tlsSettings}");
         }
+
+        configuration.Append($"{turnSection}");
+
         var ingressSection = resource.RtmpBaseUrl is not null && resource.WhipBaseUrl is not null
             ? ReferenceExpression.Create(
-                $"ingress:\n  rtmp_base_url: \"{resource.RtmpBaseUrl}\"\n  whip_base_url: \"{resource.WhipBaseUrl}\"\n")
+                $"ingress:\n  rtmp_base_url: {QuoteYamlString(resource.RtmpBaseUrl)}\n  whip_base_url: {QuoteYamlString(resource.WhipBaseUrl)}\n")
             : ReferenceExpression.Empty;
-        var loggingSection = resource.JsonLoggingEnabled
-            ? ReferenceExpression.Create($"logging:\n  json: true\n")
-            : ReferenceExpression.Empty;
-        var configuration = ReferenceExpression.Create(
-            $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n{redisSection}{turnSection}{ingressSection}{loggingSection}keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
-        return resource.IsDevelopment
-            ? ReferenceExpression.Create($"development: true\n{configuration}")
-            : configuration;
+        configuration.Append($"{ingressSection}");
+
+        if (resource.JsonLoggingEnabled)
+        {
+            configuration.Append($"logging:\n  json: true\n");
+        }
+
+        configuration.Append($"keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
+
+        return configuration.Build();
     }
 
     private static void ValidatePublicUrl(string value, params string[] allowedSchemes)

@@ -2,6 +2,7 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using System.Globalization;
 using System.Net.Sockets;
+using System.Text.Json;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
@@ -373,7 +374,7 @@ public static partial class LiveKitHostingExtensions
     }
 
     private static string QuoteYamlString(string value) =>
-        $"\"{value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal)}\"";
+        JsonSerializer.Serialize(value);
 
     private static void EnsureNoEgressStorage(LiveKitEgressResource resource)
     {
