@@ -93,6 +93,68 @@ var sip = livekit.AddSip("sip", redis)
     .WithJsonLogging();
 ```
 
+The hosting integration provides typed methods for common settings and YAML
+extension methods for options added by upstream LiveKit versions:
+
+```csharp
+var livekit = builder.AddLiveKit("livekit")
+    .WithRedis(redis)
+    .WithLiveKitServerConfiguration(new LiveKitServerConfiguration
+    {
+        LogLevel = "info",
+        Rtc = new LiveKitServerRtcConfiguration
+        {
+            UseExternalIp = true,
+            PortRangeStart = 50000,
+            PortRangeEnd = 60000
+        }
+    })
+    .WithLiveKitAdditionalConfiguration("""
+        room:
+          auto_create: false
+        """);
+
+var ingress = livekit.AddIngress(
+        "ingress",
+        redis,
+        "rtmp://localhost:1935/live",
+        "http://localhost:8080/whip")
+    .WithIngressConfiguration(new LiveKitIngressConfiguration
+    {
+        CpuCost = new LiveKitIngressCpuCostConfiguration
+        {
+            RtmpCpuCost = 2,
+            WhipCpuCost = 2,
+            WhipBypassTranscodingCpuCost = 0.1,
+            UrlCpuCost = 2
+        }
+    });
+
+var egress = livekit.AddEgress("egress", redis)
+    .WithEgressConfiguration(new LiveKitEgressConfiguration
+    {
+        TemplatePort = 7980,
+        Logging = new LiveKitServiceLoggingConfiguration { Level = "info" }
+    });
+
+var sip = livekit.AddSip("sip", redis)
+    .WithSipConfiguration(new LiveKitSipConfiguration
+    {
+        MaxCpuUtilization = 0.9,
+        EnableJitterBuffer = true,
+        Logging = new LiveKitServiceLoggingConfiguration { Level = "info" }
+    });
+```
+
+Typed configuration objects are available for common settings on all four
+services. The YAML extension methods cover additional top-level settings
+supported by each service version. Settings already managed by typed resource
+options (such as credentials, Redis, listener ports, TLS, storage, and JSON
+logging) are reserved and cannot be duplicated. Typed settings are serialized
+with YamlDotNet, and additional YAML is parsed to validate its top-level shape
+and check reserved keys. Check the configuration reference for the exact
+options supported by the selected container image version.
+
 Mount the certificate and key into the LiveKit container at those paths using
 Aspire's bind-mount API. These local endpoint bindings do not configure public
 DNS, TLS termination, firewalls, or production load balancing.

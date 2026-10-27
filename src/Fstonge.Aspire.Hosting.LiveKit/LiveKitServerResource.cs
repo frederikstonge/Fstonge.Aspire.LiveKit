@@ -27,6 +27,10 @@ public sealed class LiveKitServerResource : LiveKitContainerResource
 
     internal ReferenceExpression? RedisConfiguration { get; set; }
 
+    internal string? AdditionalConfiguration { get; set; }
+
+    internal LiveKitServerConfiguration? Configuration { get; set; }
+
     internal int RtcTcpPort { get; }
 
     internal int RtcUdpPort { get; }

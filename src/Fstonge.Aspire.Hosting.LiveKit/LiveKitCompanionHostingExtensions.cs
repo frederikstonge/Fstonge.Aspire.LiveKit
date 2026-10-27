@@ -2,7 +2,6 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using System.Globalization;
 using System.Net.Sockets;
-using System.Text.Json;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
@@ -161,7 +160,12 @@ public static partial class LiveKitHostingExtensions
             "health_port",
             "prometheus_port",
             "storage",
-            "logging");
+            "logging",
+            "template_port",
+            "debug_handler_port",
+            "pulse_sink_reap_grace_sec",
+            "template_base",
+            "enable_chrome_sandbox");
         return egress;
     }
 
@@ -299,7 +303,18 @@ public static partial class LiveKitHostingExtensions
             "health_port",
             "prometheus_port",
             "tls",
-            "logging");
+            "logging",
+            "cluster_id",
+            "max_cpu_utilization",
+            "max_active_calls",
+            "use_external_ip",
+            "local_net",
+            "nat_1_to_1_ip",
+            "media_use_external_ip",
+            "media_nat_1_to_1_ip",
+            "udp_max_payload",
+            "enable_jitter_buffer",
+            "enable_jitter_buffer_prob");
         return sip;
     }
 
@@ -313,7 +328,7 @@ public static partial class LiveKitHostingExtensions
         return ReferenceExpression.Create(
             $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"{healthPort}{prometheusPort}{resource.StorageConfiguration ?? string.Empty}" +
-            $"{GetJsonLoggingConfiguration(resource)}" +
+            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? GetJsonLoggingConfiguration(resource)}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 
@@ -334,7 +349,8 @@ public static partial class LiveKitHostingExtensions
             $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"sip_port: {resource.SipPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"rtp_port: {QuoteYamlString($"{resource.RtpPortStart.ToString(CultureInfo.InvariantCulture)}-{resource.RtpPortEnd.ToString(CultureInfo.InvariantCulture)}")}\n" +
-            $"{healthPort}{prometheusPort}{tls}{GetJsonLoggingConfiguration(resource)}" +
+            $"{healthPort}{prometheusPort}{tls}" +
+            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? GetJsonLoggingConfiguration(resource)}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 
@@ -346,38 +362,11 @@ public static partial class LiveKitHostingExtensions
     private static string ValidateAdditionalConfiguration(
         string yaml,
         string parameterName,
-        params string[] reservedKeys)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(yaml, parameterName);
-        var reserved = reservedKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        foreach (var line in yaml.Split('\n'))
-        {
-            var trimmed = line.TrimEnd('\r');
-            if (trimmed.Length == 0 || char.IsWhiteSpace(trimmed[0]) || trimmed.StartsWith('#'))
-            {
-                continue;
-            }
-
-            var separator = trimmed.IndexOf(':');
-            if (separator <= 0)
-            {
-                continue;
-            }
-
-            var key = trimmed[..separator].Trim();
-            if (reserved.Contains(key))
-            {
-                throw new ArgumentException(
-                    $"The '{key}' setting is managed by the typed LiveKit resource configuration.",
-                    parameterName);
-            }
-        }
-
-        return yaml.EndsWith('\n') ? yaml : yaml + "\n";
-    }
+        params string[] reservedKeys) =>
+        LiveKitConfigurationYaml.ValidateAdditionalConfiguration(yaml, parameterName, reservedKeys);
 
     private static string QuoteYamlString(string value) =>
-        JsonSerializer.Serialize(value);
+        LiveKitConfigurationYaml.SerializeScalar(value);
 
     private static void EnsureNoEgressStorage(LiveKitEgressResource resource)
     {

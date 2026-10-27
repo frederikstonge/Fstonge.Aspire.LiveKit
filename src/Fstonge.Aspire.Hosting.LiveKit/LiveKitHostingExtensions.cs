@@ -93,6 +93,26 @@ public static partial class LiveKitHostingExtensions
         return livekit.WaitFor(redisResource);
     }
 
+    public static IResourceBuilder<LiveKitServerResource> WithLiveKitAdditionalConfiguration(
+        this IResourceBuilder<LiveKitServerResource> livekit,
+        string yaml)
+    {
+        ArgumentNullException.ThrowIfNull(livekit);
+        livekit.Resource.AdditionalConfiguration = ValidateAdditionalConfiguration(
+            yaml,
+            nameof(yaml),
+            "development",
+            "port",
+            "log_level",
+            "rtc",
+            "redis",
+            "turn",
+            "ingress",
+            "logging",
+            "keys");
+        return livekit;
+    }
+
     public static IResourceBuilder<TResource> WithJsonLogging<TResource>(
         this IResourceBuilder<TResource> resourceBuilder)
         where TResource : LiveKitContainerResource
@@ -225,10 +245,15 @@ public static partial class LiveKitHostingExtensions
             .WithEndpoint(port: rtmpPort, targetPort: rtmpPort, name: "rtmp", protocol: ProtocolType.Tcp)
             .WithHttpEndpoint(port: whipPort, targetPort: whipPort, name: "whip")
             .WithEndpoint(port: whipUdpPort, targetPort: whipUdpPort, name: "whip-udp", protocol: ProtocolType.Udp)
-            .WithEnvironment(
-                "INGRESS_CONFIG_BODY",
-                ReferenceExpression.Create(
-                    $"api_key: \"{livekit.Resource.ApiKey}\"\napi_secret: \"{livekit.Resource.ApiSecret}\"\nws_url: \"ws://{livekit.Resource.Name}:7880\"\n{LiveKitRedisConfiguration.Create(redis)}rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\nwhip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\nrtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n{GetJsonLoggingConfiguration(ingressResource)}"));
+            .WithEnvironment(context =>
+                context.EnvironmentVariables["INGRESS_CONFIG_BODY"] =
+                    CreateIngressConfiguration(
+                        livekit.Resource,
+                        ingressResource,
+                        redis,
+                        rtmpPort,
+                        whipPort,
+                        whipUdpPort));
 
         ingress.WithReference(livekit.GetEndpoint("http"));
         ingress
@@ -240,6 +265,43 @@ public static partial class LiveKitHostingExtensions
         return ingress;
     }
 
+    public static IResourceBuilder<LiveKitIngressResource> WithIngressAdditionalConfiguration(
+        this IResourceBuilder<LiveKitIngressResource> ingress,
+        string yaml)
+    {
+        ArgumentNullException.ThrowIfNull(ingress);
+        ingress.Resource.AdditionalConfiguration = ValidateAdditionalConfiguration(
+            yaml,
+            nameof(yaml),
+            "api_key",
+            "api_secret",
+            "ws_url",
+            "redis",
+            "rtmp_port",
+            "whip_port",
+            "rtc_config",
+            "logging",
+            "cpu_cost");
+        return ingress;
+    }
+
+    private static ReferenceExpression CreateIngressConfiguration<TResource>(
+        LiveKitServerResource server,
+        LiveKitIngressResource resource,
+        IResourceBuilder<TResource> redis,
+        int rtmpPort,
+        int whipPort,
+        int whipUdpPort)
+        where TResource : IResource, IResourceWithConnectionString =>
+        ReferenceExpression.Create(
+            $"api_key: \"{server.ApiKey}\"\napi_secret: \"{server.ApiSecret}\"\nws_url: \"ws://{server.Name}:7880\"\n" +
+            $"{LiveKitRedisConfiguration.Create(redis)}" +
+            $"rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\n" +
+            $"whip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\n" +
+            $"rtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n" +
+            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? GetJsonLoggingConfiguration(resource)}" +
+            $"{resource.AdditionalConfiguration ?? string.Empty}");
+
     private static ReferenceExpression CreateServerConfiguration(LiveKitServerResource resource)
     {
         var configuration = new ReferenceExpressionBuilder();
@@ -248,8 +310,25 @@ public static partial class LiveKitHostingExtensions
             configuration.Append($"development: true\n");
         }
 
+        var rtcConfiguration = new Dictionary<string, object?>
+        {
+            ["tcp_port"] = resource.RtcTcpPort,
+            ["udp_port"] = resource.RtcUdpPort
+        };
+        if (resource.Configuration is { } serverConfiguration)
+        {
+            foreach (var (key, value) in serverConfiguration.ToRtcDictionary())
+            {
+                rtcConfiguration[key] = value;
+            }
+        }
+
+        configuration.Append($"port: 7880\n");
         configuration.Append(
-            $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n");
+            $"{LiveKitConfigurationYaml.Serialize(new Dictionary<string, object?>
+            {
+                ["rtc"] = rtcConfiguration
+            })}");
 
         if (resource.RedisConfiguration is { } redisSection)
         {
@@ -280,11 +359,20 @@ public static partial class LiveKitHostingExtensions
             : ReferenceExpression.Empty;
         configuration.Append($"{ingressSection}");
 
-        if (resource.JsonLoggingEnabled)
+        if (resource.Configuration is { } configurationOptions)
         {
-            configuration.Append($"logging:\n  json: true\n");
+            configuration.Append($"{LiveKitConfigurationYaml.Serialize(configurationOptions.ToDictionary())}");
         }
 
+        if (LiveKitConfigurationYaml.CreateLogging(null, resource.JsonLoggingEnabled) is { } loggingConfiguration)
+        {
+            configuration.Append($"{LiveKitConfigurationYaml.Serialize(new Dictionary<string, object?>
+            {
+                ["logging"] = loggingConfiguration
+            })}");
+        }
+
+        configuration.Append($"{resource.AdditionalConfiguration ?? string.Empty}");
         configuration.Append($"keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
 
         return configuration.Build();

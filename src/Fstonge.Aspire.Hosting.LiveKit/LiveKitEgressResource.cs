@@ -15,6 +15,8 @@ public sealed class LiveKitEgressResource(
 
     internal int? PrometheusPort { get; } = prometheusPort;
 
+    internal LiveKitEgressConfiguration? Configuration { get; set; }
+
     internal string? AdditionalConfiguration { get; set; }
 
     internal string? StorageConfiguration { get; set; }

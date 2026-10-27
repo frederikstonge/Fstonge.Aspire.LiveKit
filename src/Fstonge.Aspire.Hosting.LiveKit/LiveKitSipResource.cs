@@ -24,6 +24,8 @@ public sealed class LiveKitSipResource(
 
     internal int? PrometheusPort { get; } = prometheusPort;
 
+    internal LiveKitSipConfiguration? Configuration { get; set; }
+
     internal int? TlsPort { get; set; }
 
     internal string? TlsCertificateFile { get; set; }

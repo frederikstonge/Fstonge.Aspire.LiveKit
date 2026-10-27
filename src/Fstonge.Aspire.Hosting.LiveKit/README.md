@@ -33,6 +33,15 @@ To enable JSON console output without forwarding logs, call
 `.WithJsonLogging()` on Ingress, Egress, or SIP. Server JSON logging is enabled
 by default, and `.WithStructuredLogs()` also enables it automatically.
 
+Typed methods and service-specific configuration objects cover common options,
+while `WithLiveKitAdditionalConfiguration`, `WithIngressAdditionalConfiguration`,
+`WithEgressAdditionalConfiguration`, and `WithSipAdditionalConfiguration`
+accept additional top-level YAML settings supported by the corresponding
+service version. YamlDotNet serializes typed options and parses extension YAML;
+the methods reject top-level settings already managed by the integration. See
+the repository's
+[getting-started guide](../../docs/getting-started.md) for examples.
+
 The server API key and secret are generated as secret Aspire parameters when
 you do not provide parameter resources. During local runs, Aspire persists the
 generated values in the AppHost project's user secrets. They are available to
