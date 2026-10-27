@@ -28,6 +28,8 @@ public sealed class LiveKitServerResource : ContainerResource
 
     internal bool JsonLoggingEnabled { get; set; } = true;
 
+    internal bool StructuredLogForwardingEnabled { get; set; }
+
     internal int RtcTcpPort { get; }
 
     internal int RtcUdpPort { get; }

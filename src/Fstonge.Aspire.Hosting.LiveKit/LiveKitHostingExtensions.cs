@@ -1,6 +1,9 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Net.Sockets;
 
@@ -96,6 +99,26 @@ public static partial class LiveKitHostingExtensions
         ArgumentNullException.ThrowIfNull(livekit);
 
         livekit.Resource.JsonLoggingEnabled = true;
+        return livekit;
+    }
+
+    public static IResourceBuilder<LiveKitServerResource> WithStructuredLogs(
+        this IResourceBuilder<LiveKitServerResource> livekit)
+    {
+        ArgumentNullException.ThrowIfNull(livekit);
+
+        if (!livekit.Resource.StructuredLogForwardingEnabled)
+        {
+            livekit.Resource.StructuredLogForwardingEnabled = true;
+            livekit.Resource.JsonLoggingEnabled = true;
+            livekit.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
+                new LiveKitStructuredLogForwarder(
+                    livekit.Resource,
+                    serviceProvider.GetRequiredService<ResourceLoggerService>(),
+                    serviceProvider.GetRequiredService<IConfiguration>(),
+                    serviceProvider.GetRequiredService<ILogger<LiveKitStructuredLogForwarder>>()));
+        }
+
         return livekit;
     }
 

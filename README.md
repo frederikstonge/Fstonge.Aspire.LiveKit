@@ -68,8 +68,9 @@ var livekit = builder.AddLiveKit("livekit")
     .WithRedis(redis);
 ```
 
-Aspire captures the container's console output. This configures structured JSON
-logs on that output; it does not send logs directly to an OTLP collector.
+Aspire captures the container's console output. To also export the parsed JSON
+records to the dashboard's Structured Logs view over OTLP, call
+`.WithStructuredLogs()` on the LiveKit resource.
 
 Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local

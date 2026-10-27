@@ -109,7 +109,7 @@ public sealed class LiveKitHostingExtensionsTests
     }
 
     [Fact]
-    public async Task WithJsonLogging_EnablesJsonLogsInRuntimeConfiguration()
+    public async Task AddLiveKit_EnablesJsonLogsByDefault()
     {
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
         var livekit = builder.AddLiveKit("livekit");

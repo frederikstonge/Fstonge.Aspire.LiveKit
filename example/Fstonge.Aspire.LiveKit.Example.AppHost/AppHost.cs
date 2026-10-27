@@ -4,7 +4,8 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(cache);
+    .WithRedis(cache)
+    .WithStructuredLogs();
 
 livekit.AddIngress(
     "ingress",

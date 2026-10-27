@@ -57,19 +57,27 @@ var livekit = builder.AddLiveKit("livekit")
         keyFile: "/certs/turn.key");
 ```
 
-To emit machine-readable LiveKit logs to the container console, opt in to JSON
-logging:
+LiveKit JSON logging is enabled by default. It formats server logs as JSON on
+the container console:
+
+```csharp
+var livekit = builder.AddLiveKit("livekit")
+    .WithRedis(redis);
+```
+
+These records are visible in the resource's console logs. To also send parsed
+records to Aspire's Structured Logs view over OTLP, opt in to forwarding:
 
 ```csharp
 var livekit = builder.AddLiveKit("livekit")
     .WithRedis(redis)
-    .WithJsonLogging();
+    .WithStructuredLogs();
 ```
 
-Aspire captures container console output, so these structured logs are visible
-with the resource logs and can be collected by a log agent reading container
-output. This enables JSON formatting only; it does not configure direct OTLP
-log export.
+The AppHost must have an OTLP endpoint configured through
+`ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL`, `OTEL_EXPORTER_OTLP_ENDPOINT`, or
+`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. `.WithJsonLogging()` remains available to
+explicitly enable JSON output without OTLP forwarding.
 
 Mount the certificate and key into the LiveKit container at those paths using
 Aspire's bind-mount API. These local endpoint bindings do not configure public

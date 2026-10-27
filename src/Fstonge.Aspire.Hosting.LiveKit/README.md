@@ -2,6 +2,21 @@
 
 Adds a self-hosted LiveKit server and optional Ingress, Egress, and SIP
 containers to a .NET Aspire AppHost. See the repository's
+
+Use `.WithStructuredLogs()` to forward LiveKit's JSON console records from
+Aspire's resource log stream to the dashboard's OTLP endpoint:
+
+```csharp
+var livekit = builder.AddLiveKit("livekit")
+    .WithRedis(redis)
+    .WithStructuredLogs();
+```
+
+The AppHost must have an OTLP endpoint configured through
+`ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL`, `OTEL_EXPORTER_OTLP_ENDPOINT`, or
+`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. LiveKit logs remain available in the
+resource console output. Non-JSON log entries are reported by the AppHost and
+are not forwarded as structured logs. See the repository's
 [getting-started guide](../../docs/getting-started.md) for shared Redis setup,
 secret parameters, storage configuration, examples, and networking limits.
 The package targets .NET 10.
