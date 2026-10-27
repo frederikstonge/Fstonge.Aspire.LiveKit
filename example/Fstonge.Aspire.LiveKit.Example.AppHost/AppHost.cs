@@ -19,10 +19,7 @@ livekit.AddIngress(
     .WithStructuredLogs()
     .WithIngressConfiguration(config =>
     {
-        config.Logging ??= new()
-        {
-            Level = "Info",
-        };
+        config.Logging.Level = "Info";
     });
 
 livekit.AddEgress(
@@ -33,10 +30,7 @@ livekit.AddEgress(
     .WithStructuredLogs()
     .WithEgressConfiguration(config =>
     {
-        config.Logging ??= new()
-        {
-            Level = "Info",
-        };
+        config.Logging.Level = "Info";
     });
 
 livekit.AddSip(
@@ -49,10 +43,7 @@ livekit.AddSip(
     .WithStructuredLogs()
     .WithSipConfiguration(config =>
     {
-        config.Logging ??= new()
-        {
-            Level = "Info",
-        };
+        config.Logging.Level = "Info";
     });
 
 var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")

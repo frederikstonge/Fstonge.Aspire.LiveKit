@@ -6,19 +6,20 @@ public sealed class LiveKitIngressConfiguration
     /// Sets CPU admission-cost estimates for RTMP, WHIP, and URL inputs. Default: each cost is <c>0</c>;
     /// Ingress warns that these are below its minimums.
     /// </summary>
-    public LiveKitIngressCpuCostConfiguration? CpuCost { get; set; }
+    public LiveKitIngressCpuCostConfiguration CpuCost { get; set; } = new();
 
     /// <summary>
     /// Configures Ingress log verbosity. Default: <c>info</c> in the service logger.
     /// </summary>
-    public LiveKitServiceLoggingConfiguration? Logging { get; set; }
+    public LiveKitServiceLoggingConfiguration Logging { get; set; } = new();
 
     internal string ToYaml(bool jsonLoggingEnabled)
     {
         var yaml = new Dictionary<string, object?>();
-        if (CpuCost is not null)
+        var cpuCost = CpuCost.ToDictionary();
+        if (cpuCost.Count > 0)
         {
-            yaml["cpu_cost"] = CpuCost.ToDictionary();
+            yaml["cpu_cost"] = cpuCost;
         }
 
         var logging = LiveKitConfigurationYaml.CreateLogging(Logging, jsonLoggingEnabled);
@@ -72,11 +73,6 @@ public sealed class LiveKitIngressCpuCostConfiguration
         AddSetting(settings, "whip_bypass_transcoding_cpu_cost", WhipBypassTranscodingCpuCost);
         AddSetting(settings, "url_cpu_cost", UrlCpuCost);
         AddSetting(settings, "min_idle_ratio", MinIdleRatio);
-        if (settings.Count == 0)
-        {
-            throw new InvalidOperationException("At least one Ingress CPU cost setting must be provided.");
-        }
-
         return settings;
     }
 

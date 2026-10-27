@@ -15,11 +15,11 @@ internal static class LiveKitConfigurationYaml
         Serializer.Serialize(value).TrimEnd('\r', '\n');
 
     public static IDictionary<string, object?>? CreateLogging(
-        LiveKitServiceLoggingConfiguration? logging,
+        LiveKitServiceLoggingConfiguration logging,
         bool jsonLoggingEnabled)
     {
         var settings = new Dictionary<string, object?>();
-        if (logging?.Level is { } level)
+        if (logging.Level is { } level)
         {
             settings["level"] = ValidateLogLevel(level, nameof(logging.Level));
         }

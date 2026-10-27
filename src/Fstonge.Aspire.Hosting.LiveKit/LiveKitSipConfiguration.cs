@@ -66,7 +66,7 @@ public sealed class LiveKitSipConfiguration
     /// Configures SIP log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
     /// unless enabled by <c>WithJsonLogging</c> or <c>WithStructuredLogs</c>.
     /// </summary>
-    public LiveKitServiceLoggingConfiguration? Logging { get; set; }
+    public LiveKitServiceLoggingConfiguration Logging { get; set; } = new();
 
     internal string ToYaml(bool jsonLoggingEnabled)
     {

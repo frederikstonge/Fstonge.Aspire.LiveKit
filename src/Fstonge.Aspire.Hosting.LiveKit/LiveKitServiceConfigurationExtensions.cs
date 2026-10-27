@@ -14,7 +14,7 @@ public static partial class LiveKitHostingExtensions
         var configuration = livekit.Resource.Configuration ?? new LiveKitServerConfiguration();
         configure(configuration);
         var topLevelConfiguration = configuration.ToDictionary();
-        var rtcConfiguration = configuration.ToRtcDictionary();
+        var rtcConfiguration = configuration.Rtc.ToDictionary();
         if (topLevelConfiguration.Count == 0 && rtcConfiguration.Count == 0)
         {
             throw new InvalidOperationException("At least one LiveKit server configuration setting must be provided.");

@@ -11,7 +11,7 @@ public sealed class LiveKitServerConfiguration
     /// Configures RTC address discovery and UDP port range. When omitted, public-IP discovery is
     /// disabled and the port range is unset; Aspire configures RTC with its resource UDP port.
     /// </summary>
-    public LiveKitServerRtcConfiguration? Rtc { get; set; }
+    public LiveKitServerRtcConfiguration Rtc { get; set; } = new();
 
     internal IDictionary<string, object?> ToDictionary()
     {
@@ -24,9 +24,6 @@ public sealed class LiveKitServerConfiguration
 
         return configuration;
     }
-
-    internal IDictionary<string, object?> ToRtcDictionary() => Rtc?.ToDictionary()
-        ?? new Dictionary<string, object?>();
 }
 
 public sealed class LiveKitServerRtcConfiguration
