@@ -55,9 +55,6 @@ internal sealed class LiveKitStructuredLogForwarder(
         using var serviceProvider = services.BuildServiceProvider();
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
         var livekitLogger = loggerFactory.CreateLogger($"LiveKit.{resource.Name}");
-        livekitLogger.LogInformation(
-            "Structured log forwarding started for LiveKit resource {ResourceName}",
-            resource.Name);
         logger.LogInformation(
             "Forwarding structured logs for LiveKit resource {ResourceName} to OTLP endpoint {OtlpEndpoint}",
             resource.Name,
