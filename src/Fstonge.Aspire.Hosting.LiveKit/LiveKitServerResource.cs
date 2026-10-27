@@ -10,7 +10,7 @@ public sealed class LiveKitServerResource : ContainerResource
         IResourceBuilder<ParameterResource> apiSecret,
         int rtcTcpPort,
         int rtcUdpPort)
-        : base(name, "livekit/livekit-server")
+        : base(name)
     {
         ApiKey = apiKey;
         ApiSecret = apiSecret;
