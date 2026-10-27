@@ -147,6 +147,10 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.Equal("livekit/ingress", image.Image);
         Assert.Equal("v1.9.0", image.Tag);
         Assert.Null(ingress.Resource.Entrypoint);
+        Assert.Contains(
+            ingress.Resource.Annotations.OfType<ResourceRelationshipAnnotation>(),
+            relationship => ReferenceEquals(relationship.Resource, livekit.Resource)
+                && relationship.Type == "parent");
         Assert.Contains("rtmp", endpoints);
         Assert.Contains("whip", endpoints);
         Assert.Contains("whip-udp", endpoints);
@@ -202,6 +206,10 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.Equal("livekit/egress", image.Image);
         Assert.Equal("latest", image.Tag);
         Assert.Null(egress.Resource.Entrypoint);
+        Assert.Contains(
+            egress.Resource.Annotations.OfType<ResourceRelationshipAnnotation>(),
+            relationship => ReferenceEquals(relationship.Resource, livekit.Resource)
+                && relationship.Type == "parent");
         Assert.Contains("health", endpoints);
         Assert.Contains("prometheus", endpoints);
         Assert.Equal("/out", mount.Target);
@@ -272,6 +280,10 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.Equal("livekit/sip", image.Image);
         Assert.Equal("v1.9.0", image.Tag);
         Assert.Null(sip.Resource.Entrypoint);
+        Assert.Contains(
+            sip.Resource.Annotations.OfType<ResourceRelationshipAnnotation>(),
+            relationship => ReferenceEquals(relationship.Resource, livekit.Resource)
+                && relationship.Type == "parent");
         Assert.Contains(endpoints, endpoint => endpoint.Name == "sip-udp" && endpoint.Protocol == ProtocolType.Udp);
         Assert.Contains(endpoints, endpoint => endpoint.Name == "sip-tcp" && endpoint.Protocol == ProtocolType.Tcp);
         Assert.Contains(endpoints, endpoint => endpoint.Name == "sip-tls" && endpoint.Protocol == ProtocolType.Tcp);

@@ -240,6 +240,7 @@ public static partial class LiveKitHostingExtensions
         var ingressResource = new LiveKitIngressResource(name);
         var ingress = livekit.ApplicationBuilder
             .AddResource(ingressResource)
+            .WithParentRelationship(livekit.Resource)
             .WithImage("livekit/ingress")
             .WithImageTag(version ?? "latest")
             .WithEndpoint(port: rtmpPort, targetPort: rtmpPort, name: "rtmp", protocol: ProtocolType.Tcp)

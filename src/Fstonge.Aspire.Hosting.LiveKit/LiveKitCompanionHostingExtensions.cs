@@ -31,6 +31,7 @@ public static partial class LiveKitHostingExtensions
         var resource = new LiveKitEgressResource(name, livekit.Resource, healthPort, prometheusPort);
         var egress = livekit.ApplicationBuilder
             .AddResource(resource)
+            .WithParentRelationship(livekit.Resource)
             .WithImage("livekit/egress")
             .WithImageTag(version ?? "latest");
 
@@ -219,6 +220,7 @@ public static partial class LiveKitHostingExtensions
             prometheusPort);
         var sip = livekit.ApplicationBuilder
             .AddResource(resource)
+            .WithParentRelationship(livekit.Resource)
             .WithImage("livekit/sip")
             .WithImageTag(version ?? "latest")
             .WithEndpoint(port: sipPort, targetPort: sipPort, name: "sip-udp", protocol: ProtocolType.Udp)

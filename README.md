@@ -60,6 +60,9 @@ var livekit = builder.AddLiveKit("livekit")
     .WithTurn(udpPort: 3478);
 ```
 
+Ingress, Egress, and SIP resources created from a LiveKit resource appear
+nested under that server in the Aspire dashboard.
+
 LiveKit server JSON console output is enabled by default. Enable JSON output
 for Ingress, Egress, or SIP with `.WithJsonLogging()`:
 
