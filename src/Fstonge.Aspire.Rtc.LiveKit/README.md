@@ -51,3 +51,8 @@ The upstream RTC package includes native FFI assets for supported Windows,
 Linux, and macOS x64 and ARM64 targets. Verify that the deployment runtime is
 supported and that the package's native runtime asset is included when
 publishing or running in containers.
+
+This wrapper builds on
+[Pablo Fuente's `Livekit.Rtc.Dotnet`](https://github.com/pabloFuente/livekit-server-sdk-dotnet/tree/main/LivekitRtc).
+Huge thanks to Pablo for making LiveKit's real-time communication SDK available
+to .NET developers.

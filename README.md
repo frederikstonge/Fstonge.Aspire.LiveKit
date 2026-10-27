@@ -3,7 +3,7 @@
 Self-host LiveKit with .NET Aspire, and configure the LiveKit .NET server SDK
 from the same settings in your application.
 
-The repository contains two packages:
+The repository contains three packages:
 
 - `Fstonge.Aspire.Hosting.LiveKit` adds the LiveKit server and optional Ingress,
   Egress, and SIP containers to an Aspire AppHost.
@@ -202,3 +202,18 @@ versioned independently.
 See the [detailed getting-started guide](docs/getting-started.md) for additional
 configuration and networking details, and the [example AppHost](example/Fstonge.Aspire.LiveKit.Example.AppHost/AppHost.cs)
 for a working setup.
+
+## Acknowledgements
+
+A huge thank-you to [Pablo Fuente (@pabloFuente)](https://github.com/pabloFuente)
+for creating the excellent .NET LiveKit SDKs this project builds on:
+
+- [`Livekit.Server.Sdk.Dotnet`](https://github.com/pabloFuente/livekit-server-sdk-dotnet/tree/main/LivekitApi),
+  which powers the server API integration.
+- [`Livekit.Rtc.Dotnet`](https://github.com/pabloFuente/livekit-server-sdk-dotnet/tree/main/LivekitRtc),
+  which powers the RTC participant integration.
+
+Pablo's work brings LiveKit's server-management and real-time communication
+capabilities to .NET. We are deeply grateful for the engineering, care, and
+open-source contribution behind these libraries, and for making this Aspire
+integration possible.

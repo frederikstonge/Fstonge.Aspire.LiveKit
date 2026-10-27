@@ -16,6 +16,10 @@ security guidance.
 
 The package targets .NET 10.
 
+This wrapper is built on
+[Pablo Fuente's `Livekit.Server.Sdk.Dotnet`](https://github.com/pabloFuente/livekit-server-sdk-dotnet/tree/main/LivekitApi).
+Many thanks to Pablo for bringing LiveKit's server APIs to .NET.
+
 For applications that join LiveKit rooms as participants, use the separate
 [`Fstonge.Aspire.Rtc.LiveKit`](../Fstonge.Aspire.Rtc.LiveKit/README.md)
 package. This package manages server APIs and access tokens; the RTC package
