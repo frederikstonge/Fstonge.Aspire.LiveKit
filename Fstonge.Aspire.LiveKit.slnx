@@ -12,4 +12,9 @@
     <Project Path="tests/Fstonge.Aspire.Hosting.LiveKit.Tests/Fstonge.Aspire.Hosting.LiveKit.Tests.csproj" />
     <Project Path="tests/Fstonge.Aspire.Sdk.LiveKit.Tests/Fstonge.Aspire.Sdk.LiveKit.Tests.csproj" />
   </Folder>
+  <Folder Name="/example/">
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.ApiService/Fstonge.Aspire.LiveKit.Example.ApiService.csproj" />
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.AppHost/Fstonge.Aspire.LiveKit.Example.AppHost.csproj" />
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.ServiceDefaults/Fstonge.Aspire.LiveKit.Example.ServiceDefaults.csproj" />
+  </Folder>
 </Solution>
