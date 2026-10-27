@@ -2,10 +2,12 @@ using System.Text.Json;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Dcp;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
@@ -22,35 +24,41 @@ internal sealed class LiveKitStructuredLogForwarder(
             ?? configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"];
         if (!Uri.TryCreate(endpointValue, UriKind.Absolute, out var endpoint))
         {
-            logger.LogError(
+            throw new InvalidOperationException(
                 "LiveKit structured log forwarding is enabled, but no valid OTLP endpoint is configured. "
                 + "Set OTEL_EXPORTER_OTLP_LOGS_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT, "
                 + "or ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL.");
-            return;
         }
 
-        using var loggerFactory = LoggerFactory.Create(logging =>
-        {
-            logging.SetMinimumLevel(LogLevel.Trace);
-            logging.AddOpenTelemetry(options =>
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddOpenTelemetry().WithLogging(
+            logging =>
+            {
+                logging.SetResourceBuilder(
+                    ResourceBuilder.CreateDefault().AddService(resource.Name));
+                logging.AddOtlpExporter(exporter =>
+                {
+                    exporter.Endpoint = endpoint;
+                    exporter.Headers = configuration["OTEL_EXPORTER_OTLP_LOGS_HEADERS"]
+                        ?? configuration["OTEL_EXPORTER_OTLP_HEADERS"];
+                    exporter.Protocol = GetProtocol(configuration, endpointValue!);
+                });
+            },
+            options =>
             {
                 options.IncludeFormattedMessage = true;
                 options.IncludeScopes = true;
                 options.ParseStateValues = true;
-                options.AddOtlpExporter(exporter =>
-                {
-                    exporter.Endpoint = endpoint;
-                    if (configuration["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"] is null
-                        && configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] is null)
-                    {
-                        exporter.Protocol = OtlpExportProtocol.Grpc;
-                    }
-                });
             });
-        });
 
+        using var serviceProvider = services.BuildServiceProvider();
+        var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
         var livekitLogger = loggerFactory.CreateLogger($"LiveKit.{resource.Name}");
-        logger.LogInformation("Forwarding structured logs for LiveKit resource {ResourceName}", resource.Name);
+        logger.LogInformation(
+            "Forwarding structured logs for LiveKit resource {ResourceName} to OTLP endpoint {OtlpEndpoint}",
+            resource.Name,
+            endpoint);
 
         await foreach (var entries in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
         {
@@ -59,6 +67,26 @@ internal sealed class LiveKitStructuredLogForwarder(
                 ForwardLogEntry(entry.Content, entry.IsErrorMessage, entry.LineNumber, livekitLogger);
             }
         }
+    }
+
+    private static OtlpExportProtocol GetProtocol(IConfiguration configuration, string endpoint)
+    {
+        var protocol = configuration["OTEL_EXPORTER_OTLP_LOGS_PROTOCOL"]
+            ?? configuration["OTEL_EXPORTER_OTLP_PROTOCOL"];
+        if (protocol is not null)
+        {
+            return protocol.ToLowerInvariant() switch
+            {
+                "grpc" => OtlpExportProtocol.Grpc,
+                "http/protobuf" => OtlpExportProtocol.HttpProtobuf,
+                _ => throw new InvalidOperationException(
+                    $"Unsupported OTLP protocol '{protocol}'. Use 'grpc' or 'http/protobuf'.")
+            };
+        }
+
+        return endpoint.EndsWith("/v1/logs", StringComparison.OrdinalIgnoreCase)
+            ? OtlpExportProtocol.HttpProtobuf
+            : OtlpExportProtocol.Grpc;
     }
 
     private void ForwardLogEntry(string content, bool isErrorMessage, int lineNumber, ILogger livekitLogger)
@@ -95,7 +123,6 @@ internal sealed class LiveKitStructuredLogForwarder(
                     : content;
             var properties = new Dictionary<string, object?>(StringComparer.Ordinal)
             {
-                ["service.name"] = resource.Name,
                 ["livekit.log.line_number"] = lineNumber
             };
 
