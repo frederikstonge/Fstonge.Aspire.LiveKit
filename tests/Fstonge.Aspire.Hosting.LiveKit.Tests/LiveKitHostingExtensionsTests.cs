@@ -56,10 +56,10 @@ public sealed class LiveKitHostingExtensionsTests
         var apiSecret = builder.AddParameter("api-secret", "01234567890123456789012345678901", secret: true);
         var redisPassword = builder.AddParameter("redis-password", "redis-secret", secret: true);
         var redis = builder.AddRedis("redis").WithPassword(redisPassword);
-        redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
         var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret)
             .WithRedis(redis)
             .WithTurn();
+        redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
 
         var context = new DistributedApplicationExecutionContext(DistributedApplicationOperation.Run);
         var result = await ExecutionConfigurationBuilder
