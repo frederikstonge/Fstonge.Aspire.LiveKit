@@ -112,7 +112,7 @@ public sealed class LiveKitHostingExtensionsTests
     public async Task WithJsonLogging_EnablesJsonLogsInRuntimeConfiguration()
     {
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
-        var livekit = builder.AddLiveKit("livekit").WithJsonLogging();
+        var livekit = builder.AddLiveKit("livekit");
 
         var result = await BuildEnvironmentAsync(livekit.Resource);
         var configuration = Assert.Single(result, pair => pair.Key == "LIVEKIT_CONFIG").Value;

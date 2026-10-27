@@ -60,12 +60,12 @@ var livekit = builder.AddLiveKit("livekit")
     .WithTurn(udpPort: 3478);
 ```
 
-For machine-readable server logs, enable LiveKit's JSON console output:
+LiveKit's JSON console output is enabled by default so its logs are structured
+when captured by Aspire:
 
 ```csharp
 var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis)
-    .WithJsonLogging();
+    .WithRedis(redis);
 ```
 
 Aspire captures the container's console output. This configures structured JSON
