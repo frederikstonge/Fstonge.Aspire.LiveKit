@@ -2,7 +2,6 @@ using Fstonge.Aspire.Rtc.LiveKit;
 using Fstonge.Aspire.Sdk.LiveKit;
 using Livekit.Server.Sdk.Dotnet;
 using Microsoft.Extensions.Options;
-using RtcRoom = LiveKit.Rtc.Room;
 
 namespace Fstonge.Aspire.LiveKit.Example.ApiService;
 
@@ -21,6 +20,7 @@ public sealed class LiveKitRoomLifecycleService(
         await using var scope = scopeFactory.CreateAsyncScope();
         var roomService = scope.ServiceProvider.GetRequiredService<RoomServiceClient>();
         var roomCreated = false;
+        Exception? operationException = null;
 
         try
         {
@@ -37,34 +37,33 @@ public sealed class LiveKitRoomLifecycleService(
                 .ToJwt();
 
             stoppingToken.ThrowIfCancellationRequested();
-            RtcRoom? room = null;
-            try
-            {
-                room = await rtcRoomFactory.ConnectAsync(participantToken);
-                logger.LogInformation("Connected RTC participant to LiveKit room {RoomName}", roomName);
-            }
-            finally
-            {
-                if (room is not null)
-                {
-                    try
-                    {
-                        await room.DisconnectAsync();
-                        logger.LogInformation("Disconnected RTC participant from LiveKit room {RoomName}", roomName);
-                    }
-                    finally
-                    {
-                        room.Dispose();
-                    }
-                }
-            }
+            using var room = await rtcRoomFactory.ConnectAsync(participantToken);
+            logger.LogInformation("Connected RTC participant to LiveKit room {RoomName}", roomName);
+
+            await room.DisconnectAsync();
+            logger.LogInformation("Disconnected RTC participant from LiveKit room {RoomName}", roomName);
+        }
+        catch (Exception exception)
+        {
+            operationException = exception;
+            throw;
         }
         finally
         {
             if (roomCreated)
             {
-                await roomService.DeleteRoom(new DeleteRoomRequest { Room = roomName });
-                logger.LogInformation("Deleted LiveKit room {RoomName}", roomName);
+                try
+                {
+                    await roomService.DeleteRoom(new DeleteRoomRequest { Room = roomName });
+                    logger.LogInformation("Deleted LiveKit room {RoomName}", roomName);
+                }
+                catch (Exception cleanupException) when (operationException is not null)
+                {
+                    logger.LogError(
+                        cleanupException,
+                        "Failed to delete LiveKit room {RoomName} after the smoke test failed",
+                        roomName);
+                }
             }
         }
     }
