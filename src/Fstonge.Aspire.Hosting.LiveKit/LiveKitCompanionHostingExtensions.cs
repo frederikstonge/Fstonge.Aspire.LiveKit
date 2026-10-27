@@ -308,7 +308,7 @@ public static partial class LiveKitHostingExtensions
         var healthPort = GetHttpPortConfiguration(resource.HealthPort, "health_port");
         var prometheusPort = GetHttpPortConfiguration(resource.PrometheusPort, "prometheus_port");
         return ReferenceExpression.Create(
-            $"redis:\n  address: {redis.Resource.ConnectionStringExpression}\n" +
+            $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"{healthPort}{prometheusPort}{resource.StorageConfiguration ?? string.Empty}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
@@ -327,7 +327,7 @@ public static partial class LiveKitHostingExtensions
                 $"  key_file: {QuoteYamlString(resource.TlsKeyFile!)}\n")
             : ReferenceExpression.Empty;
         return ReferenceExpression.Create(
-            $"redis:\n  address: {redis.Resource.ConnectionStringExpression}\n" +
+            $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"sip_port: {resource.SipPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"rtp_port: {QuoteYamlString($"{resource.RtpPortStart.ToString(CultureInfo.InvariantCulture)}-{resource.RtpPortEnd.ToString(CultureInfo.InvariantCulture)}")}\n" +
             $"{healthPort}{prometheusPort}{tls}" +

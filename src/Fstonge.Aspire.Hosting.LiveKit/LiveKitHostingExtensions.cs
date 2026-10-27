@@ -77,7 +77,7 @@ public static partial class LiveKitHostingExtensions
         ArgumentNullException.ThrowIfNull(livekit);
         ArgumentNullException.ThrowIfNull(redis);
 
-        livekit.Resource.RedisAddress = redis.Resource.ConnectionStringExpression;
+        livekit.Resource.RedisConfiguration = LiveKitRedisConfiguration.Create(redis);
         var redisResource = livekit.ApplicationBuilder.CreateResourceBuilder<IResource>(redis.Resource);
         return livekit.WaitFor(redisResource);
     }
@@ -183,7 +183,7 @@ public static partial class LiveKitHostingExtensions
             .WithEnvironment(
                 "INGRESS_CONFIG_BODY",
                 ReferenceExpression.Create(
-                    $"api_key: \"{livekit.Resource.ApiKey}\"\napi_secret: \"{livekit.Resource.ApiSecret}\"\nws_url: \"ws://{livekit.Resource.Name}:7880\"\nredis:\n  address: {redis.Resource.ConnectionStringExpression}\nrtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\nwhip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\nrtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n"));
+                    $"api_key: \"{livekit.Resource.ApiKey}\"\napi_secret: \"{livekit.Resource.ApiSecret}\"\nws_url: \"ws://{livekit.Resource.Name}:7880\"\n{LiveKitRedisConfiguration.Create(redis)}rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\nwhip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\nrtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n"));
 
         ingress.WithReference(livekit.GetEndpoint("http"));
         ingress
@@ -197,9 +197,7 @@ public static partial class LiveKitHostingExtensions
 
     private static ReferenceExpression CreateServerConfiguration(LiveKitServerResource resource)
     {
-        var redisSection = resource.RedisAddress is { } redisAddress
-            ? ReferenceExpression.Create($"redis:\n  address: {redisAddress}\n")
-            : ReferenceExpression.Empty;
+        var redisSection = resource.RedisConfiguration ?? ReferenceExpression.Empty;
         var turnSection = ReferenceExpression.Empty;
         if (resource.TurnUdpPort is not null || resource.TurnTlsPort is not null)
         {

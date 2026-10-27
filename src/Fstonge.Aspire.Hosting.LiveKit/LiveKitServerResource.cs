@@ -24,7 +24,7 @@ public sealed class LiveKitServerResource : ContainerResource
 
     internal IResourceBuilder<ParameterResource> ApiSecret { get; }
 
-    internal ReferenceExpression? RedisAddress { get; set; }
+    internal ReferenceExpression? RedisConfiguration { get; set; }
 
     internal int RtcTcpPort { get; }
 

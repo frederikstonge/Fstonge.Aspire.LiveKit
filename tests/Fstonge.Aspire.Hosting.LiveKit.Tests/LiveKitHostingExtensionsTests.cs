@@ -54,7 +54,12 @@ public sealed class LiveKitHostingExtensionsTests
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "01234567890123456789012345678901", secret: true);
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret).WithTurn();
+        var redisPassword = builder.AddParameter("redis-password", "redis-secret", secret: true);
+        var redis = builder.AddRedis("redis").WithPassword(redisPassword);
+        redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
+        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret)
+            .WithRedis(redis)
+            .WithTurn();
 
         var context = new DistributedApplicationExecutionContext(DistributedApplicationOperation.Run);
         var result = await ExecutionConfigurationBuilder
@@ -68,6 +73,13 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.Contains("test-key", configuration);
         Assert.Contains("01234567890123456789012345678901", configuration);
         Assert.Contains("udp_port: 3478", configuration);
+        Assert.Contains("address: redis:6379", configuration);
+        Assert.Contains("password: >-", configuration);
+        Assert.Contains("redis-secret", configuration);
+        Assert.Contains("tls:", configuration);
+        Assert.Contains("enabled: true", configuration);
+        Assert.DoesNotContain("redis:6379,password=", configuration);
+        Assert.DoesNotContain("ssl=true", configuration);
         Assert.Equal(builder.Environment.IsDevelopment(), configuration.Contains("development: true"));
 
         if (!builder.Environment.IsDevelopment())

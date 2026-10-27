@@ -17,6 +17,12 @@ var api = builder.AddProject<Projects.Api>("api")
     .WithLiveKitReference(livekit, includeCredentials: true);
 ```
 
+When using Aspire's `RedisResource`, `.WithRedis(redis)` configures LiveKit
+with the Redis host and port, and forwards any configured password and TLS
+setting as separate LiveKit Redis options. Do not pass an Aspire Redis
+connection string directly as a LiveKit `redis.address`; it can include
+connection options that LiveKit does not interpret as part of the address.
+
 `WithLiveKitReference` always provides the HTTP server URL. Credentials are
 added to a consuming project only when `includeCredentials` is `true`; use that
 option only for trusted server-side projects. Never pass the API secret to
