@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
-public static class LiveKitHostingExtensions
+public static partial class LiveKitHostingExtensions
 {
     public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
         this IDistributedApplicationBuilder builder,
