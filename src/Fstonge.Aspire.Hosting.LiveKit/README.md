@@ -6,10 +6,11 @@ containers to a .NET Aspire AppHost. See the repository's
 secret parameters, storage configuration, examples, and networking limits.
 The package targets .NET 10.
 
-The server API key and secret are configured by the AppHost author through
-secret Aspire parameters; LiveKit does not issue them automatically. They are
-available to consuming projects only when `WithLiveKitReference` is called
-with `includeCredentials: true`.
+The server API key and secret are generated as secret Aspire parameters when
+you do not provide parameter resources. During local runs, Aspire persists the
+generated values in the AppHost project's user secrets. They are available to
+consuming projects only when `WithLiveKitReference` is called with
+`includeCredentials: true`.
 
 Egress and SIP are independently opt-in and require the server's Redis
 resource. Egress output targets are supplied to its recording/streaming

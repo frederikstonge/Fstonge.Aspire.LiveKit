@@ -15,15 +15,6 @@ public static class LiveKitServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var isDevelopment = string.Equals(
-                configuration["DOTNET_ENVIRONMENT"],
-                "Development",
-                StringComparison.OrdinalIgnoreCase)
-            || string.Equals(
-                configuration["ASPNETCORE_ENVIRONMENT"],
-                "Development",
-                StringComparison.OrdinalIgnoreCase);
-
         services.AddOptions<LiveKitOptions>()
             .Configure(options =>
             {
@@ -39,8 +30,8 @@ public static class LiveKitServiceCollectionExtensions
                 "LIVEKIT_API_KEY must be configured.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.ApiSecret),
                 "LIVEKIT_API_SECRET must be configured.")
-            .Validate(options => isDevelopment || string.IsNullOrWhiteSpace(options.ApiSecret)
-                || Encoding.Default.GetByteCount(options.ApiSecret) >= 32,
+            .Validate(options => options.ApiSecret is not null
+                && Encoding.UTF8.GetByteCount(options.ApiSecret) >= 32,
                 "LIVEKIT_API_SECRET must contain at least 32 bytes.")
             .ValidateOnStart();
 

@@ -98,7 +98,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void AddLiveKitSdk_AllowsShortApiSecretsInDevelopment()
+    public void AddLiveKitSdk_RejectsShortApiSecretsInDevelopment()
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -114,9 +114,31 @@ public sealed class LiveKitServiceCollectionExtensionsTests
 
         using var provider = services.BuildServiceProvider();
 
-        var options = provider.GetRequiredService<IOptions<LiveKitOptions>>().Value;
+        var exception = Assert.Throws<OptionsValidationException>(
+            () => provider.GetRequiredService<RoomServiceClient>());
 
-        Assert.Equal("test", options.ApiSecret);
+        Assert.Contains("at least 32 bytes", exception.Message);
+    }
+
+    [Fact]
+    public void AddLiveKitSdk_AcceptsApiSecretsWithAtLeast32Utf8Bytes()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["LIVEKIT_URL"] = "http://localhost:7880",
+                ["LIVEKIT_API_KEY"] = "local-key",
+                ["LIVEKIT_API_SECRET"] = new string('\u00e9', 16)
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLiveKitSdk(configuration);
+
+        using var provider = services.BuildServiceProvider();
+
+        var client = provider.GetRequiredService<RoomServiceClient>();
+
+        Assert.NotNull(client);
     }
 
     [Theory]

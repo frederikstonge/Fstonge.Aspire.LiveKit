@@ -23,6 +23,26 @@ public sealed class LiveKitHostingExtensionsTests
     }
 
     [Fact]
+    public void AddLiveKit_GeneratesAndPersistsSecretCredentials()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        builder.AddLiveKit("livekit");
+
+        var parameters = builder.Resources
+            .OfType<ParameterResource>()
+            .ToDictionary(parameter => parameter.Name, StringComparer.Ordinal);
+        var apiKey = parameters["livekit-api-key"].Default?.GetDefaultValue();
+        var apiSecret = parameters["livekit-api-secret"].Default?.GetDefaultValue();
+
+        Assert.True(parameters["livekit-api-key"].Secret);
+        Assert.True(parameters["livekit-api-secret"].Secret);
+        Assert.True(apiKey?.Length >= 32);
+        Assert.True(apiSecret?.Length >= 32);
+        Assert.All(apiKey, character => Assert.True(char.IsAsciiLetterOrDigit(character)));
+        Assert.All(apiSecret, character => Assert.True(char.IsAsciiLetterOrDigit(character)));
+    }
+
+    [Fact]
     public void AddLiveKit_PreservesExplicitVersionAndExposesRtcEndpoints()
     {
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());

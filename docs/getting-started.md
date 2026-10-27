@@ -2,9 +2,9 @@
 
 ## AppHost
 
-Add the hosting package to the AppHost project and declare the credentials as
-secret Aspire parameters. `AddLiveKit` creates these parameters for you when
-you do not provide parameter resources explicitly:
+Add the hosting package to the AppHost project. `AddLiveKit` generates secret
+credentials and persists them in the AppHost project's user secrets during
+local runs, so no parameter prompts are required:
 
 ```csharp
 var redis = builder.AddRedis("redis");
@@ -29,15 +29,13 @@ option only for trusted server-side projects. Never pass the API secret to
 browsers or other untrusted clients. Issue short-lived access tokens from a
 trusted backend instead.
 
-The generated parameter values are supplied through Aspire's normal parameter
-flow (for local development, use user secrets or the AppHost secrets
-configuration; the generated parameter names are `livekit-api-key` and
-`livekit-api-secret`). Outside Development, the API secret must contain at
-least 32 characters; the parameter prompt describes this requirement, and the
-.NET SDK validates it at startup. In Development, the AppHost enables LiveKit's
-development mode and the SDK allows shorter secrets. Use the same key/secret
-pair in the LiveKit server configuration and the consuming application. You
-may also create the secret parameters yourself and pass them to the overload:
+The generated API key and secret use the parameter names `livekit-api-key` and
+`livekit-api-secret`. The secret is generated with at least 64 characters
+(ASCII alphanumeric, therefore at least 64 bytes), exceeding the upstream .NET
+server SDK's 32-byte minimum in every environment. The .NET integration also
+validates this requirement at startup. The same key/secret pair is configured
+for the LiveKit server and consuming application. You may instead create your
+own secret parameters and pass them to the overload:
 
 ```csharp
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
@@ -194,7 +192,7 @@ environment variables) or the corresponding `LiveKit` section values:
 |---|---|
 | `LIVEKIT_URL` | Yes; absolute HTTP or HTTPS URL |
 | `LIVEKIT_API_KEY` | Yes |
-| `LIVEKIT_API_SECRET` | Yes; at least 32 bytes for the upstream SDK |
+| `LIVEKIT_API_SECRET` | Yes; at least 32 UTF-8 bytes for the upstream SDK |
 
 The SDK package targets .NET 10 and uses the generic `Microsoft.Extensions`
 configuration and dependency-injection abstractions. It works in console apps,

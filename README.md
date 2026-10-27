@@ -31,11 +31,10 @@ var api = builder.AddProject<Projects.Api>("api")
     .WaitFor(livekit);
 ```
 
-`AddLiveKit` creates secret Aspire parameters for the API key and API secret if
-you do not supply parameter resources. Configure the generated parameters using
-Aspire's normal secret flow (for local development, use user secrets or
-AppHost secrets configuration). You can also create the secret parameters
-explicitly:
+`AddLiveKit` generates secret API key and API secret values if you do not
+supply parameter resources. During local runs, Aspire persists the generated
+values in the AppHost project's user secrets, so they remain stable across
+restarts without prompting. You can also supply your own secret parameters:
 
 ```csharp
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);

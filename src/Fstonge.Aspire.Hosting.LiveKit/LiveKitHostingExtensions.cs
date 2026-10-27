@@ -19,8 +19,16 @@ public static partial class LiveKitHostingExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        var apiKey = builder.AddParameter($"{name}-api-key", secret: true);
-        var apiSecret = builder.AddParameter($"{name}-api-secret", secret: true);
+        var apiKey = builder.AddParameter(
+            $"{name}-api-key",
+            new GenerateParameterDefault { MinLength = 32, Special = false },
+            secret: true,
+            persist: true);
+        var apiSecret = builder.AddParameter(
+            $"{name}-api-secret",
+            new GenerateParameterDefault { MinLength = 64, Special = false },
+            secret: true,
+            persist: true);
 
         return builder.AddLiveKit(name, apiKey, apiSecret, version, httpPort, rtcTcpPort, rtcUdpPort);
     }
