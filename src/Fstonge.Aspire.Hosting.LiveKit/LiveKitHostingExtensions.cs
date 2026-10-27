@@ -1,5 +1,6 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting;
+using Microsoft.Extensions.Hosting;
 using System.Globalization;
 using System.Net.Sockets;
 
@@ -46,7 +47,17 @@ public static partial class LiveKitHostingExtensions
             throw new ArgumentException("The HTTP and RTC TCP host ports must be different.", nameof(rtcTcpPort));
         }
 
-        var resource = new LiveKitServerResource(name, apiKey, apiSecret, rtcTcpPort, rtcUdpPort);
+        var isDevelopment = builder.Environment.IsDevelopment();
+        if (!isDevelopment)
+        {
+            var description = apiSecret.Resource.Description;
+            apiSecret.WithDescription(
+                string.IsNullOrWhiteSpace(description)
+                    ? "Must contain at least 32 characters."
+                    : $"{description}{Environment.NewLine}Must contain at least 32 characters.");
+        }
+
+        var resource = new LiveKitServerResource(name, apiKey, apiSecret, rtcTcpPort, rtcUdpPort, isDevelopment);
         var server = builder.AddResource(resource)
             .WithImage("livekit/livekit-server")
             .WithImageTag(version ?? "latest")
@@ -208,9 +219,11 @@ public static partial class LiveKitHostingExtensions
             ? ReferenceExpression.Create(
                 $"ingress:\n  rtmp_base_url: \"{resource.RtmpBaseUrl}\"\n  whip_base_url: \"{resource.WhipBaseUrl}\"\n")
             : ReferenceExpression.Empty;
-
-        return ReferenceExpression.Create(
+        var configuration = ReferenceExpression.Create(
             $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n{redisSection}{turnSection}{ingressSection}keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
+        return resource.IsDevelopment
+            ? ReferenceExpression.Create($"development: true\n{configuration}")
+            : configuration;
     }
 
     private static void ValidatePublicUrl(string value, params string[] allowedSchemes)

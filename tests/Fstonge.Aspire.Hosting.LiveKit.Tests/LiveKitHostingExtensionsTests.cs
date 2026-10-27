@@ -2,6 +2,7 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Fstonge.Aspire.Hosting.LiveKit;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Hosting;
 using System.Net.Sockets;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests;
@@ -67,6 +68,12 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.Contains("test-key", configuration);
         Assert.Contains("01234567890123456789012345678901", configuration);
         Assert.Contains("udp_port: 3478", configuration);
+        Assert.Equal(builder.Environment.IsDevelopment(), configuration.Contains("development: true"));
+
+        if (!builder.Environment.IsDevelopment())
+        {
+            Assert.Contains("at least 32 characters", apiSecret.Resource.Description);
+        }
     }
 
     [Fact]

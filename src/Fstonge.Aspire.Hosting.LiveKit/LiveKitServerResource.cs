@@ -9,13 +9,15 @@ public sealed class LiveKitServerResource : ContainerResource
         IResourceBuilder<ParameterResource> apiKey,
         IResourceBuilder<ParameterResource> apiSecret,
         int rtcTcpPort,
-        int rtcUdpPort)
+        int rtcUdpPort,
+        bool isDevelopment)
         : base(name)
     {
         ApiKey = apiKey;
         ApiSecret = apiSecret;
         RtcTcpPort = rtcTcpPort;
         RtcUdpPort = rtcUdpPort;
+        IsDevelopment = isDevelopment;
     }
 
     internal IResourceBuilder<ParameterResource> ApiKey { get; }
@@ -27,6 +29,8 @@ public sealed class LiveKitServerResource : ContainerResource
     internal int RtcTcpPort { get; }
 
     internal int RtcUdpPort { get; }
+
+    internal bool IsDevelopment { get; }
 
     internal int? TurnUdpPort { get; set; }
 

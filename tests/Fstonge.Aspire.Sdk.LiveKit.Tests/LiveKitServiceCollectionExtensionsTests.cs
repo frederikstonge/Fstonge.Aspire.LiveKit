@@ -97,6 +97,28 @@ public sealed class LiveKitServiceCollectionExtensionsTests
         Assert.DoesNotContain(shortSecret, exception.Message);
     }
 
+    [Fact]
+    public void AddLiveKitSdk_AllowsShortApiSecretsInDevelopment()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["DOTNET_ENVIRONMENT"] = "Development",
+                ["LIVEKIT_URL"] = "http://localhost:7880",
+                ["LIVEKIT_API_KEY"] = "local-key",
+                ["LIVEKIT_API_SECRET"] = "test"
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddLiveKitSdk(configuration);
+
+        using var provider = services.BuildServiceProvider();
+
+        var options = provider.GetRequiredService<IOptions<LiveKitOptions>>().Value;
+
+        Assert.Equal("test", options.ApiSecret);
+    }
+
     [Theory]
     [InlineData("ws://localhost:7880")]
     [InlineData("not-a-url")]

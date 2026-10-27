@@ -26,8 +26,12 @@ trusted backend instead.
 The generated parameter values are supplied through Aspire's normal parameter
 flow (for local development, use user secrets or the AppHost secrets
 configuration; the generated parameter names are `livekit-api-key` and
-`livekit-api-secret`). You may also create the secret parameters yourself and
-pass them to the overload:
+`livekit-api-secret`). Outside Development, the API secret must contain at
+least 32 characters; the parameter prompt describes this requirement, and the
+.NET SDK validates it at startup. In Development, the AppHost enables LiveKit's
+development mode and the SDK allows shorter secrets. Use the same key/secret
+pair in the LiveKit server configuration and the consuming application. You
+may also create the secret parameters yourself and pass them to the overload:
 
 ```csharp
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
