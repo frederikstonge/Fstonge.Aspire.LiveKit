@@ -5,21 +5,39 @@ var builder = DistributedApplication.CreateBuilder(args);
 var cache = builder.AddRedis("cache");
 var livekit = builder.AddLiveKit("livekit")
     .WithRedis(cache)
-    .WithStructuredLogs();
+    .WithStructuredLogs()
+    .WithLiveKitServerConfiguration(config => 
+    {
+        config.LogLevel = "Info";
+    });
 
 livekit.AddIngress(
     "ingress",
     cache,
     rtmpBaseUrl: "rtmp://localhost:1935/live",
     whipBaseUrl: "http://localhost:8080/whip")
-    .WithStructuredLogs();
+    .WithStructuredLogs()
+    .WithIngressConfiguration(config =>
+    {
+        config.Logging ??= new()
+        {
+            Level = "Info",
+        };
+    });
 
 livekit.AddEgress(
     "egress",
     cache,
     healthPort: 8081,
     prometheusPort: 9090)
-    .WithStructuredLogs();
+    .WithStructuredLogs()
+    .WithEgressConfiguration(config =>
+    {
+        config.Logging ??= new()
+        {
+            Level = "Info",
+        };
+    });
 
 livekit.AddSip(
     "sip",
@@ -28,7 +46,14 @@ livekit.AddSip(
     rtpPortStart: 10000,
     rtpPortEnd: 20000,
     healthPort: 8082)
-    .WithStructuredLogs();
+    .WithStructuredLogs()
+    .WithSipConfiguration(config =>
+    {
+        config.Logging ??= new()
+        {
+            Level = "Info",
+        };
+    });
 
 var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")
     .WithLiveKitReference(livekit, includeCredentials: true)
