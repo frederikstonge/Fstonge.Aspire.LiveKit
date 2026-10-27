@@ -9,6 +9,9 @@ The repository contains two packages:
   Egress, and SIP containers to an Aspire AppHost.
 - `Fstonge.Aspire.Sdk.LiveKit` configures the upstream
   `Livekit.Server.Sdk.Dotnet` client in a .NET application.
+- `Fstonge.Aspire.Rtc.LiveKit` configures the upstream
+  `Livekit.Rtc.Dotnet` client and provides a factory for participant room
+  connections.
 
 ## Getting started
 
@@ -85,10 +88,41 @@ are validated when the host starts or the client is resolved. Validation
 messages identify missing or invalid settings without exposing credential
 values.
 
-The wrapper targets .NET 8 and uses the generic Microsoft.Extensions
+The wrapper targets .NET 10 and uses the generic Microsoft.Extensions
 configuration and dependency-injection abstractions. It can be used in ASP.NET
 Core, worker, and console applications without depending on the ASP.NET Core
 shared framework.
+
+### RTC participant connection
+
+To connect a .NET application to a room as a participant, reference
+`Fstonge.Aspire.Rtc.LiveKit` and register its factory:
+
+```csharp
+builder.Services.AddLiveKitRtcSdk(builder.Configuration);
+```
+
+The RTC integration uses the same `LIVEKIT_URL`/`LiveKit:Url` setting and
+normalizes HTTP(S) URLs to WS(S). Request a short-lived participant token from
+a trusted backend, then connect with a fresh room:
+
+```csharp
+var roomFactory = serviceProvider.GetRequiredService<ILiveKitRtcRoomFactory>();
+var room = await roomFactory.ConnectAsync(participantToken);
+try
+{
+    // Interact with the connected participant and tracks.
+}
+finally
+{
+    room.Dispose();
+}
+```
+
+Each connected room belongs to the caller and must be disposed. The RTC
+integration does not need or accept the server API secret. The upstream RTC
+package includes native FFI binaries, so check supported operating systems and
+architectures for the target deployment.
 
 ## Optional services
 

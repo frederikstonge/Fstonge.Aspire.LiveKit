@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Fstonge.Aspire.LiveKit.Example.ServiceDefaults\Fstonge.Aspire.LiveKit.Example.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\src\Fstonge.Aspire.Sdk.LiveKit\Fstonge.Aspire.Sdk.LiveKit.csproj" />
+    <ProjectReference Include="..\..\src\Fstonge.Aspire.Rtc.LiveKit\Fstonge.Aspire.Rtc.LiveKit.csproj" />
   </ItemGroup>
 
   <ItemGroup>

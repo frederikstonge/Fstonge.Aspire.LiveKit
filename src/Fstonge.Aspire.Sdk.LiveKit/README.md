@@ -13,3 +13,10 @@ The wrapper registers `RoomServiceClient` as transient and validates settings
 without writing credential values to errors. See the repository's
 [getting-started guide](../../docs/getting-started.md) for Aspire setup and
 security guidance.
+
+The package targets .NET 10.
+
+For applications that join LiveKit rooms as participants, use the separate
+[`Fstonge.Aspire.Rtc.LiveKit`](../Fstonge.Aspire.Rtc.LiveKit/README.md)
+package. This package manages server APIs and access tokens; the RTC package
+creates participant connections using short-lived tokens.

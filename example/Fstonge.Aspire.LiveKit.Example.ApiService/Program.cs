@@ -1,4 +1,5 @@
 using Fstonge.Aspire.Sdk.LiveKit;
+using Fstonge.Aspire.Rtc.LiveKit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddLiveKitSdk(builder.Configuration);
+builder.Services.AddLiveKitRtcSdk(builder.Configuration);
 builder.Services.AddProblemDetails();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

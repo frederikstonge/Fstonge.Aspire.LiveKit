@@ -172,7 +172,7 @@ environment variables) or the corresponding `LiveKit` section values:
 | `LIVEKIT_API_KEY` | Yes |
 | `LIVEKIT_API_SECRET` | Yes; at least 32 bytes for the upstream SDK |
 
-The SDK package targets .NET 8 and uses the generic `Microsoft.Extensions`
+The SDK package targets .NET 10 and uses the generic `Microsoft.Extensions`
 configuration and dependency-injection abstractions. It works in console apps,
 worker services, and ASP.NET Core applications; it does not depend on the
 ASP.NET Core shared framework.
@@ -188,3 +188,30 @@ The LiveKit API key/secret pair is configured on the self-hosted server; LiveKit
 does not issue these credentials automatically. They are used by trusted
 server-side applications and to create access tokens. Client applications
 should receive only short-lived tokens, never the API secret.
+
+## RTC participant connections
+
+Applications that need to join LiveKit rooms as participants can use the
+separate `Fstonge.Aspire.Rtc.LiveKit` package. It reads the same
+`LIVEKIT_URL`/`LiveKit:Url` setting and translates HTTP(S) to WS(S):
+
+```csharp
+builder.Services.AddLiveKitRtcSdk(builder.Configuration);
+
+var roomFactory = serviceProvider.GetRequiredService<ILiveKitRtcRoomFactory>();
+var room = await roomFactory.ConnectAsync(participantToken);
+try
+{
+    // Interact with the connected participant and tracks.
+}
+finally
+{
+    room.Dispose();
+}
+```
+
+Provide a short-lived participant token from a trusted backend; this wrapper
+does not use the server API secret. Every connected `Room` is a live session
+owned by its caller and must be disposed. The upstream RTC package includes
+native FFI binaries, so verify your deployment's operating system and
+architecture are supported.
