@@ -99,6 +99,9 @@ are validated when the host starts or the client is resolved. Validation
 messages identify missing or invalid settings without exposing credential
 values.
 
+The example API registers a startup background service that creates a
+temporary room, joins it using the RTC SDK, disconnects, and deletes the room.
+
 The wrapper targets .NET 10 and uses the generic Microsoft.Extensions
 configuration and dependency-injection abstractions. It can be used in ASP.NET
 Core, worker, and console applications without depending on the ASP.NET Core
