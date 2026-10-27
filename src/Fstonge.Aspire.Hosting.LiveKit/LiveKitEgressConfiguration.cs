@@ -2,17 +2,37 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 
 public sealed class LiveKitEgressConfiguration
 {
-    public int? TemplatePort { get; init; }
+    /// <summary>
+    /// Port for Egress's room-composite template server. Default: <c>7980</c>.
+    /// </summary>
+    public int? TemplatePort { get; set; }
 
-    public int? DebugHandlerPort { get; init; }
+    /// <summary>
+    /// Port for Egress debug HTTP handlers. Default: <c>0</c> (disabled).
+    /// </summary>
+    public int? DebugHandlerPort { get; set; }
 
-    public int? PulseSinkReapGraceSeconds { get; init; }
+    /// <summary>
+    /// Grace period in seconds before reaping an orphaned PulseAudio sink. Default: <c>30</c> seconds.
+    /// A negative value disables reaping.
+    /// </summary>
+    public int? PulseSinkReapGraceSeconds { get; set; }
 
-    public string? TemplateBase { get; init; }
+    /// <summary>
+    /// Base URL for custom Egress templates. Default: <c>http://localhost:&lt;template_port&gt;/</c>.
+    /// </summary>
+    public string? TemplateBase { get; set; }
 
-    public bool? EnableChromeSandbox { get; init; }
+    /// <summary>
+    /// Runs Chrome with sandboxing enabled. Default: <see langword="false"/>.
+    /// </summary>
+    public bool? EnableChromeSandbox { get; set; }
 
-    public LiveKitServiceLoggingConfiguration? Logging { get; init; }
+    /// <summary>
+    /// Configures Egress log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
+    /// unless enabled by <c>WithJsonLogging</c> or <c>WithStructuredLogs</c>.
+    /// </summary>
+    public LiveKitServiceLoggingConfiguration? Logging { get; set; }
 
     internal string ToYaml(bool jsonLoggingEnabled)
     {

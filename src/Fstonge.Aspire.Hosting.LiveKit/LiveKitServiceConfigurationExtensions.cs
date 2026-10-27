@@ -7,10 +7,12 @@ public static partial class LiveKitHostingExtensions
 {
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
-        LiveKitServerConfiguration configuration)
+        Action<LiveKitServerConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(livekit);
-        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configure);
+        var configuration = livekit.Resource.Configuration ?? new LiveKitServerConfiguration();
+        configure(configuration);
         var topLevelConfiguration = configuration.ToDictionary();
         var rtcConfiguration = configuration.ToRtcDictionary();
         if (topLevelConfiguration.Count == 0 && rtcConfiguration.Count == 0)
@@ -24,10 +26,12 @@ public static partial class LiveKitHostingExtensions
 
     public static IResourceBuilder<LiveKitIngressResource> WithIngressConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
-        LiveKitIngressConfiguration configuration)
+        Action<LiveKitIngressConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(ingress);
-        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configure);
+        var configuration = ingress.Resource.Configuration ?? new LiveKitIngressConfiguration();
+        configure(configuration);
         _ = configuration.ToYaml(ingress.Resource.JsonLoggingEnabled);
         ingress.Resource.Configuration = configuration;
         return ingress;
@@ -35,10 +39,12 @@ public static partial class LiveKitHostingExtensions
 
     public static IResourceBuilder<LiveKitEgressResource> WithEgressConfiguration(
         this IResourceBuilder<LiveKitEgressResource> egress,
-        LiveKitEgressConfiguration configuration)
+        Action<LiveKitEgressConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(egress);
-        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configure);
+        var configuration = egress.Resource.Configuration ?? new LiveKitEgressConfiguration();
+        configure(configuration);
         _ = configuration.ToYaml(egress.Resource.JsonLoggingEnabled);
         egress.Resource.Configuration = configuration;
         return egress;
@@ -46,10 +52,12 @@ public static partial class LiveKitHostingExtensions
 
     public static IResourceBuilder<LiveKitSipResource> WithSipConfiguration(
         this IResourceBuilder<LiveKitSipResource> sip,
-        LiveKitSipConfiguration configuration)
+        Action<LiveKitSipConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(sip);
-        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configure);
+        var configuration = sip.Resource.Configuration ?? new LiveKitSipConfiguration();
+        configure(configuration);
         _ = configuration.ToYaml(sip.Resource.JsonLoggingEnabled);
         sip.Resource.Configuration = configuration;
         return sip;

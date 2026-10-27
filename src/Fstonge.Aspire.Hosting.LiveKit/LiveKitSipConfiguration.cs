@@ -2,29 +2,71 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 
 public sealed class LiveKitSipConfiguration
 {
-    public string? ClusterId { get; init; }
+    /// <summary>
+    /// Identifies the SIP cluster for routing. Default: empty (no cluster ID).
+    /// </summary>
+    public string? ClusterId { get; set; }
 
-    public double? MaxCpuUtilization { get; init; }
+    /// <summary>
+    /// Maximum CPU utilization allowed for accepting calls, from greater than 0 through 1.
+    /// Default: <c>0.9</c>.
+    /// </summary>
+    public double? MaxCpuUtilization { get; set; }
 
-    public int? MaxActiveCalls { get; init; }
+    /// <summary>
+    /// Maximum active calls used for affinity-based routing. Default: <c>0</c> (not set).
+    /// </summary>
+    public int? MaxActiveCalls { get; set; }
 
-    public bool? UseExternalIp { get; init; }
+    /// <summary>
+    /// Discovers the public signaling IP. Default: <see langword="false"/>.
+    /// Cannot be combined with <see cref="Nat1To1Ip"/>.
+    /// </summary>
+    public bool? UseExternalIp { get; set; }
 
-    public string? LocalNet { get; init; }
+    /// <summary>
+    /// Local network CIDR used for SIP address selection. Default: empty (no CIDR configured).
+    /// </summary>
+    public string? LocalNet { get; set; }
 
-    public string? Nat1To1Ip { get; init; }
+    /// <summary>
+    /// Static one-to-one signaling NAT address. Default: empty (not configured).
+    /// Cannot be combined with <see cref="UseExternalIp"/>.
+    /// </summary>
+    public string? Nat1To1Ip { get; set; }
 
-    public bool? MediaUseExternalIp { get; init; }
+    /// <summary>
+    /// Discovers a public media IP separately from the signaling IP. Default: <see langword="false"/>.
+    /// Cannot be combined with <see cref="MediaNat1To1Ip"/>.
+    /// </summary>
+    public bool? MediaUseExternalIp { get; set; }
 
-    public string? MediaNat1To1Ip { get; init; }
+    /// <summary>
+    /// Static one-to-one media NAT address. Default: empty (not configured).
+    /// Cannot be combined with <see cref="MediaUseExternalIp"/>.
+    /// </summary>
+    public string? MediaNat1To1Ip { get; set; }
 
-    public int? UdpMaxPayload { get; init; }
+    /// <summary>
+    /// Maximum SIP UDP payload size in bytes. Default: <c>0</c> (the SIP config leaves this unset).
+    /// </summary>
+    public int? UdpMaxPayload { get; set; }
 
-    public bool? EnableJitterBuffer { get; init; }
+    /// <summary>
+    /// Enables the media jitter buffer. Default: <see langword="false"/>.
+    /// </summary>
+    public bool? EnableJitterBuffer { get; set; }
 
-    public double? EnableJitterBufferProbability { get; init; }
+    /// <summary>
+    /// Probability threshold for enabling the jitter buffer, from 0 to 1. Default: <c>0</c>.
+    /// </summary>
+    public double? EnableJitterBufferProbability { get; set; }
 
-    public LiveKitServiceLoggingConfiguration? Logging { get; init; }
+    /// <summary>
+    /// Configures SIP log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
+    /// unless enabled by <c>WithJsonLogging</c> or <c>WithStructuredLogs</c>.
+    /// </summary>
+    public LiveKitServiceLoggingConfiguration? Logging { get; set; }
 
     internal string ToYaml(bool jsonLoggingEnabled)
     {

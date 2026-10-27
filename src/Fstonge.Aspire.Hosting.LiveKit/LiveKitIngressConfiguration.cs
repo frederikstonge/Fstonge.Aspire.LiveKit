@@ -2,9 +2,16 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 
 public sealed class LiveKitIngressConfiguration
 {
-    public LiveKitIngressCpuCostConfiguration? CpuCost { get; init; }
+    /// <summary>
+    /// Sets CPU admission-cost estimates for RTMP, WHIP, and URL inputs. Default: each cost is <c>0</c>;
+    /// Ingress warns that these are below its minimums.
+    /// </summary>
+    public LiveKitIngressCpuCostConfiguration? CpuCost { get; set; }
 
-    public LiveKitServiceLoggingConfiguration? Logging { get; init; }
+    /// <summary>
+    /// Configures Ingress log verbosity. Default: <c>info</c> in the service logger.
+    /// </summary>
+    public LiveKitServiceLoggingConfiguration? Logging { get; set; }
 
     internal string ToYaml(bool jsonLoggingEnabled)
     {
@@ -31,15 +38,31 @@ public sealed class LiveKitIngressConfiguration
 
 public sealed class LiveKitIngressCpuCostConfiguration
 {
-    public double? RtmpCpuCost { get; init; }
+    /// <summary>
+    /// CPU units reserved per RTMP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// </summary>
+    public double? RtmpCpuCost { get; set; }
 
-    public double? WhipCpuCost { get; init; }
+    /// <summary>
+    /// CPU units reserved per transcoded WHIP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// </summary>
+    public double? WhipCpuCost { get; set; }
 
-    public double? WhipBypassTranscodingCpuCost { get; init; }
+    /// <summary>
+    /// CPU units reserved per WHIP input when transcoding is bypassed. Default: <c>0</c>;
+    /// Ingress recommends <c>0.1</c> and warns below <c>0.05</c>.
+    /// </summary>
+    public double? WhipBypassTranscodingCpuCost { get; set; }
 
-    public double? UrlCpuCost { get; init; }
+    /// <summary>
+    /// CPU units reserved per URL input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// </summary>
+    public double? UrlCpuCost { get; set; }
 
-    public double? MinIdleRatio { get; init; }
+    /// <summary>
+    /// Target fraction of CPU to keep idle when admitting inputs. Default: <c>0.3</c> (30%).
+    /// </summary>
+    public double? MinIdleRatio { get; set; }
 
     internal IDictionary<string, object?> ToDictionary()
     {

@@ -2,9 +2,16 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 
 public sealed class LiveKitServerConfiguration
 {
-    public string? LogLevel { get; init; }
+    /// <summary>
+    /// Sets the server log verbosity. Default: <c>info</c>.
+    /// </summary>
+    public string? LogLevel { get; set; }
 
-    public LiveKitServerRtcConfiguration? Rtc { get; init; }
+    /// <summary>
+    /// Configures RTC address discovery and UDP port range. When omitted, public-IP discovery is
+    /// disabled and the port range is unset; Aspire configures RTC with its resource UDP port.
+    /// </summary>
+    public LiveKitServerRtcConfiguration? Rtc { get; set; }
 
     internal IDictionary<string, object?> ToDictionary()
     {
@@ -24,11 +31,24 @@ public sealed class LiveKitServerConfiguration
 
 public sealed class LiveKitServerRtcConfiguration
 {
-    public bool? UseExternalIp { get; init; }
+    /// <summary>
+    /// Enables public-IP discovery for RTC. Default: <see langword="false"/>.
+    /// </summary>
+    public bool? UseExternalIp { get; set; }
 
-    public int? PortRangeStart { get; init; }
+    /// <summary>
+    /// Sets the first UDP port in the RTC media range. Default: unset. Because Aspire configures
+    /// <c>rtc.udp_port</c>, LiveKit does not apply its <c>50000</c>-<c>60000</c> port-range fallback.
+    /// Must be set together with <see cref="PortRangeEnd"/>.
+    /// </summary>
+    public int? PortRangeStart { get; set; }
 
-    public int? PortRangeEnd { get; init; }
+    /// <summary>
+    /// Sets the last UDP port in the RTC media range. Default: unset. Because Aspire configures
+    /// <c>rtc.udp_port</c>, LiveKit does not apply its <c>50000</c>-<c>60000</c> port-range fallback.
+    /// Must be set together with <see cref="PortRangeStart"/>.
+    /// </summary>
+    public int? PortRangeEnd { get; set; }
 
     internal IDictionary<string, object?> ToDictionary()
     {

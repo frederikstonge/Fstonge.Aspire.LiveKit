@@ -102,5 +102,9 @@ internal static class LiveKitConfigurationYaml
 
 public sealed class LiveKitServiceLoggingConfiguration
 {
-    public string? Level { get; init; }
+    /// <summary>
+    /// Minimum log severity to emit. Accepted values are debug, info, warn, and error.
+    /// Default: <c>info</c> for the companion services.
+    /// </summary>
+    public string? Level { get; set; }
 }

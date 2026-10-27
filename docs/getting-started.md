@@ -99,10 +99,10 @@ extension methods for options added by upstream LiveKit versions:
 ```csharp
 var livekit = builder.AddLiveKit("livekit")
     .WithRedis(redis)
-    .WithLiveKitServerConfiguration(new LiveKitServerConfiguration
+    .WithLiveKitServerConfiguration(configuration =>
     {
-        LogLevel = "info",
-        Rtc = new LiveKitServerRtcConfiguration
+        configuration.LogLevel = "info";
+        configuration.Rtc = new LiveKitServerRtcConfiguration
         {
             UseExternalIp = true,
             PortRangeStart = 50000,
@@ -119,9 +119,9 @@ var ingress = livekit.AddIngress(
         redis,
         "rtmp://localhost:1935/live",
         "http://localhost:8080/whip")
-    .WithIngressConfiguration(new LiveKitIngressConfiguration
+    .WithIngressConfiguration(configuration =>
     {
-        CpuCost = new LiveKitIngressCpuCostConfiguration
+        configuration.CpuCost = new LiveKitIngressCpuCostConfiguration
         {
             RtmpCpuCost = 2,
             WhipCpuCost = 2,
@@ -131,18 +131,18 @@ var ingress = livekit.AddIngress(
     });
 
 var egress = livekit.AddEgress("egress", redis)
-    .WithEgressConfiguration(new LiveKitEgressConfiguration
+    .WithEgressConfiguration(configuration =>
     {
-        TemplatePort = 7980,
-        Logging = new LiveKitServiceLoggingConfiguration { Level = "info" }
+        configuration.TemplatePort = 7980;
+        configuration.Logging = new LiveKitServiceLoggingConfiguration { Level = "info" };
     });
 
 var sip = livekit.AddSip("sip", redis)
-    .WithSipConfiguration(new LiveKitSipConfiguration
+    .WithSipConfiguration(configuration =>
     {
-        MaxCpuUtilization = 0.9,
-        EnableJitterBuffer = true,
-        Logging = new LiveKitServiceLoggingConfiguration { Level = "info" }
+        configuration.MaxCpuUtilization = 0.9;
+        configuration.EnableJitterBuffer = true;
+        configuration.Logging = new LiveKitServiceLoggingConfiguration { Level = "info" };
     });
 ```
 
