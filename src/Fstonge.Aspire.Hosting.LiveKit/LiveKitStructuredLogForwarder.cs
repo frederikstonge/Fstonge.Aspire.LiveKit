@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -102,6 +103,19 @@ internal sealed class LiveKitStructuredLogForwarder(
 
     private void ForwardLogEntry(string content, bool isErrorMessage, int lineNumber, ILogger livekitLogger)
     {
+        DateTimeOffset? resourceLogTimestamp = null;
+        var jsonStart = content.IndexOf('{');
+        if (jsonStart > 0
+            && DateTimeOffset.TryParse(
+                content.AsSpan(0, jsonStart).Trim(),
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal,
+                out var parsedTimestamp))
+        {
+            resourceLogTimestamp = parsedTimestamp;
+            content = content[jsonStart..];
+        }
+
         JsonDocument document;
         try
         {
@@ -150,6 +164,10 @@ internal sealed class LiveKitStructuredLogForwarder(
             if (root.TryGetProperty("time", out var jsonTimestamp))
             {
                 properties["livekit.timestamp"] = GetPropertyValue(jsonTimestamp);
+            }
+            else if (resourceLogTimestamp is { } timestamp)
+            {
+                properties["livekit.timestamp"] = timestamp;
             }
 
             using (livekitLogger.BeginScope(properties))
