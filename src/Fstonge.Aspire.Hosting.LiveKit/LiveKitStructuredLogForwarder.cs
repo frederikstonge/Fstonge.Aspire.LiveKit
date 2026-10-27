@@ -101,16 +101,21 @@ internal sealed class LiveKitStructuredLogForwarder(
     private void ForwardLogEntry(string content, bool isErrorMessage, int lineNumber, ILogger resourceLogger)
     {
         DateTimeOffset? resourceLogTimestamp = null;
-        var jsonStart = content.IndexOf('{');
-        if (jsonStart > 0
+        var timestampEnd = content.IndexOf(' ');
+        if (timestampEnd > 0
             && DateTimeOffset.TryParse(
-                content.AsSpan(0, jsonStart).Trim(),
+                content.AsSpan(0, timestampEnd),
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal,
                 out var parsedTimestamp))
         {
             resourceLogTimestamp = parsedTimestamp;
-            content = content[jsonStart..];
+            content = content[(timestampEnd + 1)..];
+        }
+
+        if (TryForwardTabDelimitedLog(content, lineNumber, resourceLogTimestamp, resourceLogger))
+        {
+            return;
         }
 
         JsonDocument document;
@@ -141,6 +146,10 @@ internal sealed class LiveKitStructuredLogForwarder(
             {
                 ["livekit.log.line_number"] = lineNumber
             };
+            if (isErrorMessage)
+            {
+                properties["aspire.log.is_error_stream"] = true;
+            }
 
             foreach (var property in root.EnumerateObject())
             {
@@ -163,9 +172,77 @@ internal sealed class LiveKitStructuredLogForwarder(
 
             using (resourceLogger.BeginScope(properties))
             {
-                resourceLogger.Log(GetLogLevel(root, isErrorMessage), "{ResourceLogMessage}", message);
+                resourceLogger.Log(GetLogLevel(root), "{ResourceLogMessage}", message);
             }
         }
+    }
+
+    private static bool TryForwardTabDelimitedLog(
+        string content,
+        int lineNumber,
+        DateTimeOffset? outerTimestamp,
+        ILogger resourceLogger)
+    {
+        var fields = content.Split('\t', 6, StringSplitOptions.None);
+        if (fields.Length < 5
+            || !DateTimeOffset.TryParse(
+                fields[0],
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal,
+                out var timestamp)
+            || GetLogLevel(fields[1]) is not { } logLevel)
+        {
+            return false;
+        }
+
+        JsonDocument? attributesDocument = null;
+        if (fields.Length == 6)
+        {
+            try
+            {
+                attributesDocument = JsonDocument.Parse(fields[5]);
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+
+            if (attributesDocument.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                attributesDocument.Dispose();
+                return false;
+            }
+        }
+
+        using (attributesDocument)
+        {
+            var properties = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["livekit.log.line_number"] = lineNumber,
+                ["livekit.logger"] = fields[2],
+                ["livekit.caller"] = fields[3],
+                ["livekit.timestamp"] = timestamp
+            };
+            if (outerTimestamp is { } aspireTimestamp)
+            {
+                properties["aspire.timestamp"] = aspireTimestamp;
+            }
+
+            if (attributesDocument is not null)
+            {
+                foreach (var property in attributesDocument.RootElement.EnumerateObject())
+                {
+                    properties[property.Name] = GetPropertyValue(property.Value);
+                }
+            }
+
+            using (resourceLogger.BeginScope(properties))
+            {
+                resourceLogger.Log(logLevel, "{ResourceLogMessage}", fields[4]);
+            }
+        }
+
+        return true;
     }
 
     private static void ForwardPlainTextLog(
@@ -177,7 +254,8 @@ internal sealed class LiveKitStructuredLogForwarder(
     {
         var properties = new Dictionary<string, object?>
         {
-            ["livekit.log.line_number"] = lineNumber
+            ["livekit.log.line_number"] = lineNumber,
+            ["aspire.log.is_error_stream"] = isErrorMessage
         };
         if (timestamp is { } logTimestamp)
         {
@@ -187,27 +265,68 @@ internal sealed class LiveKitStructuredLogForwarder(
         using (resourceLogger.BeginScope(properties))
         {
             resourceLogger.Log(
-                isErrorMessage ? LogLevel.Error : LogLevel.Information,
+                GetPlainTextLogLevel(content, isErrorMessage),
                 "{ResourceLogMessage}",
                 content);
         }
     }
 
-    private static LogLevel GetLogLevel(JsonElement root, bool isErrorMessage)
+    private static LogLevel GetPlainTextLogLevel(string content, bool isErrorMessage)
+    {
+        var prefix = content.AsSpan().TrimStart();
+        if (prefix.Contains('\t'))
+        {
+            var tabFields = prefix.ToString().Split('\t', 5, StringSplitOptions.None);
+            foreach (var field in tabFields)
+            {
+                if (GetLogLevel(field) is { } tabLogLevel)
+                {
+                    return tabLogLevel;
+                }
+            }
+        }
+
+        if (prefix.StartsWith("[", StringComparison.Ordinal))
+        {
+            var closingBracket = prefix.IndexOf(']');
+            if (closingBracket > 1)
+            {
+                prefix = prefix[1..closingBracket];
+            }
+        }
+        else
+        {
+            var separator = prefix.IndexOfAny(' ', '\t', ':');
+            if (separator > 0)
+            {
+                prefix = prefix[..separator];
+            }
+        }
+
+        return GetLogLevel(prefix.ToString()) ?? LogLevel.Information;
+    }
+
+    private static LogLevel GetLogLevel(JsonElement root)
     {
         if (!root.TryGetProperty("level", out var level) || level.ValueKind != JsonValueKind.String)
         {
-            return isErrorMessage ? LogLevel.Error : LogLevel.Information;
+            return LogLevel.Information;
         }
 
-        return level.GetString()?.ToLowerInvariant() switch
+        return GetLogLevel(level.GetString()) ?? LogLevel.Information;
+    }
+
+    private static LogLevel? GetLogLevel(string? level)
+    {
+        return level?.ToLowerInvariant() switch
         {
             "trace" => LogLevel.Trace,
             "debug" => LogLevel.Debug,
+            "info" or "information" => LogLevel.Information,
             "warn" or "warning" => LogLevel.Warning,
             "error" => LogLevel.Error,
             "fatal" or "panic" => LogLevel.Critical,
-            _ => LogLevel.Information
+            _ => null
         };
     }
 
