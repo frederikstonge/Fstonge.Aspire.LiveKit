@@ -93,33 +93,37 @@ public static partial class LiveKitHostingExtensions
         return livekit.WaitFor(redisResource);
     }
 
-    public static IResourceBuilder<LiveKitServerResource> WithJsonLogging(
-        this IResourceBuilder<LiveKitServerResource> livekit)
+    public static IResourceBuilder<TResource> WithJsonLogging<TResource>(
+        this IResourceBuilder<TResource> resourceBuilder)
+        where TResource : LiveKitContainerResource
     {
-        ArgumentNullException.ThrowIfNull(livekit);
+        ArgumentNullException.ThrowIfNull(resourceBuilder);
 
-        livekit.Resource.JsonLoggingEnabled = true;
-        return livekit;
+        resourceBuilder.Resource.JsonLoggingEnabled = true;
+        return resourceBuilder;
     }
 
-    public static IResourceBuilder<LiveKitServerResource> WithStructuredLogs(
-        this IResourceBuilder<LiveKitServerResource> livekit)
+    public static IResourceBuilder<TResource> WithStructuredLogs<TResource>(
+        this IResourceBuilder<TResource> resourceBuilder)
+        where TResource : LiveKitContainerResource
     {
-        ArgumentNullException.ThrowIfNull(livekit);
+        ArgumentNullException.ThrowIfNull(resourceBuilder);
 
-        if (!livekit.Resource.StructuredLogForwardingEnabled)
+        var resource = resourceBuilder.Resource;
+        if (!resource.StructuredLogForwardingEnabled)
         {
-            livekit.Resource.StructuredLogForwardingEnabled = true;
-            livekit.Resource.JsonLoggingEnabled = true;
-            livekit.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
+            resource.StructuredLogForwardingEnabled = true;
+            resource.JsonLoggingEnabled = true;
+
+            resourceBuilder.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
                 new LiveKitStructuredLogForwarder(
-                    livekit.Resource,
+                    resource,
                     serviceProvider.GetRequiredService<ResourceLoggerService>(),
                     serviceProvider.GetRequiredService<IConfiguration>(),
                     serviceProvider.GetRequiredService<ILogger<LiveKitStructuredLogForwarder>>()));
         }
 
-        return livekit;
+        return resourceBuilder;
     }
 
     public static IResourceBuilder<LiveKitServerResource> WithTurn(
@@ -213,8 +217,9 @@ public static partial class LiveKitHostingExtensions
 
         livekit.WithRedis(redis);
 
+        var ingressResource = new LiveKitIngressResource(name);
         var ingress = livekit.ApplicationBuilder
-            .AddResource(new LiveKitIngressResource(name))
+            .AddResource(ingressResource)
             .WithImage("livekit/ingress")
             .WithImageTag(version ?? "latest")
             .WithEndpoint(port: rtmpPort, targetPort: rtmpPort, name: "rtmp", protocol: ProtocolType.Tcp)
@@ -223,7 +228,7 @@ public static partial class LiveKitHostingExtensions
             .WithEnvironment(
                 "INGRESS_CONFIG_BODY",
                 ReferenceExpression.Create(
-                    $"api_key: \"{livekit.Resource.ApiKey}\"\napi_secret: \"{livekit.Resource.ApiSecret}\"\nws_url: \"ws://{livekit.Resource.Name}:7880\"\n{LiveKitRedisConfiguration.Create(redis)}rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\nwhip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\nrtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n"));
+                    $"api_key: \"{livekit.Resource.ApiKey}\"\napi_secret: \"{livekit.Resource.ApiSecret}\"\nws_url: \"ws://{livekit.Resource.Name}:7880\"\n{LiveKitRedisConfiguration.Create(redis)}rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\nwhip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\nrtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n{GetJsonLoggingConfiguration(ingressResource)}"));
 
         ingress.WithReference(livekit.GetEndpoint("http"));
         ingress
@@ -284,6 +289,9 @@ public static partial class LiveKitHostingExtensions
 
         return configuration.Build();
     }
+
+    private static string GetJsonLoggingConfiguration(LiveKitContainerResource resource) =>
+        resource.JsonLoggingEnabled ? "logging:\n  json: true\n" : string.Empty;
 
     private static void ValidatePublicUrl(string value, params string[] allowedSchemes)
     {

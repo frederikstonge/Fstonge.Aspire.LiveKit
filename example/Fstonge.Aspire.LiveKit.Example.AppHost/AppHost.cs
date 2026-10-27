@@ -11,13 +11,15 @@ livekit.AddIngress(
     "ingress",
     cache,
     rtmpBaseUrl: "rtmp://localhost:1935/live",
-    whipBaseUrl: "http://localhost:8080/whip");
+    whipBaseUrl: "http://localhost:8080/whip")
+    .WithStructuredLogs();
 
 livekit.AddEgress(
     "egress",
     cache,
     healthPort: 8081,
-    prometheusPort: 9090);
+    prometheusPort: 9090)
+    .WithStructuredLogs();
 
 livekit.AddSip(
     "sip",
@@ -25,7 +27,8 @@ livekit.AddSip(
     sipPort: 5060,
     rtpPortStart: 10000,
     rtpPortEnd: 20000,
-    healthPort: 8082);
+    healthPort: 8082)
+    .WithStructuredLogs();
 
 var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")
     .WithLiveKitReference(livekit, includeCredentials: true)

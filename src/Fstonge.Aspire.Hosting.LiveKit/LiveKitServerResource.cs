@@ -2,7 +2,7 @@ using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
-public sealed class LiveKitServerResource : ContainerResource
+public sealed class LiveKitServerResource : LiveKitContainerResource
 {
     internal LiveKitServerResource(
         string name,
@@ -18,6 +18,7 @@ public sealed class LiveKitServerResource : ContainerResource
         RtcTcpPort = rtcTcpPort;
         RtcUdpPort = rtcUdpPort;
         IsDevelopment = isDevelopment;
+        JsonLoggingEnabled = true;
     }
 
     internal IResourceBuilder<ParameterResource> ApiKey { get; }
@@ -25,10 +26,6 @@ public sealed class LiveKitServerResource : ContainerResource
     internal IResourceBuilder<ParameterResource> ApiSecret { get; }
 
     internal ReferenceExpression? RedisConfiguration { get; set; }
-
-    internal bool JsonLoggingEnabled { get; set; } = true;
-
-    internal bool StructuredLogForwardingEnabled { get; set; }
 
     internal int RtcTcpPort { get; }
 

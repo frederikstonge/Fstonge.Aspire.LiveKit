@@ -13,7 +13,7 @@ using OpenTelemetry.Resources;
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
 internal sealed class LiveKitStructuredLogForwarder(
-    LiveKitServerResource resource,
+    LiveKitContainerResource resource,
     ResourceLoggerService resourceLoggerService,
     IConfiguration configuration,
     ILogger<LiveKitStructuredLogForwarder> logger) : BackgroundService
@@ -26,7 +26,7 @@ internal sealed class LiveKitStructuredLogForwarder(
         if (!Uri.TryCreate(endpointValue, UriKind.Absolute, out var endpoint))
         {
             throw new InvalidOperationException(
-                "LiveKit structured log forwarding is enabled, but no valid OTLP endpoint is configured. "
+                $"Structured log forwarding is enabled for resource '{resource.Name}', but no valid OTLP endpoint is configured. "
                 + "Set OTEL_EXPORTER_OTLP_LOGS_ENDPOINT, OTEL_EXPORTER_OTLP_ENDPOINT, "
                 + "or ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL.");
         }
@@ -56,7 +56,7 @@ internal sealed class LiveKitStructuredLogForwarder(
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
         var livekitLogger = loggerFactory.CreateLogger($"LiveKit.{resource.Name}");
         logger.LogInformation(
-            "Forwarding structured logs for LiveKit resource {ResourceName} to OTLP endpoint {OtlpEndpoint}",
+            "Forwarding structured logs for resource {ResourceName} to OTLP endpoint {OtlpEndpoint}",
             resource.Name,
             endpoint);
 
@@ -98,7 +98,7 @@ internal sealed class LiveKitStructuredLogForwarder(
             : OtlpExportProtocol.Grpc;
     }
 
-    private void ForwardLogEntry(string content, bool isErrorMessage, int lineNumber, ILogger livekitLogger)
+    private void ForwardLogEntry(string content, bool isErrorMessage, int lineNumber, ILogger resourceLogger)
     {
         DateTimeOffset? resourceLogTimestamp = null;
         var jsonStart = content.IndexOf('{');
@@ -120,10 +120,7 @@ internal sealed class LiveKitStructuredLogForwarder(
         }
         catch (JsonException)
         {
-            logger.LogWarning(
-                "Skipping non-JSON log entry from LiveKit resource {ResourceName}: {LogEntry}",
-                resource.Name,
-                content);
+            ForwardPlainTextLog(content, isErrorMessage, lineNumber, resourceLogTimestamp, resourceLogger);
             return;
         }
 
@@ -132,10 +129,7 @@ internal sealed class LiveKitStructuredLogForwarder(
             var root = document.RootElement;
             if (root.ValueKind != JsonValueKind.Object)
             {
-                logger.LogWarning(
-                    "Skipping non-object JSON log entry from LiveKit resource {ResourceName}: {LogEntry}",
-                    resource.Name,
-                    content);
+                ForwardPlainTextLog(content, isErrorMessage, lineNumber, resourceLogTimestamp, resourceLogger);
                 return;
             }
 
@@ -167,10 +161,35 @@ internal sealed class LiveKitStructuredLogForwarder(
                 properties["livekit.timestamp"] = timestamp;
             }
 
-            using (livekitLogger.BeginScope(properties))
+            using (resourceLogger.BeginScope(properties))
             {
-                livekitLogger.Log(GetLogLevel(root, isErrorMessage), "{LiveKitMessage}", message);
+                resourceLogger.Log(GetLogLevel(root, isErrorMessage), "{ResourceLogMessage}", message);
             }
+        }
+    }
+
+    private static void ForwardPlainTextLog(
+        string content,
+        bool isErrorMessage,
+        int lineNumber,
+        DateTimeOffset? timestamp,
+        ILogger resourceLogger)
+    {
+        var properties = new Dictionary<string, object?>
+        {
+            ["livekit.log.line_number"] = lineNumber
+        };
+        if (timestamp is { } logTimestamp)
+        {
+            properties["livekit.timestamp"] = logTimestamp;
+        }
+
+        using (resourceLogger.BeginScope(properties))
+        {
+            resourceLogger.Log(
+                isErrorMessage ? LogLevel.Error : LogLevel.Information,
+                "{ResourceLogMessage}",
+                content);
         }
     }
 

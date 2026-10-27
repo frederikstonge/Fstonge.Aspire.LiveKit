@@ -76,8 +76,22 @@ var livekit = builder.AddLiveKit("livekit")
 
 The AppHost must have an OTLP endpoint configured through
 `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL`, `OTEL_EXPORTER_OTLP_ENDPOINT`, or
-`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. `.WithJsonLogging()` remains available to
-explicitly enable JSON output without OTLP forwarding.
+`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. The same `.WithStructuredLogs()` opt-in is
+available on LiveKit Ingress, Egress, and SIP resources. Server JSON records are
+forwarded with their parsed fields; companion-service JSON records are parsed
+when available, and plain-text records are forwarded as message-only logs.
+Call `.WithJsonLogging()` on Ingress, Egress, or SIP to enable JSON console
+output without enabling OTLP forwarding. `.WithStructuredLogs()` enables JSON
+logging automatically for the selected resource.
+
+```csharp
+var ingress = livekit.AddIngress("ingress", redis, rtmpBaseUrl, whipBaseUrl)
+    .WithJsonLogging();
+var egress = livekit.AddEgress("egress", redis)
+    .WithJsonLogging();
+var sip = livekit.AddSip("sip", redis)
+    .WithJsonLogging();
+```
 
 Mount the certificate and key into the LiveKit container at those paths using
 Aspire's bind-mount API. These local endpoint bindings do not configure public

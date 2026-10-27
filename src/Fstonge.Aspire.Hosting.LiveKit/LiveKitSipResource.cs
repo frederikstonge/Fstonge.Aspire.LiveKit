@@ -10,7 +10,7 @@ public sealed class LiveKitSipResource(
     int rtpPortEnd,
     int? healthPort,
     int? prometheusPort)
-    : ContainerResource(name)
+    : LiveKitContainerResource(name)
 {
     internal LiveKitServerResource Server { get; } = server;
 

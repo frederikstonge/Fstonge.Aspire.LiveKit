@@ -160,7 +160,8 @@ public static partial class LiveKitHostingExtensions
             "redis",
             "health_port",
             "prometheus_port",
-            "storage");
+            "storage",
+            "logging");
         return egress;
     }
 
@@ -297,7 +298,8 @@ public static partial class LiveKitHostingExtensions
             "rtp_port",
             "health_port",
             "prometheus_port",
-            "tls");
+            "tls",
+            "logging");
         return sip;
     }
 
@@ -311,6 +313,7 @@ public static partial class LiveKitHostingExtensions
         return ReferenceExpression.Create(
             $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"{healthPort}{prometheusPort}{resource.StorageConfiguration ?? string.Empty}" +
+            $"{GetJsonLoggingConfiguration(resource)}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 
@@ -331,7 +334,7 @@ public static partial class LiveKitHostingExtensions
             $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"sip_port: {resource.SipPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"rtp_port: {QuoteYamlString($"{resource.RtpPortStart.ToString(CultureInfo.InvariantCulture)}-{resource.RtpPortEnd.ToString(CultureInfo.InvariantCulture)}")}\n" +
-            $"{healthPort}{prometheusPort}{tls}" +
+            $"{healthPort}{prometheusPort}{tls}{GetJsonLoggingConfiguration(resource)}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 

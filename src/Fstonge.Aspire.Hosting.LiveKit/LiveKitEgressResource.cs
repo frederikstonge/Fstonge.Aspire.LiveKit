@@ -7,7 +7,7 @@ public sealed class LiveKitEgressResource(
     LiveKitServerResource server,
     int? healthPort,
     int? prometheusPort)
-    : ContainerResource(name)
+    : LiveKitContainerResource(name)
 {
     internal LiveKitServerResource Server { get; } = server;
 

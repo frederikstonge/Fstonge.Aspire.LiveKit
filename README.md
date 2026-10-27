@@ -60,17 +60,22 @@ var livekit = builder.AddLiveKit("livekit")
     .WithTurn(udpPort: 3478);
 ```
 
-LiveKit's JSON console output is enabled by default so its logs are structured
-when captured by Aspire:
+LiveKit server JSON console output is enabled by default. Enable JSON output
+for Ingress, Egress, or SIP with `.WithJsonLogging()`:
 
 ```csharp
 var livekit = builder.AddLiveKit("livekit")
     .WithRedis(redis);
+
+var egress = livekit.AddEgress("egress", redis)
+    .WithJsonLogging();
 ```
 
 Aspire captures the container's console output. To also export the parsed JSON
 records to the dashboard's Structured Logs view over OTLP, call
-`.WithStructuredLogs()` on the LiveKit resource.
+`.WithStructuredLogs()` on a LiveKit, Ingress, Egress, or SIP resource. The
+forwarder parses JSON records when available and sends plain-text companion
+logs as message-only records.
 
 Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local
