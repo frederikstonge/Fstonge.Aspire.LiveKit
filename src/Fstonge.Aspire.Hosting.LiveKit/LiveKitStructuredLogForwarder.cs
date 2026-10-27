@@ -40,8 +40,7 @@ internal sealed class LiveKitStructuredLogForwarder(
                 logging.AddOtlpExporter(exporter =>
                 {
                     exporter.Endpoint = endpoint;
-                    exporter.Headers = configuration["OTEL_EXPORTER_OTLP_LOGS_HEADERS"]
-                        ?? configuration["OTEL_EXPORTER_OTLP_HEADERS"];
+                    exporter.Headers = GetHeaders(configuration);
                     exporter.Protocol = GetProtocol(configuration, endpointValue!);
                 });
             },
@@ -55,6 +54,9 @@ internal sealed class LiveKitStructuredLogForwarder(
         using var serviceProvider = services.BuildServiceProvider();
         var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
         var livekitLogger = loggerFactory.CreateLogger($"LiveKit.{resource.Name}");
+        livekitLogger.LogInformation(
+            "Structured log forwarding started for LiveKit resource {ResourceName}",
+            resource.Name);
         logger.LogInformation(
             "Forwarding structured logs for LiveKit resource {ResourceName} to OTLP endpoint {OtlpEndpoint}",
             resource.Name,
@@ -67,6 +69,15 @@ internal sealed class LiveKitStructuredLogForwarder(
                 ForwardLogEntry(entry.Content, entry.IsErrorMessage, entry.LineNumber, livekitLogger);
             }
         }
+    }
+
+    private static string? GetHeaders(IConfiguration configuration)
+    {
+        return configuration["OTEL_EXPORTER_OTLP_LOGS_HEADERS"]
+            ?? configuration["OTEL_EXPORTER_OTLP_HEADERS"]
+            ?? (configuration["AppHost:OtlpApiKey"] is { } apiKey
+                ? $"x-otlp-api-key={apiKey}"
+                : null);
     }
 
     private static OtlpExportProtocol GetProtocol(IConfiguration configuration, string endpoint)
