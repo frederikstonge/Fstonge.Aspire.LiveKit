@@ -89,6 +89,18 @@ public sealed class LiveKitHostingExtensionsTests
     }
 
     [Fact]
+    public async Task WithJsonLogging_EnablesJsonLogsInRuntimeConfiguration()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit").WithJsonLogging();
+
+        var result = await BuildEnvironmentAsync(livekit.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "LIVEKIT_CONFIG").Value;
+
+        Assert.Contains("logging:\n  json: true\n", configuration);
+    }
+
+    [Fact]
     public async Task AddIngress_CreatesSeparateResourceAndSharesRedisConfiguration()
     {
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());

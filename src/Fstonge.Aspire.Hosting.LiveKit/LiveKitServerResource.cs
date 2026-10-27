@@ -26,6 +26,8 @@ public sealed class LiveKitServerResource : ContainerResource
 
     internal ReferenceExpression? RedisConfiguration { get; set; }
 
+    internal bool JsonLoggingEnabled { get; set; }
+
     internal int RtcTcpPort { get; }
 
     internal int RtcUdpPort { get; }

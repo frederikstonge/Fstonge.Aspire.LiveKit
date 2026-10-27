@@ -82,6 +82,15 @@ public static partial class LiveKitHostingExtensions
         return livekit.WaitFor(redisResource);
     }
 
+    public static IResourceBuilder<LiveKitServerResource> WithJsonLogging(
+        this IResourceBuilder<LiveKitServerResource> livekit)
+    {
+        ArgumentNullException.ThrowIfNull(livekit);
+
+        livekit.Resource.JsonLoggingEnabled = true;
+        return livekit;
+    }
+
     public static IResourceBuilder<LiveKitServerResource> WithTurn(
         this IResourceBuilder<LiveKitServerResource> livekit,
         int udpPort = 3478)
@@ -217,8 +226,11 @@ public static partial class LiveKitHostingExtensions
             ? ReferenceExpression.Create(
                 $"ingress:\n  rtmp_base_url: \"{resource.RtmpBaseUrl}\"\n  whip_base_url: \"{resource.WhipBaseUrl}\"\n")
             : ReferenceExpression.Empty;
+        var loggingSection = resource.JsonLoggingEnabled
+            ? ReferenceExpression.Create($"logging:\n  json: true\n")
+            : ReferenceExpression.Empty;
         var configuration = ReferenceExpression.Create(
-            $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n{redisSection}{turnSection}{ingressSection}keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
+            $"port: 7880\nrtc:\n  tcp_port: {resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)}\n  udp_port: {resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)}\n{redisSection}{turnSection}{ingressSection}{loggingSection}keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
         return resource.IsDevelopment
             ? ReferenceExpression.Create($"development: true\n{configuration}")
             : configuration;

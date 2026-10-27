@@ -59,6 +59,20 @@ var livekit = builder.AddLiveKit("livekit")
         keyFile: "/certs/turn.key");
 ```
 
+To emit machine-readable LiveKit logs to the container console, opt in to JSON
+logging:
+
+```csharp
+var livekit = builder.AddLiveKit("livekit")
+    .WithRedis(redis)
+    .WithJsonLogging();
+```
+
+Aspire captures container console output, so these structured logs are visible
+with the resource logs and can be collected by a log agent reading container
+output. This enables JSON formatting only; it does not configure direct OTLP
+log export.
+
 Mount the certificate and key into the LiveKit container at those paths using
 Aspire's bind-mount API. These local endpoint bindings do not configure public
 DNS, TLS termination, firewalls, or production load balancing.

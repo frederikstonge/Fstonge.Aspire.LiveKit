@@ -61,6 +61,17 @@ var livekit = builder.AddLiveKit("livekit")
     .WithTurn(udpPort: 3478);
 ```
 
+For machine-readable server logs, enable LiveKit's JSON console output:
+
+```csharp
+var livekit = builder.AddLiveKit("livekit")
+    .WithRedis(redis)
+    .WithJsonLogging();
+```
+
+Aspire captures the container's console output. This configures structured JSON
+logs on that output; it does not send logs directly to an OTLP collector.
+
 Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local
 port bindings do not configure public DNS, firewalls, TLS termination, or
