@@ -2,9 +2,10 @@
 
 ## AppHost
 
-Add the hosting package to the AppHost project. `AddLiveKit` generates secret
-credentials and persists them in the AppHost project's user secrets during
-local runs, so no parameter prompts are required:
+Add the hosting package to the AppHost project. No API key or secret arguments
+are required: `AddLiveKit` generates them as secret parameters and persists
+them in the AppHost project's user secrets during local runs, so no parameter
+prompts are required:
 
 ```csharp
 var redis = builder.AddRedis("redis");
@@ -34,8 +35,9 @@ The generated API key and secret use the parameter names `livekit-api-key` and
 (ASCII alphanumeric, therefore at least 64 bytes), exceeding the upstream .NET
 server SDK's 32-byte minimum in every environment. The .NET integration also
 validates this requirement at startup. The same key/secret pair is configured
-for the LiveKit server and consuming application. You may instead create your
-own secret parameters and pass them to the overload:
+for the LiveKit server and, when `includeCredentials: true`, the consuming
+application. To use your own credentials instead, create secret parameters
+and pass them to the overload:
 
 ```csharp
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
@@ -107,7 +109,7 @@ var livekit = builder.AddLiveKit("livekit")
             UseExternalIp = true,
             PortRangeStart = 50000,
             PortRangeEnd = 60000
-        }
+        };
     })
     .WithLiveKitAdditionalConfiguration("""
         room:
@@ -127,7 +129,7 @@ var ingress = livekit.AddIngress(
             WhipCpuCost = 2,
             WhipBypassTranscodingCpuCost = 0.1,
             UrlCpuCost = 2
-        }
+        };
     });
 
 var egress = livekit.AddEgress("egress", redis)
@@ -147,20 +149,26 @@ var sip = livekit.AddSip("sip", redis)
 ```
 
 Typed configuration objects are available for common settings on all four
-services. The YAML extension methods cover additional top-level settings
+services. `WithLiveKitAdditionalConfiguration`,
+`WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
+and `WithSipAdditionalConfiguration` accept additional top-level settings
 supported by each service version. Settings already managed by typed resource
 options (such as credentials, Redis, listener ports, TLS, storage, and JSON
 logging) are reserved and cannot be duplicated. Typed settings are serialized
 with YamlDotNet, and additional YAML is parsed to validate its top-level shape
-and check reserved keys. Check the configuration reference for the exact
-options supported by the selected container image version.
+and check reserved keys. `Logging.Level` accepts `debug`, `info`, `warn`, or
+`error`; use `.WithJsonLogging()` or `.WithStructuredLogs()` to enable JSON
+logging. Check the configuration reference for the exact options supported by
+the selected container image version.
 
 Mount the certificate and key into the LiveKit container at those paths using
 Aspire's bind-mount API. These local endpoint bindings do not configure public
 DNS, TLS termination, firewalls, or production load balancing.
 
 Ingress is a separate resource and requires the same Redis resource as the
-server. Supply externally reachable publishing URLs explicitly:
+server. In the Aspire dashboard, Ingress, Egress, and SIP resources appear
+nested under the LiveKit server that created them. Supply externally reachable
+publishing URLs explicitly:
 
 ```csharp
 var ingress = livekit.AddIngress(
@@ -290,10 +298,11 @@ per-request authorization headers. It validates required settings when the
 service is resolved or the host starts. Validation errors identify missing
 settings but never include credential values.
 
-The LiveKit API key/secret pair is configured on the self-hosted server; LiveKit
-does not issue these credentials automatically. They are used by trusted
-server-side applications and to create access tokens. Client applications
-should receive only short-lived tokens, never the API secret.
+The hosting integration generates the LiveKit API key/secret pair by default
+and configures the self-hosted server with them; you can also provide your own
+secret parameters. The credentials are used by trusted server-side
+applications and to create access tokens. Client applications should receive
+only short-lived tokens, never the API secret.
 
 ## RTC participant connections
 

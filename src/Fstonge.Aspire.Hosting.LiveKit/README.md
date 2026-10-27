@@ -3,6 +3,9 @@
 Adds a self-hosted LiveKit server and optional Ingress, Egress, and SIP
 containers to a .NET Aspire AppHost.
 
+Ingress, Egress, and SIP resources appear nested under their LiveKit server in
+the Aspire dashboard.
+
 Use `.WithStructuredLogs()` on any of these resources to forward its logs from
 Aspire's resource log stream to the dashboard's OTLP endpoint:
 
@@ -29,22 +32,31 @@ in the resource console output. See the repository's
 secret parameters, storage configuration, examples, and networking limits.
 The package targets .NET 10.
 
-To enable JSON console output without forwarding logs, call
-`.WithJsonLogging()` on Ingress, Egress, or SIP. Server JSON logging is enabled
-by default, and `.WithStructuredLogs()` also enables it automatically.
-
-Typed methods and service-specific configuration objects cover common options,
-while `WithLiveKitAdditionalConfiguration`, `WithIngressAdditionalConfiguration`,
-`WithEgressAdditionalConfiguration`, and `WithSipAdditionalConfiguration`
-accept additional top-level YAML settings supported by the corresponding
-service version. YamlDotNet serializes typed options and parses extension YAML;
-the methods reject top-level settings already managed by the integration. See
-the repository's
+Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
+`WithEgressConfiguration`, or `WithSipConfiguration` with an `Action<T>`
+callback to configure typed service options. Use
+`WithLiveKitAdditionalConfiguration`, `WithIngressAdditionalConfiguration`,
+`WithEgressAdditionalConfiguration`, and `WithSipAdditionalConfiguration` for
+additional top-level YAML settings supported by the selected service version.
+See the repository's
 [getting-started guide](../../docs/getting-started.md) for examples.
 
-The server API key and secret are generated as secret Aspire parameters when
-you do not provide parameter resources. During local runs, Aspire persists the
-generated values in the AppHost project's user secrets. They are available to
+Server JSON console logging is enabled by default. Call `.WithJsonLogging()` on
+Ingress, Egress, or SIP to enable JSON console output without OTLP forwarding.
+Aspire captures console output for all resources. To also forward logs to the
+dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on
+the resource; this also enables JSON logging. JSON records are forwarded with
+parsed fields when possible, and plain-text companion records are forwarded as
+message-only logs. The AppHost must have an OTLP endpoint configured.
+
+YamlDotNet serializes typed options and parses extension YAML. Additional YAML
+must be a single top-level mapping and cannot override settings managed by the
+integration.
+
+No API key or secret arguments are required when calling `AddLiveKit(name)`.
+The server API key and secret are generated as secret Aspire parameters and,
+during local runs, persisted in the AppHost project's user secrets. You can
+optionally provide your own secret parameters. Credentials are available to
 consuming projects only when `WithLiveKitReference` is called with
 `includeCredentials: true`.
 

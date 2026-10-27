@@ -31,10 +31,11 @@ var api = builder.AddProject<Projects.Api>("api")
     .WaitFor(livekit);
 ```
 
-`AddLiveKit` generates secret API key and API secret values if you do not
-supply parameter resources. During local runs, Aspire persists the generated
-values in the AppHost project's user secrets, so they remain stable across
-restarts without prompting. You can also supply your own secret parameters:
+`AddLiveKit("livekit")` requires no API key or API secret arguments; it
+generates both as secret Aspire parameters. During local runs, Aspire persists
+the generated values in the AppHost project's user secrets, so they remain
+stable across restarts without prompting. You can optionally supply your own
+secret parameters:
 
 ```csharp
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
@@ -74,11 +75,20 @@ var egress = livekit.AddEgress("egress", redis)
     .WithJsonLogging();
 ```
 
-Aspire captures the container's console output. To also export the parsed JSON
-records to the dashboard's Structured Logs view over OTLP, call
-`.WithStructuredLogs()` on a LiveKit, Ingress, Egress, or SIP resource. The
-forwarder parses JSON records when available and sends plain-text companion
-logs as message-only records.
+Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
+`WithEgressConfiguration`, and `WithSipConfiguration` with a callback to set
+typed service options. Use `WithLiveKitAdditionalConfiguration`,
+`WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
+and `WithSipAdditionalConfiguration` for additional top-level YAML settings
+supported by the selected service version. The
+[getting-started guide](docs/getting-started.md) shows examples.
+
+Aspire captures the container's console output. To also export logs to the
+dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on a
+LiveKit, Ingress, Egress, or SIP resource. This enables JSON logging for that
+resource; JSON records are forwarded with parsed fields, while plain-text
+companion logs are forwarded as message-only records. An OTLP endpoint must be
+configured on the AppHost.
 
 Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local
