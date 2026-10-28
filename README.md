@@ -80,8 +80,10 @@ Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
 typed service options. Use `WithLiveKitAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` for additional top-level YAML settings
-supported by the selected service version. The
-[getting-started guide](docs/getting-started.md) shows examples.
+supported by the selected service version. See the
+[getting-started guide's image configuration reference](docs/getting-started.md#image-configuration-reference)
+for all settings directly exposed by this package and links to the upstream
+configuration references.
 
 Aspire captures the container's console output. To also export logs to the
 dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on a

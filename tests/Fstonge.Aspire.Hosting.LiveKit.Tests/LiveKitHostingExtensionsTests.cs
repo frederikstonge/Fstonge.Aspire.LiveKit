@@ -121,6 +121,101 @@ public sealed class LiveKitHostingExtensionsTests
     }
 
     [Fact]
+    public async Task WithLiveKitServerConfiguration_RejectsInvalidUpdateWithoutChangingExistingConfiguration()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit")
+            .WithLiveKitServerConfiguration(configuration =>
+            {
+                configuration.LogLevel = "warn";
+                configuration.Rtc.UseExternalIp = true;
+                configuration.Rtc.PortRangeStart = 50000;
+                configuration.Rtc.PortRangeEnd = 60000;
+            });
+
+        Assert.Throws<InvalidOperationException>(() =>
+            livekit.WithLiveKitServerConfiguration(configuration =>
+            {
+                configuration.LogLevel = "debug";
+                configuration.Rtc.UseExternalIp = false;
+                configuration.Rtc.PortRangeStart = 40000;
+                configuration.Rtc.PortRangeEnd = null;
+            }));
+
+        var result = await BuildEnvironmentAsync(livekit.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "LIVEKIT_CONFIG").Value;
+
+        Assert.Contains("log_level: warn", configuration);
+        Assert.Contains("use_external_ip: true", configuration);
+        Assert.Contains("port_range_start: 50000", configuration);
+        Assert.Contains("port_range_end: 60000", configuration);
+        Assert.DoesNotContain("log_level: debug", configuration);
+        Assert.DoesNotContain("port_range_start: 40000", configuration);
+    }
+
+    [Fact]
+    public async Task WithIngressConfiguration_RejectsInvalidUpdateWithoutChangingExistingConfiguration()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var ingress = livekit.AddIngress(
+                "ingress",
+                redis,
+                "rtmp://localhost:1935/live",
+                "http://localhost:8080/whip")
+            .WithIngressConfiguration(configuration =>
+            {
+                configuration.CpuCost.RtmpCpuCost = 2;
+                configuration.Logging.Level = "info";
+            });
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            ingress.WithIngressConfiguration(configuration =>
+            {
+                configuration.CpuCost.RtmpCpuCost = -1;
+                configuration.Logging.Level = "debug";
+            }));
+
+        var result = await BuildEnvironmentAsync(ingress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "INGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("rtmp_cpu_cost: 2", configuration);
+        Assert.Contains("level: info", configuration);
+        Assert.DoesNotContain("rtmp_cpu_cost: -1", configuration);
+        Assert.DoesNotContain("level: debug", configuration);
+    }
+
+    [Fact]
+    public async Task WithSipConfiguration_RejectsInvalidUpdateWithoutChangingExistingConfiguration()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var sip = livekit.AddSip("sip", redis)
+            .WithSipConfiguration(configuration =>
+            {
+                configuration.ClusterId = "existing-cluster";
+                configuration.Logging.Level = "info";
+            });
+
+        Assert.Throws<ArgumentException>(() =>
+            sip.WithSipConfiguration(configuration =>
+            {
+                configuration.ClusterId = "new-cluster";
+                configuration.Logging.Level = "trace";
+            }));
+
+        var result = await BuildEnvironmentAsync(sip.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "SIP_CONFIG_BODY").Value;
+
+        Assert.Contains("cluster_id: existing-cluster", configuration);
+        Assert.Contains("level: info", configuration);
+        Assert.DoesNotContain("cluster_id: new-cluster", configuration);
+        Assert.DoesNotContain("level: trace", configuration);
+    }
+
+    [Fact]
     public async Task AddIngress_CreatesSeparateResourceAndSharesRedisConfiguration()
     {
         var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
@@ -258,6 +353,196 @@ public sealed class LiveKitHostingExtensionsTests
         Assert.DoesNotContain("storage-value", configuration);
         Assert.Throws<ArgumentException>(() =>
             egress.WithEgressAdditionalConfiguration("redis:\n  address: elsewhere"));
+    }
+
+    [Fact]
+    public async Task AddEgress_AppliesTypedConfigurationToRuntimeEnvironment()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis, healthPort: 8081, prometheusPort: 9090)
+            .WithEgressConfiguration(configuration =>
+            {
+                configuration.TemplatePort = 7981;
+                configuration.DebugHandlerPort = 8082;
+                configuration.PulseSinkReapGraceSeconds = 45;
+                configuration.TemplateBase = "https://templates.example.test/";
+                configuration.EnableChromeSandbox = true;
+                configuration.Logging.Level = "debug";
+            });
+
+        var result = await BuildEnvironmentAsync(egress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "EGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("redis:", configuration);
+        Assert.Contains("health_port: 8081", configuration);
+        Assert.Contains("prometheus_port: 9090", configuration);
+        Assert.Contains("template_port: 7981", configuration);
+        Assert.Contains("debug_handler_port: 8082", configuration);
+        Assert.Contains("pulse_sink_reap_grace_sec: 45", configuration);
+        Assert.Contains("template_base: https://templates.example.test/", configuration);
+        Assert.Contains("enable_chrome_sandbox: true", configuration);
+        Assert.Contains("level: debug", configuration);
+        Assert.Contains("json: true", configuration);
+    }
+
+    [Fact]
+    public async Task AddEgress_RejectsInvalidTypedConfigurationBeforeApplyingIt()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            egress.WithEgressConfiguration(configuration => configuration.TemplatePort = 65536));
+
+        egress.WithEgressConfiguration(configuration => configuration.TemplatePort = 7981);
+        var result = await BuildEnvironmentAsync(egress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "EGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("template_port: 7981", configuration);
+        Assert.DoesNotContain("template_port: 65536", configuration);
+    }
+
+    [Fact]
+    public async Task AddEgress_RejectsInvalidUpdateWithoutChangingExistingConfiguration()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis)
+            .WithEgressConfiguration(configuration => configuration.TemplatePort = 7981);
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            egress.WithEgressConfiguration(configuration => configuration.TemplatePort = 65536));
+
+        var result = await BuildEnvironmentAsync(egress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "EGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("template_port: 7981", configuration);
+        Assert.DoesNotContain("template_port: 65536", configuration);
+    }
+
+    [Theory]
+    [InlineData(0, null)]
+    [InlineData(-1, null)]
+    [InlineData(65536, null)]
+    [InlineData(null, 0)]
+    [InlineData(null, -1)]
+    [InlineData(null, 65536)]
+    public void AddEgress_RejectsNonPositiveListenerPorts(int? healthPort, int? prometheusPort)
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            livekit.AddEgress("egress", redis, healthPort: healthPort, prometheusPort: prometheusPort));
+    }
+
+    [Fact]
+    public void AddEgress_RejectsDuplicateListenerPorts()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+
+        var exception = Assert.Throws<ArgumentException>(() =>
+            livekit.AddEgress("egress", redis, healthPort: 8081, prometheusPort: 8081));
+
+        Assert.Equal("prometheusPort", exception.ParamName);
+    }
+
+    [Fact]
+    public void WithEgressLocalOutputDirectory_ValidatesAndPreventsDuplicateMounts()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis);
+
+        Assert.Throws<ArgumentException>(() => egress.WithEgressLocalOutputDirectory("", "/out"));
+        Assert.Throws<ArgumentException>(() => egress.WithEgressLocalOutputDirectory("./recordings", "out"));
+
+        egress.WithEgressLocalOutputDirectory("./recordings", "/out");
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            egress.WithEgressLocalOutputDirectory("./other", "/other"));
+
+        Assert.Contains("already been configured", exception.Message);
+        Assert.Single(egress.Resource.Annotations.OfType<ContainerMountAnnotation>());
+    }
+
+    [Fact]
+    public async Task WithEgressAzureStorage_UsesSecretEnvironmentVariablesAndRejectsOtherStorage()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var accountName = builder.AddParameter("azure-account", "account-value", secret: true);
+        var accountKey = builder.AddParameter("azure-key", "key-value", secret: true);
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis)
+            .WithEgressAzureStorage("recordings", accountName, accountKey);
+
+        var result = await BuildEnvironmentAsync(egress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "EGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("storage:", configuration);
+        Assert.Contains("azure:", configuration);
+        Assert.Contains("container_name: recordings", configuration);
+        Assert.Contains(result, pair => pair.Key == "AZURE_STORAGE_ACCOUNT" && pair.Value == "account-value");
+        Assert.Contains(result, pair => pair.Key == "AZURE_STORAGE_KEY" && pair.Value == "key-value");
+        Assert.DoesNotContain("account-value", configuration);
+        Assert.DoesNotContain("key-value", configuration);
+        Assert.Throws<InvalidOperationException>(() =>
+            egress.WithEgressS3Storage("other", "us-east-1"));
+    }
+
+    [Fact]
+    public void WithEgressS3Storage_RequiresBothCredentials()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var accessKey = builder.AddParameter("access-key", "access-value", secret: true);
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis);
+
+        Assert.Throws<ArgumentException>(() =>
+            egress.WithEgressS3Storage("recordings", "us-east-1", accessKey: accessKey));
+        Assert.Throws<ArgumentException>(() =>
+            egress.WithEgressS3Storage("recordings", "us-east-1", secret: accessKey));
+    }
+
+    [Fact]
+    public async Task WithEgressAdditionalConfiguration_AppendsValidYaml()
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis)
+            .WithEgressAdditionalConfiguration("custom_setting:\n  enabled: true");
+
+        var result = await BuildEnvironmentAsync(egress.Resource);
+        var configuration = Assert.Single(result, pair => pair.Key == "EGRESS_CONFIG_BODY").Value;
+
+        Assert.Contains("custom_setting:", configuration);
+        Assert.Contains("enabled: true", configuration);
+    }
+
+    [Theory]
+    [InlineData("invalid: [yaml")]
+    [InlineData("custom: true\nCUSTOM: false")]
+    [InlineData("Template_Port: 8000")]
+    public void WithEgressAdditionalConfiguration_RejectsMalformedDuplicateAndReservedSettings(string yaml)
+    {
+        var builder = DistributedApplication.CreateBuilder(Array.Empty<string>());
+        var livekit = builder.AddLiveKit("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis);
+
+        Assert.Throws<ArgumentException>(() => egress.WithEgressAdditionalConfiguration(yaml));
     }
 
     [Fact]

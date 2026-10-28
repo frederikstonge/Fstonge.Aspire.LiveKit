@@ -11,7 +11,19 @@ public static partial class LiveKitHostingExtensions
     {
         ArgumentNullException.ThrowIfNull(livekit);
         ArgumentNullException.ThrowIfNull(configure);
-        var configuration = livekit.Resource.Configuration ?? new LiveKitServerConfiguration();
+        var current = livekit.Resource.Configuration;
+        var configuration = current is null
+            ? new LiveKitServerConfiguration()
+            : new LiveKitServerConfiguration
+            {
+                LogLevel = current.LogLevel,
+                Rtc = new LiveKitServerRtcConfiguration
+                {
+                    UseExternalIp = current.Rtc.UseExternalIp,
+                    PortRangeStart = current.Rtc.PortRangeStart,
+                    PortRangeEnd = current.Rtc.PortRangeEnd,
+                },
+            };
         configure(configuration);
         var topLevelConfiguration = configuration.ToDictionary();
         var rtcConfiguration = configuration.Rtc.ToDictionary();
@@ -30,7 +42,21 @@ public static partial class LiveKitHostingExtensions
     {
         ArgumentNullException.ThrowIfNull(ingress);
         ArgumentNullException.ThrowIfNull(configure);
-        var configuration = ingress.Resource.Configuration ?? new LiveKitIngressConfiguration();
+        var current = ingress.Resource.Configuration;
+        var configuration = current is null
+            ? new LiveKitIngressConfiguration()
+            : new LiveKitIngressConfiguration
+            {
+                CpuCost = new LiveKitIngressCpuCostConfiguration
+                {
+                    RtmpCpuCost = current.CpuCost.RtmpCpuCost,
+                    WhipCpuCost = current.CpuCost.WhipCpuCost,
+                    WhipBypassTranscodingCpuCost = current.CpuCost.WhipBypassTranscodingCpuCost,
+                    UrlCpuCost = current.CpuCost.UrlCpuCost,
+                    MinIdleRatio = current.CpuCost.MinIdleRatio,
+                },
+                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
+            };
         configure(configuration);
         _ = configuration.ToYaml(ingress.Resource.JsonLoggingEnabled);
         ingress.Resource.Configuration = configuration;
@@ -43,7 +69,18 @@ public static partial class LiveKitHostingExtensions
     {
         ArgumentNullException.ThrowIfNull(egress);
         ArgumentNullException.ThrowIfNull(configure);
-        var configuration = egress.Resource.Configuration ?? new LiveKitEgressConfiguration();
+        var current = egress.Resource.Configuration;
+        var configuration = current is null
+            ? new LiveKitEgressConfiguration()
+            : new LiveKitEgressConfiguration
+            {
+                TemplatePort = current.TemplatePort,
+                DebugHandlerPort = current.DebugHandlerPort,
+                PulseSinkReapGraceSeconds = current.PulseSinkReapGraceSeconds,
+                TemplateBase = current.TemplateBase,
+                EnableChromeSandbox = current.EnableChromeSandbox,
+                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
+            };
         configure(configuration);
         _ = configuration.ToYaml(egress.Resource.JsonLoggingEnabled);
         egress.Resource.Configuration = configuration;
@@ -56,7 +93,24 @@ public static partial class LiveKitHostingExtensions
     {
         ArgumentNullException.ThrowIfNull(sip);
         ArgumentNullException.ThrowIfNull(configure);
-        var configuration = sip.Resource.Configuration ?? new LiveKitSipConfiguration();
+        var current = sip.Resource.Configuration;
+        var configuration = current is null
+            ? new LiveKitSipConfiguration()
+            : new LiveKitSipConfiguration
+            {
+                ClusterId = current.ClusterId,
+                MaxCpuUtilization = current.MaxCpuUtilization,
+                MaxActiveCalls = current.MaxActiveCalls,
+                UseExternalIp = current.UseExternalIp,
+                LocalNet = current.LocalNet,
+                Nat1To1Ip = current.Nat1To1Ip,
+                MediaUseExternalIp = current.MediaUseExternalIp,
+                MediaNat1To1Ip = current.MediaNat1To1Ip,
+                UdpMaxPayload = current.UdpMaxPayload,
+                EnableJitterBuffer = current.EnableJitterBuffer,
+                EnableJitterBufferProbability = current.EnableJitterBufferProbability,
+                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
+            };
         configure(configuration);
         _ = configuration.ToYaml(sip.Resource.JsonLoggingEnabled);
         sip.Resource.Configuration = configuration;

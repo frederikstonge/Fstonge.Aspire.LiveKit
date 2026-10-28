@@ -380,9 +380,11 @@ public static partial class LiveKitHostingExtensions
 
     private static void ValidateOptionalPort(int? port, string parameterName)
     {
-        if (port is <= 0)
+        if (port is <= 0 or > 65535)
         {
-            throw new ArgumentOutOfRangeException(parameterName, "Port numbers must be positive.");
+            throw new ArgumentOutOfRangeException(
+                parameterName,
+                "Port numbers must be between 1 and 65535.");
         }
     }
 
