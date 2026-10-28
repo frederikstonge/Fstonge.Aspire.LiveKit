@@ -42,6 +42,8 @@ public static class LiveKitServiceCollectionExtensions
                 return new RoomServiceClient(options.Url!, options.ApiKey!, options.ApiSecret!, httpClient);
             });
 
+        services.AddSingleton<IAccessTokenFactory, LiveKitAccessTokenFactory>();
+
         return services;
     }
 }
