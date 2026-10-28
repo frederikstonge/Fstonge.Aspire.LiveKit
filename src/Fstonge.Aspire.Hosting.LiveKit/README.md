@@ -69,3 +69,52 @@ resource. Egress output targets are supplied to its recording/streaming
 requests or configured storage; a local output directory must be mounted into
 the container. SIP signaling and RTP ports require suitable external routing,
 which Aspire's local bindings do not provision.
+
+## LiveKit Agent Framework Integration
+
+You can easily orchestrate LiveKit AI Agents (Python or Node.js/npm) directly alongside the LiveKit server:
+
+```csharp
+var openAiKey = builder.AddParameter("openai-api-key", secret: true);
+
+// Python Agent
+var pythonAgent = livekit.AddPythonAgent(
+    "voice-agent",
+    projectDirectory: "../agents/voice_agent",
+    scriptPath: "main.py")
+    .WithOpenAiApiKey(openAiKey);
+
+// Node.js / npm Agent
+var nodeAgent = livekit.AddNpmAgent(
+    "node-agent",
+    projectDirectory: "../agents/node_agent")
+    .WithOpenAiApiKey(openAiKey);
+
+// Containerized Agent
+var containerAgent = livekit.AddAgentDockerfile(
+    "container-agent",
+    contextPath: "../agents/voice_agent")
+    .WithOpenAiApiKey(openAiKey);
+```
+
+### Generic Agent Binding
+Any resource supporting environment variables can be configured as a LiveKit agent worker using `WithLiveKitAgentReference`:
+
+```csharp
+var customAgent = builder.AddExecutable("custom-agent", "python", "../agent", "main.py")
+    .WithLiveKitAgentReference(livekit, agentName: "voice-assistant");
+```
+
+This automatically:
+- Injects `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`.
+- Injects `LIVEKIT_AGENT_NAME` and sets `LIVEKIT_AGENT_DEV=true` in development environments (`builder.Environment.IsDevelopment()`).
+- Automatically passes `dev` (in development) or `start` CLI commands to the agent executable.
+- Waits for the LiveKit server to be healthy (`WaitFor(livekit)`).
+
+### AI Provider Helpers
+Fluent extensions are provided for common LLM, STT, and TTS providers:
+- `WithOpenAiApiKey(...)`
+- `WithDeepgramApiKey(...)`
+- `WithCartesiaApiKey(...)`
+- `WithElevenLabsApiKey(...)`
+- `WithAnthropicApiKey(...)`

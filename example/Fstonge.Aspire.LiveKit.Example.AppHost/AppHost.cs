@@ -1,4 +1,5 @@
 using Fstonge.Aspire.Hosting.LiveKit;
+using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -45,6 +46,32 @@ livekit.AddSip(
     {
         config.Logging.Level = "Info";
     });
+
+var enablePythonAgent = builder.Configuration.GetValue<bool>("LiveKit:EnablePythonAgent", false);
+var enableNodeAgent = builder.Configuration.GetValue<bool>("LiveKit:EnableNodeAgent", false);
+
+if (enablePythonAgent || enableNodeAgent)
+{
+    var openAiKey = builder.AddParameter("openai-api-key", secret: true);
+
+    if (enablePythonAgent)
+    {
+        livekit.AddPythonAgent(
+            "python-voice-agent",
+            "../Fstonge.Aspire.LiveKit.Example.Agent",
+            scriptPath: "main.py")
+            .WithOpenAiApiKey(openAiKey);
+    }
+
+    if (enableNodeAgent)
+    {
+        livekit.AddNodeAgent(
+            "node-voice-agent",
+            "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
+            scriptPath: "agent.js")
+            .WithOpenAiApiKey(openAiKey);
+    }
+}
 
 var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")
     .WithLiveKitReference(livekit, includeCredentials: true)
