@@ -61,8 +61,9 @@ if (enablePythonAgent || enableNodeAgent)
         {
             livekit.AddAgentDockerfile(
                 "python-docker-voice-agent",
-                "../Fstonge.Aspire.LiveKit.Example.Agent",
-                dockerfilePath: "Dockerfile");
+                "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
+                dockerfilePath: "Dockerfile")
+                .WithOpenAiApiKey(openAiKey);
         }
         else
         {
@@ -81,7 +82,8 @@ if (enablePythonAgent || enableNodeAgent)
             livekit.AddAgentDockerfile(
                 "node-docker-voice-agent",
                 "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
-                dockerfilePath: "Dockerfile");
+                dockerfilePath: "Dockerfile")
+                .WithOpenAiApiKey(openAiKey);
         }
         else
         {
