@@ -318,7 +318,7 @@ public static partial class LiveKitHostingExtensions
         };
         if (resource.Configuration is { } serverConfiguration)
         {
-            foreach (var (key, value) in serverConfiguration.ToRtcDictionary())
+            foreach (var (key, value) in serverConfiguration.Rtc.ToDictionary())
             {
                 rtcConfiguration[key] = value;
             }
