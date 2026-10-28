@@ -18,14 +18,14 @@ public sealed class LiveKitRoomLifecycleService(
         var liveKitOptions = options.Value;
 
         await using var scope = scopeFactory.CreateAsyncScope();
-        var roomService = scope.ServiceProvider.GetRequiredService<RoomServiceClient>();
+        var roomService = scope.ServiceProvider.GetRequiredService<IRoomManagementService>();
         var roomCreated = false;
         Exception? operationException = null;
 
         try
         {
             stoppingToken.ThrowIfCancellationRequested();
-            await roomService.CreateRoom(new CreateRoomRequest { Name = roomName });
+            await roomService.CreateRoomAsync(new CreateRoomRequest { Name = roomName });
             roomCreated = true;
             logger.LogInformation("Created LiveKit room {RoomName}", roomName);
 
@@ -54,7 +54,7 @@ public sealed class LiveKitRoomLifecycleService(
             {
                 try
                 {
-                    await roomService.DeleteRoom(new DeleteRoomRequest { Room = roomName });
+                    await roomService.DeleteRoomAsync(new DeleteRoomRequest { Room = roomName });
                     logger.LogInformation("Deleted LiveKit room {RoomName}", roomName);
                 }
                 catch (Exception cleanupException) when (operationException is not null)

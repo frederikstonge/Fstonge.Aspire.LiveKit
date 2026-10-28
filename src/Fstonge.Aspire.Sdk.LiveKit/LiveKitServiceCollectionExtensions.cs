@@ -35,13 +35,7 @@ public static class LiveKitServiceCollectionExtensions
                 "LIVEKIT_API_SECRET must contain at least 32 bytes.")
             .ValidateOnStart();
 
-        services.AddHttpClient<RoomServiceClient>()
-            .AddTypedClient((httpClient, serviceProvider) =>
-            {
-                var options = serviceProvider.GetRequiredService<IOptions<LiveKitOptions>>().Value;
-                return new RoomServiceClient(options.Url!, options.ApiKey!, options.ApiSecret!, httpClient);
-            });
-
+        services.AddHttpClient<IRoomManagementService, RoomManagementService>();
         services.AddSingleton<IAccessTokenFactory, LiveKitAccessTokenFactory>();
 
         return services;

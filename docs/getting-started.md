@@ -69,13 +69,23 @@ builder.Services.AddLiveKitSdk(builder.Configuration);
 The wrapper reads `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and
 `LIVEKIT_API_SECRET` from environment variables or the `LiveKit` configuration
 section. The URL must be an absolute HTTP or HTTPS API URL; the secret must be
-at least 32 bytes. `RoomServiceClient` is registered as a transient service,
-and `IAccessTokenFactory` is registered as a singleton for constructing
-`AccessToken` values from the configured key and secret:
+at least 32 bytes. `IAccessTokenFactory` is registered as a singleton for
+constructing `AccessToken` values from the configured key and secret:
 
 ```csharp
 var tokenFactory = serviceProvider.GetRequiredService<IAccessTokenFactory>();
 var accessToken = tokenFactory.GetAccessToken();
+```
+
+`IRoomManagementService` is also registered as an HTTP-backed wrapper over the
+LiveKit room APIs, so trusted server code can manage rooms and participants
+without directly working with the lower-level client:
+
+```csharp
+var roomService = serviceProvider.GetRequiredService<IRoomManagementService>();
+var room = await roomService.CreateRoomAsync(new CreateRoomRequest { Name = "demo-room" });
+
+await roomService.DeleteRoomAsync(new DeleteRoomRequest { Room = room.Name });
 ```
 
 Settings are validated when the host starts or the client is resolved.

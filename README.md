@@ -114,13 +114,23 @@ environment variables, or values in the `LiveKit` configuration section:
 | `LIVEKIT_API_KEY` | Yes | Must be configured |
 | `LIVEKIT_API_SECRET` | Yes | Must be configured and at least 32 bytes |
 
-`RoomServiceClient` is registered as a transient typed HTTP client. The SDK
-also registers `IAccessTokenFactory` as a singleton for creating
+The SDK registers `IAccessTokenFactory` as a singleton for creating
 `AccessToken` values from the configured API key and secret:
 
 ```csharp
 var tokenFactory = serviceProvider.GetRequiredService<IAccessTokenFactory>();
 var accessToken = tokenFactory.GetAccessToken();
+```
+
+`IRoomManagementService` is registered as an HTTP-backed wrapper around the
+LiveKit room-management API, which is useful for trusted backend workflows
+that create rooms, list participants, update metadata, or delete rooms:
+
+```csharp
+var roomService = serviceProvider.GetRequiredService<IRoomManagementService>();
+var room = await roomService.CreateRoomAsync(new CreateRoomRequest { Name = "demo-room" });
+
+await roomService.DeleteRoomAsync(new DeleteRoomRequest { Room = room.Name });
 ```
 
 Settings are validated when the host starts or the client is resolved.
