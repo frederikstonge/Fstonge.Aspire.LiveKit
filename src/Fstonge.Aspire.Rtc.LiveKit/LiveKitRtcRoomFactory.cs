@@ -3,16 +3,25 @@ using Microsoft.Extensions.Options;
 
 namespace Fstonge.Aspire.Rtc.LiveKit;
 
+/// <summary>
+/// Default implementation of <see cref="ILiveKitRtcRoomFactory"/> that validates options and connects to LiveKit rooms.
+/// </summary>
 public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LiveKitRtcRoomFactory"/> class using the specified options.
+    /// </summary>
+    /// <param name="options">The configured LiveKit RTC options.</param>
     public LiveKitRtcRoomFactory(IOptions<LiveKitRtcOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ServerUrl = GetWebSocketUrl(options.Value.Url);
     }
 
+    /// <inheritdoc />
     public Uri ServerUrl { get; }
 
+    /// <inheritdoc />
     public async Task<Room> ConnectAsync(string participantToken, RoomOptions? roomOptions = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(participantToken);

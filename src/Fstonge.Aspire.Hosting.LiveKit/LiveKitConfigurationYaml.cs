@@ -97,14 +97,16 @@ internal static class LiveKitConfigurationYaml
 
         return normalizedLevel;
     }
-
 }
 
+/// <summary>
+/// Configures logging for LiveKit companion services (Egress, Ingress, and SIP).
+/// </summary>
 public sealed class LiveKitServiceLoggingConfiguration
 {
     /// <summary>
-    /// Minimum log severity to emit. Accepted values are debug, info, warn, and error.
-    /// Default: <c>info</c> for the companion services.
+    /// Gets or sets the minimum log severity to emit. Accepted values are <c>debug</c>, <c>info</c>, <c>warn</c>, and <c>error</c>.
+    /// Default: <c>info</c> for companion services.
     /// </summary>
     public string? Level { get; set; }
 }

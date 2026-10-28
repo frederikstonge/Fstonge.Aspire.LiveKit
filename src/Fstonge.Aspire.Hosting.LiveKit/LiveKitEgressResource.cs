@@ -2,18 +2,28 @@ using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
-public sealed class LiveKitEgressResource(
-    string name,
-    LiveKitServerResource server,
-    int? healthPort,
-    int? prometheusPort)
-    : LiveKitContainerResource(name)
+/// <summary>
+/// Represents a LiveKit Egress service container resource in a .NET Aspire distributed application.
+/// </summary>
+public sealed class LiveKitEgressResource : LiveKitContainerResource
 {
-    internal LiveKitServerResource Server { get; } = server;
+    internal LiveKitEgressResource(
+        string name,
+        LiveKitServerResource server,
+        int? healthPort,
+        int? prometheusPort)
+        : base(name)
+    {
+        Server = server;
+        HealthPort = healthPort;
+        PrometheusPort = prometheusPort;
+    }
 
-    internal int? HealthPort { get; } = healthPort;
+    internal LiveKitServerResource Server { get; }
 
-    internal int? PrometheusPort { get; } = prometheusPort;
+    internal int? HealthPort { get; }
+
+    internal int? PrometheusPort { get; }
 
     internal LiveKitEgressConfiguration? Configuration { get; set; }
 

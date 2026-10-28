@@ -6,8 +6,18 @@ using Microsoft.Extensions.Options;
 
 namespace Fstonge.Aspire.Sdk.LiveKit;
 
+/// <summary>
+/// Extension methods for setting up LiveKit server SDK services in an <see cref="IServiceCollection"/>.
+/// </summary>
 public static class LiveKitServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers LiveKit server SDK services (<see cref="IRoomManagementService"/>, <see cref="IAccessTokenFactory"/>)
+    /// and configures <see cref="LiveKitOptions"/> with validation.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <param name="configuration">The configuration instance to bind options from.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
     public static IServiceCollection AddLiveKitSdk(
         this IServiceCollection services,
         IConfiguration configuration)

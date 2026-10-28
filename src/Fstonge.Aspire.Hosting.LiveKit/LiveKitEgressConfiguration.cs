@@ -1,35 +1,38 @@
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
+/// <summary>
+/// Represents configuration options for the LiveKit Egress service.
+/// </summary>
 public sealed class LiveKitEgressConfiguration
 {
     /// <summary>
-    /// Port for Egress's room-composite template server. Default: <c>7980</c>.
+    /// Gets or sets the port for Egress's room-composite template server. Default: <c>7980</c>.
     /// </summary>
     public int? TemplatePort { get; set; }
 
     /// <summary>
-    /// Port for Egress debug HTTP handlers. Default: <c>0</c> (disabled).
+    /// Gets or sets the port for Egress debug HTTP handlers. Default: <c>0</c> (disabled).
     /// </summary>
     public int? DebugHandlerPort { get; set; }
 
     /// <summary>
-    /// Grace period in seconds before reaping an orphaned PulseAudio sink. Default: <c>30</c> seconds.
+    /// Gets or sets the grace period in seconds before reaping an orphaned PulseAudio sink. Default: <c>30</c> seconds.
     /// A negative value disables reaping.
     /// </summary>
     public int? PulseSinkReapGraceSeconds { get; set; }
 
     /// <summary>
-    /// Base URL for custom Egress templates. Default: <c>http://localhost:&lt;template_port&gt;/</c>.
+    /// Gets or sets the base URL for custom Egress templates. Default: <c>http://localhost:&lt;template_port&gt;/</c>.
     /// </summary>
     public string? TemplateBase { get; set; }
 
     /// <summary>
-    /// Runs Chrome with sandboxing enabled. Default: <see langword="false"/>.
+    /// Gets or sets a value indicating whether Chrome runs with sandboxing enabled. Default: <see langword="false"/>.
     /// </summary>
     public bool? EnableChromeSandbox { get; set; }
 
     /// <summary>
-    /// Configures Egress log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
+    /// Gets or sets the configuration for Egress log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
     /// unless enabled by <c>WithJsonLogging</c> or <c>WithStructuredLogs</c>.
     /// </summary>
     public LiveKitServiceLoggingConfiguration Logging { get; set; } = new();

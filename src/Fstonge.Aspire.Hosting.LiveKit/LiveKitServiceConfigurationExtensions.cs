@@ -5,6 +5,12 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 
 public static partial class LiveKitHostingExtensions
 {
+    /// <summary>
+    /// Applies typed configuration settings to the LiveKit server.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="LiveKitServerConfiguration"/>.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with the configuration applied.</returns>
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         Action<LiveKitServerConfiguration> configure)
@@ -36,6 +42,12 @@ public static partial class LiveKitHostingExtensions
         return livekit;
     }
 
+    /// <summary>
+    /// Applies typed configuration settings to the LiveKit Ingress service.
+    /// </summary>
+    /// <param name="ingress">The LiveKit Ingress resource builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="LiveKitIngressConfiguration"/>.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitIngressResource}"/> with the configuration applied.</returns>
     public static IResourceBuilder<LiveKitIngressResource> WithIngressConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
         Action<LiveKitIngressConfiguration> configure)
@@ -63,6 +75,12 @@ public static partial class LiveKitHostingExtensions
         return ingress;
     }
 
+    /// <summary>
+    /// Applies typed configuration settings to the LiveKit Egress service.
+    /// </summary>
+    /// <param name="egress">The LiveKit Egress resource builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="LiveKitEgressConfiguration"/>.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with the configuration applied.</returns>
     public static IResourceBuilder<LiveKitEgressResource> WithEgressConfiguration(
         this IResourceBuilder<LiveKitEgressResource> egress,
         Action<LiveKitEgressConfiguration> configure)
@@ -87,6 +105,12 @@ public static partial class LiveKitHostingExtensions
         return egress;
     }
 
+    /// <summary>
+    /// Applies typed configuration settings to the LiveKit SIP service.
+    /// </summary>
+    /// <param name="sip">The LiveKit SIP resource builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="LiveKitSipConfiguration"/>.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitSipResource}"/> with the configuration applied.</returns>
     public static IResourceBuilder<LiveKitSipResource> WithSipConfiguration(
         this IResourceBuilder<LiveKitSipResource> sip,
         Action<LiveKitSipConfiguration> configure)

@@ -1,15 +1,18 @@
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
+/// <summary>
+/// Represents configuration options for the LiveKit Ingress service.
+/// </summary>
 public sealed class LiveKitIngressConfiguration
 {
     /// <summary>
-    /// Sets CPU admission-cost estimates for RTMP, WHIP, and URL inputs. Default: each cost is <c>0</c>;
+    /// Gets or sets CPU admission-cost estimates for RTMP, WHIP, and URL inputs. Default: each cost is <c>0</c>;
     /// Ingress warns that these are below its minimums.
     /// </summary>
     public LiveKitIngressCpuCostConfiguration CpuCost { get; set; } = new();
 
     /// <summary>
-    /// Configures Ingress log verbosity. Default: <c>info</c> in the service logger.
+    /// Gets or sets configuration for Ingress log verbosity. Default: <c>info</c> in the service logger.
     /// </summary>
     public LiveKitServiceLoggingConfiguration Logging { get; set; } = new();
 
@@ -37,31 +40,34 @@ public sealed class LiveKitIngressConfiguration
     }
 }
 
+/// <summary>
+/// Configures CPU admission cost settings and idle thresholds for the LiveKit Ingress service.
+/// </summary>
 public sealed class LiveKitIngressCpuCostConfiguration
 {
     /// <summary>
-    /// CPU units reserved per RTMP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// Gets or sets the CPU units reserved per RTMP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
     /// </summary>
     public double? RtmpCpuCost { get; set; }
 
     /// <summary>
-    /// CPU units reserved per transcoded WHIP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// Gets or sets the CPU units reserved per transcoded WHIP input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
     /// </summary>
     public double? WhipCpuCost { get; set; }
 
     /// <summary>
-    /// CPU units reserved per WHIP input when transcoding is bypassed. Default: <c>0</c>;
+    /// Gets or sets the CPU units reserved per WHIP input when transcoding is bypassed. Default: <c>0</c>;
     /// Ingress recommends <c>0.1</c> and warns below <c>0.05</c>.
     /// </summary>
     public double? WhipBypassTranscodingCpuCost { get; set; }
 
     /// <summary>
-    /// CPU units reserved per URL input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
+    /// Gets or sets the CPU units reserved per URL input. Default: <c>0</c>; Ingress recommends <c>2</c> and warns below <c>1</c>.
     /// </summary>
     public double? UrlCpuCost { get; set; }
 
     /// <summary>
-    /// Target fraction of CPU to keep idle when admitting inputs. Default: <c>0.3</c> (30%).
+    /// Gets or sets the target fraction of CPU to keep idle when admitting inputs. Default: <c>0.3</c> (30%).
     /// </summary>
     public double? MinIdleRatio { get; set; }
 

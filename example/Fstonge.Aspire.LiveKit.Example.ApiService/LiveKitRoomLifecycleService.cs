@@ -1,21 +1,19 @@
 using Fstonge.Aspire.Rtc.LiveKit;
 using Fstonge.Aspire.Sdk.LiveKit;
 using Livekit.Server.Sdk.Dotnet;
-using Microsoft.Extensions.Options;
 
 namespace Fstonge.Aspire.LiveKit.Example.ApiService;
 
 public sealed class LiveKitRoomLifecycleService(
     IServiceScopeFactory scopeFactory,
     ILiveKitRtcRoomFactory rtcRoomFactory,
-    IOptions<LiveKitOptions> options,
+    IAccessTokenFactory accessTokenFactory,
     ILogger<LiveKitRoomLifecycleService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var roomName = $"aspire-smoke-{Guid.NewGuid():N}";
         var participantIdentity = $"aspire-smoke-{Guid.NewGuid():N}";
-        var liveKitOptions = options.Value;
 
         await using var scope = scopeFactory.CreateAsyncScope();
         var roomService = scope.ServiceProvider.GetRequiredService<IRoomManagementService>();
@@ -29,7 +27,7 @@ public sealed class LiveKitRoomLifecycleService(
             roomCreated = true;
             logger.LogInformation("Created LiveKit room {RoomName}", roomName);
 
-            var participantToken = new AccessToken(liveKitOptions.ApiKey!, liveKitOptions.ApiSecret!)
+            var participantToken = accessTokenFactory.GetAccessToken()
                 .WithIdentity(participantIdentity)
                 .WithName(participantIdentity)
                 .WithGrants(new VideoGrants { RoomJoin = true, Room = roomName })

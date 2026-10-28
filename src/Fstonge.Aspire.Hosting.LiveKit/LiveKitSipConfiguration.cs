@@ -1,69 +1,72 @@
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
+/// <summary>
+/// Represents configuration options for the LiveKit SIP service.
+/// </summary>
 public sealed class LiveKitSipConfiguration
 {
     /// <summary>
-    /// Identifies the SIP cluster for routing. Default: empty (no cluster ID).
+    /// Gets or sets the identifier of the SIP cluster for routing. Default: empty (no cluster ID).
     /// </summary>
     public string? ClusterId { get; set; }
 
     /// <summary>
-    /// Maximum CPU utilization allowed for accepting calls, from greater than 0 through 1.
+    /// Gets or sets the maximum CPU utilization allowed for accepting calls, from greater than 0 through 1.
     /// Default: <c>0.9</c>.
     /// </summary>
     public double? MaxCpuUtilization { get; set; }
 
     /// <summary>
-    /// Maximum active calls used for affinity-based routing. Default: <c>0</c> (not set).
+    /// Gets or sets the maximum active calls used for affinity-based routing. Default: <c>0</c> (not set).
     /// </summary>
     public int? MaxActiveCalls { get; set; }
 
     /// <summary>
-    /// Discovers the public signaling IP. Default: <see langword="false"/>.
+    /// Gets or sets a value indicating whether to discover the public signaling IP. Default: <see langword="false"/>.
     /// Cannot be combined with <see cref="Nat1To1Ip"/>.
     /// </summary>
     public bool? UseExternalIp { get; set; }
 
     /// <summary>
-    /// Local network CIDR used for SIP address selection. Default: empty (no CIDR configured).
+    /// Gets or sets the local network CIDR used for SIP address selection. Default: empty (no CIDR configured).
     /// </summary>
     public string? LocalNet { get; set; }
 
     /// <summary>
-    /// Static one-to-one signaling NAT address. Default: empty (not configured).
+    /// Gets or sets the static one-to-one signaling NAT address. Default: empty (not configured).
     /// Cannot be combined with <see cref="UseExternalIp"/>.
     /// </summary>
     public string? Nat1To1Ip { get; set; }
 
     /// <summary>
-    /// Discovers a public media IP separately from the signaling IP. Default: <see langword="false"/>.
+    /// Gets or sets a value indicating whether to discover a public media IP separately from the signaling IP. Default: <see langword="false"/>.
     /// Cannot be combined with <see cref="MediaNat1To1Ip"/>.
     /// </summary>
     public bool? MediaUseExternalIp { get; set; }
 
     /// <summary>
-    /// Static one-to-one media NAT address. Default: empty (not configured).
+    /// Gets or sets the static one-to-one media NAT address. Default: empty (not configured).
     /// Cannot be combined with <see cref="MediaUseExternalIp"/>.
     /// </summary>
     public string? MediaNat1To1Ip { get; set; }
 
     /// <summary>
-    /// Maximum SIP UDP payload size in bytes. Default: <c>0</c> (the SIP config leaves this unset).
+    /// Gets or sets the maximum SIP UDP payload size in bytes. Default: <c>0</c> (the SIP config leaves this unset).
     /// </summary>
     public int? UdpMaxPayload { get; set; }
 
     /// <summary>
-    /// Enables the media jitter buffer. Default: <see langword="false"/>.
+    /// Gets or sets a value indicating whether the media jitter buffer is enabled. Default: <see langword="false"/>.
     /// </summary>
     public bool? EnableJitterBuffer { get; set; }
 
     /// <summary>
-    /// Probability threshold for enabling the jitter buffer, from 0 to 1. Default: <c>0</c>.
+    /// Gets or sets the probability threshold for enabling the jitter buffer, from 0 to 1. Default: <c>0</c>.
     /// </summary>
     public double? EnableJitterBufferProbability { get; set; }
 
     /// <summary>
-    /// Configures SIP log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
+    /// Gets or sets configuration for SIP log verbosity and JSON output. Default log level: <c>info</c>; JSON output is disabled
     /// unless enabled by <c>WithJsonLogging</c> or <c>WithStructuredLogs</c>.
     /// </summary>
     public LiveKitServiceLoggingConfiguration Logging { get; set; } = new();

@@ -3,8 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Fstonge.Aspire.Rtc.LiveKit;
 
+/// <summary>
+/// Extension methods for setting up LiveKit RTC client services in an <see cref="IServiceCollection"/>.
+/// </summary>
 public static class LiveKitRtcServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers <see cref="ILiveKitRtcRoomFactory"/> and configures <see cref="LiveKitRtcOptions"/> from configuration.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+    /// <param name="configuration">The configuration instance to bind options from.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
     public static IServiceCollection AddLiveKitRtcSdk(
         this IServiceCollection services,
         IConfiguration configuration)

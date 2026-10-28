@@ -9,8 +9,21 @@ using System.Net.Sockets;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
+/// <summary>
+/// Provides extension methods for registering and configuring LiveKit resources with .NET Aspire.
+/// </summary>
 public static partial class LiveKitHostingExtensions
 {
+    /// <summary>
+    /// Adds a LiveKit server container resource to the distributed application builder with auto-generated credentials.
+    /// </summary>
+    /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/> to add the resource to.</param>
+    /// <param name="name">The name of the LiveKit server resource.</param>
+    /// <param name="version">The container image tag version. Defaults to <c>"latest"</c>.</param>
+    /// <param name="httpPort">The host port for HTTP and WebSocket signaling. Defaults to 7880.</param>
+    /// <param name="rtcTcpPort">The host port for RTC TCP fallback connections. Defaults to 7881.</param>
+    /// <param name="rtcUdpPort">The host port for primary RTC UDP media. Defaults to 7882.</param>
+    /// <returns>An <see cref="IResourceBuilder{LiveKitServerResource}"/> for configuring the LiveKit server.</returns>
     public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
         this IDistributedApplicationBuilder builder,
         string name,
@@ -36,6 +49,18 @@ public static partial class LiveKitHostingExtensions
         return builder.AddLiveKit(name, apiKey, apiSecret, version, httpPort, rtcTcpPort, rtcUdpPort);
     }
 
+    /// <summary>
+    /// Adds a LiveKit server container resource to the distributed application builder with explicit API credentials.
+    /// </summary>
+    /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/> to add the resource to.</param>
+    /// <param name="name">The name of the LiveKit server resource.</param>
+    /// <param name="apiKey">The parameter resource containing the LiveKit API key.</param>
+    /// <param name="apiSecret">The parameter resource containing the LiveKit API secret.</param>
+    /// <param name="version">The container image tag version. Defaults to <c>"latest"</c>.</param>
+    /// <param name="httpPort">The host port for HTTP and WebSocket signaling. Defaults to 7880.</param>
+    /// <param name="rtcTcpPort">The host port for RTC TCP fallback connections. Defaults to 7881.</param>
+    /// <param name="rtcUdpPort">The host port for primary RTC UDP media. Defaults to 7882.</param>
+    /// <returns>An <see cref="IResourceBuilder{LiveKitServerResource}"/> for configuring the LiveKit server.</returns>
     public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
         this IDistributedApplicationBuilder builder,
         string name,
@@ -80,6 +105,13 @@ public static partial class LiveKitHostingExtensions
             context => context.EnvironmentVariables["LIVEKIT_CONFIG"] = CreateServerConfiguration(resource));
     }
 
+    /// <summary>
+    /// Configures a Redis cache resource for LiveKit clustering and distributed coordination.
+    /// </summary>
+    /// <typeparam name="TResource">The type of the Redis resource with a connection string.</typeparam>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="redis">The Redis resource builder.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with Redis configured.</returns>
     public static IResourceBuilder<LiveKitServerResource> WithRedis<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         IResourceBuilder<TResource> redis)
@@ -93,6 +125,12 @@ public static partial class LiveKitHostingExtensions
         return livekit.WaitFor(redisResource);
     }
 
+    /// <summary>
+    /// Appends additional raw YAML configuration to the LiveKit server configuration.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with additional configuration applied.</returns>
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitAdditionalConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string yaml)
@@ -113,6 +151,12 @@ public static partial class LiveKitHostingExtensions
         return livekit;
     }
 
+    /// <summary>
+    /// Configures JSON formatted logging for a LiveKit container resource.
+    /// </summary>
+    /// <typeparam name="TResource">The type of the LiveKit container resource.</typeparam>
+    /// <param name="resourceBuilder">The LiveKit container resource builder.</param>
+    /// <returns>The configured resource builder.</returns>
     public static IResourceBuilder<TResource> WithJsonLogging<TResource>(
         this IResourceBuilder<TResource> resourceBuilder)
         where TResource : LiveKitContainerResource
@@ -123,6 +167,12 @@ public static partial class LiveKitHostingExtensions
         return resourceBuilder;
     }
 
+    /// <summary>
+    /// Enables forwarding structured logs from the LiveKit container to the configured OpenTelemetry (OTLP) log collector.
+    /// </summary>
+    /// <typeparam name="TResource">The type of the LiveKit container resource.</typeparam>
+    /// <param name="resourceBuilder">The LiveKit container resource builder.</param>
+    /// <returns>The configured resource builder.</returns>
     public static IResourceBuilder<TResource> WithStructuredLogs<TResource>(
         this IResourceBuilder<TResource> resourceBuilder)
         where TResource : LiveKitContainerResource
@@ -146,6 +196,12 @@ public static partial class LiveKitHostingExtensions
         return resourceBuilder;
     }
 
+    /// <summary>
+    /// Enables the built-in TURN server on UDP for NAT traversal.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="udpPort">The UDP port for the TURN listener. Defaults to 3478.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURN enabled.</returns>
     public static IResourceBuilder<LiveKitServerResource> WithTurn(
         this IResourceBuilder<LiveKitServerResource> livekit,
         int udpPort = 3478)
@@ -162,6 +218,15 @@ public static partial class LiveKitHostingExtensions
             .WithEndpoint(port: udpPort, targetPort: udpPort, name: "turn-udp", protocol: ProtocolType.Udp);
     }
 
+    /// <summary>
+    /// Enables TURN over TLS (TURNS) on TCP with specified domain and certificate files.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="domain">The public domain name configured for TURN.</param>
+    /// <param name="certificateFile">The path to the TLS certificate file.</param>
+    /// <param name="keyFile">The path to the TLS private key file.</param>
+    /// <param name="tlsPort">The TCP port for TURNS traffic. Defaults to 5349.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURNS enabled.</returns>
     public static IResourceBuilder<LiveKitServerResource> WithTurnTls(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string domain,
@@ -188,6 +253,14 @@ public static partial class LiveKitHostingExtensions
             .WithEndpoint(port: tlsPort, targetPort: tlsPort, name: "turn-tls", protocol: ProtocolType.Tcp);
     }
 
+    /// <summary>
+    /// Injects LiveKit connection environment variables (<c>LIVEKIT_URL</c>, and optionally <c>LIVEKIT_API_KEY</c> and <c>LIVEKIT_API_SECRET</c>) into a dependent project resource.
+    /// </summary>
+    /// <typeparam name="TProject">The dependent resource type supporting environment variables.</typeparam>
+    /// <param name="project">The dependent resource builder.</param>
+    /// <param name="livekit">The LiveKit server resource builder.</param>
+    /// <param name="includeCredentials">A value indicating whether to include API credentials in the environment variables. Defaults to <see langword="false"/>.</param>
+    /// <returns>The updated project resource builder.</returns>
     public static IResourceBuilder<TProject> WithLiveKitReference<TProject>(
         this IResourceBuilder<TProject> project,
         IResourceBuilder<LiveKitServerResource> livekit,
@@ -208,6 +281,20 @@ public static partial class LiveKitHostingExtensions
         return project;
     }
 
+    /// <summary>
+    /// Adds a LiveKit Ingress service container to the distributed application.
+    /// </summary>
+    /// <typeparam name="TResource">The type of the Redis resource with a connection string.</typeparam>
+    /// <param name="livekit">The parent LiveKit server resource builder.</param>
+    /// <param name="name">The name of the Ingress resource.</param>
+    /// <param name="redis">The Redis resource used for coordination.</param>
+    /// <param name="rtmpBaseUrl">The public base URL for RTMP ingress.</param>
+    /// <param name="whipBaseUrl">The public base URL for WHIP ingress.</param>
+    /// <param name="version">The container image tag version. Defaults to <c>"latest"</c>.</param>
+    /// <param name="rtmpPort">The TCP port for RTMP ingress. Defaults to 1935.</param>
+    /// <param name="whipPort">The HTTP port for WHIP signaling. Defaults to 8080.</param>
+    /// <param name="whipUdpPort">The UDP port for WHIP media transport. Defaults to 7885.</param>
+    /// <returns>An <see cref="IResourceBuilder{LiveKitIngressResource}"/> for configuring the Ingress service.</returns>
     public static IResourceBuilder<LiveKitIngressResource> AddIngress<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string name,
@@ -266,6 +353,12 @@ public static partial class LiveKitHostingExtensions
         return ingress;
     }
 
+    /// <summary>
+    /// Appends additional raw YAML configuration to the LiveKit Ingress service configuration.
+    /// </summary>
+    /// <param name="ingress">The Ingress resource builder.</param>
+    /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
+    /// <returns>The <see cref="IResourceBuilder{LiveKitIngressResource}"/> with additional configuration applied.</returns>
     public static IResourceBuilder<LiveKitIngressResource> WithIngressAdditionalConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
         string yaml)

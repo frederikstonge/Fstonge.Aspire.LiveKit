@@ -2,27 +2,40 @@ using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
-public sealed class LiveKitSipResource(
-    string name,
-    LiveKitServerResource server,
-    int sipPort,
-    int rtpPortStart,
-    int rtpPortEnd,
-    int? healthPort,
-    int? prometheusPort)
-    : LiveKitContainerResource(name)
+/// <summary>
+/// Represents a LiveKit SIP service container resource in a .NET Aspire distributed application.
+/// </summary>
+public sealed class LiveKitSipResource : LiveKitContainerResource
 {
-    internal LiveKitServerResource Server { get; } = server;
+    internal LiveKitSipResource(
+        string name,
+        LiveKitServerResource server,
+        int sipPort,
+        int rtpPortStart,
+        int rtpPortEnd,
+        int? healthPort,
+        int? prometheusPort)
+        : base(name)
+    {
+        Server = server;
+        SipPort = sipPort;
+        RtpPortStart = rtpPortStart;
+        RtpPortEnd = rtpPortEnd;
+        HealthPort = healthPort;
+        PrometheusPort = prometheusPort;
+    }
 
-    internal int SipPort { get; } = sipPort;
+    internal LiveKitServerResource Server { get; }
 
-    internal int RtpPortStart { get; } = rtpPortStart;
+    internal int SipPort { get; }
 
-    internal int RtpPortEnd { get; } = rtpPortEnd;
+    internal int RtpPortStart { get; }
 
-    internal int? HealthPort { get; } = healthPort;
+    internal int RtpPortEnd { get; }
 
-    internal int? PrometheusPort { get; } = prometheusPort;
+    internal int? HealthPort { get; }
+
+    internal int? PrometheusPort { get; }
 
     internal LiveKitSipConfiguration? Configuration { get; set; }
 

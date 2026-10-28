@@ -1,14 +1,17 @@
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
+/// <summary>
+/// Represents configuration options for the LiveKit server.
+/// </summary>
 public sealed class LiveKitServerConfiguration
 {
     /// <summary>
-    /// Sets the server log verbosity. Default: <c>info</c>.
+    /// Gets or sets the server log verbosity. Default: <c>info</c>.
     /// </summary>
     public string? LogLevel { get; set; }
 
     /// <summary>
-    /// Configures RTC address discovery and UDP port range. When omitted, public-IP discovery is
+    /// Gets or sets the RTC address discovery and UDP port range configuration. When omitted, public-IP discovery is
     /// disabled and the port range is unset; Aspire configures RTC with its resource UDP port.
     /// </summary>
     public LiveKitServerRtcConfiguration Rtc { get; set; } = new();
@@ -26,22 +29,25 @@ public sealed class LiveKitServerConfiguration
     }
 }
 
+/// <summary>
+/// Configures RTC network settings and port ranges for the LiveKit server.
+/// </summary>
 public sealed class LiveKitServerRtcConfiguration
 {
     /// <summary>
-    /// Enables public-IP discovery for RTC. Default: <see langword="false"/>.
+    /// Gets or sets a value indicating whether public-IP discovery is enabled for RTC. Default: <see langword="false"/>.
     /// </summary>
     public bool? UseExternalIp { get; set; }
 
     /// <summary>
-    /// Sets the first UDP port in the RTC media range. Default: unset. Because Aspire configures
+    /// Gets or sets the first UDP port in the RTC media range. Default: unset. Because Aspire configures
     /// <c>rtc.udp_port</c>, LiveKit does not apply its <c>50000</c>-<c>60000</c> port-range fallback.
     /// Must be set together with <see cref="PortRangeEnd"/>.
     /// </summary>
     public int? PortRangeStart { get; set; }
 
     /// <summary>
-    /// Sets the last UDP port in the RTC media range. Default: unset. Because Aspire configures
+    /// Gets or sets the last UDP port in the RTC media range. Default: unset. Because Aspire configures
     /// <c>rtc.udp_port</c>, LiveKit does not apply its <c>50000</c>-<c>60000</c> port-range fallback.
     /// Must be set together with <see cref="PortRangeStart"/>.
     /// </summary>
