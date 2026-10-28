@@ -81,7 +81,7 @@ typed service options. Use `WithLiveKitAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` for additional top-level YAML settings
 supported by the selected service version. See the
-[getting-started guide's image configuration reference](docs/getting-started.md#image-configuration-reference)
+[image configuration reference](docs/image-configuration.md)
 for all settings directly exposed by this package and links to the upstream
 configuration references.
 
@@ -233,9 +233,11 @@ Container image tags default to mutable `latest`. Pass explicit versions to
 The server, companion images, Aspire integration, and SDK wrapper can be
 versioned independently.
 
-See the [detailed getting-started guide](docs/getting-started.md) for additional
-configuration and networking details, and the [example AppHost](example/Fstonge.Aspire.LiveKit.Example.AppHost/AppHost.cs)
-for a working setup.
+See the [getting-started guide](docs/getting-started.md), the
+[optional services guide](docs/optional-services.md), and the
+[image configuration reference](docs/image-configuration.md) for more detail.
+The [example AppHost](example/Fstonge.Aspire.LiveKit.Example.AppHost/AppHost.cs)
+shows a working setup.
 
 ## Acknowledgements
 

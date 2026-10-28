@@ -29,8 +29,10 @@ their parsed fields. Companion-service JSON records are parsed when available;
 plain-text records are forwarded as message-only logs. Logs remain available
 in the resource console output. See the repository's
 [getting-started guide](../../docs/getting-started.md) for shared Redis setup,
-secret parameters, storage configuration, examples, networking limits, and
-the [complete image configuration reference](../../docs/getting-started.md#image-configuration-reference).
+secret parameters, and examples; see the
+[optional services guide](../../docs/optional-services.md) for storage
+configuration and networking limits, and the
+[complete image configuration reference](../../docs/image-configuration.md).
 The package targets .NET 10.
 
 Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
@@ -41,7 +43,7 @@ callback to configure typed service options. Use
 additional top-level YAML settings supported by the selected service version.
 See the repository's
 [getting-started guide](../../docs/getting-started.md) for examples and the
-[complete image configuration reference](../../docs/getting-started.md#image-configuration-reference).
+[complete image configuration reference](../../docs/image-configuration.md).
 
 Server JSON console logging is enabled by default. Call `.WithJsonLogging()` on
 Ingress, Egress, or SIP to enable JSON console output without OTLP forwarding.
