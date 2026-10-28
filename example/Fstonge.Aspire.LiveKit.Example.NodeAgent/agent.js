@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { cli, WorkerOptions, defineAgent } from '@livekit/agents';
 import * as openai from '@livekit/agents-plugin-openai';
 import dotenv from 'dotenv';
@@ -30,4 +31,3 @@ export default defineAgent({
 });
 
 cli.runApp(new WorkerOptions({ agent: fileURLToPath(import.meta.url) }));
-

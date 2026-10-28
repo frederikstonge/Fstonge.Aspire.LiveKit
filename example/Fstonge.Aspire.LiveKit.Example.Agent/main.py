@@ -11,7 +11,7 @@ from livekit.agents import (
     cli,
     llm,
 )
-from livekit.agents.voice_assistant import VoiceAssistant
+from livekit.agents.pipeline import VoicePipelineAgent
 from livekit.plugins import openai, silero
 
 load_dotenv()
@@ -40,7 +40,7 @@ async def entrypoint(ctx: JobContext):
         ),
     )
 
-    assistant = VoiceAssistant(
+    agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
         stt=openai.STT(),
         llm=openai.LLM(model="gpt-4o-mini"),
@@ -48,10 +48,9 @@ async def entrypoint(ctx: JobContext):
         chat_ctx=initial_ctx,
     )
 
-    assistant.start(ctx.room, participant)
-    await assistant.say("Hello! How can I help you today?", allow_interruptions=True)
+    agent.start(ctx.room, participant)
+    await agent.say("Hello! How can I help you today?", allow_interruptions=True)
 
 
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=prewarm))
-
