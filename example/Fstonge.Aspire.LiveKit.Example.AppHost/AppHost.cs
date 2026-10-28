@@ -68,7 +68,7 @@ if (enablePythonAgent || enableNodeAgent)
         {
             livekit.AddPythonAgent(
             "python-voice-agent",
-            "../Fstonge.Aspire.LiveKit.Example.Agent",
+            "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
             scriptPath: "main.py")
             .WithOpenAiApiKey(openAiKey);
         }

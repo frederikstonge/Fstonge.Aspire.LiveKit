@@ -43,7 +43,7 @@ In your `AppHost.cs`:
 ```csharp
 var openAiKey = builder.AddParameter("openai-api-key", secret: true);
 
-var agent = livekit.AddPythonAgent("voice-agent", "../Fstonge.Aspire.LiveKit.Example.Agent", "main.py")
+var agent = livekit.AddPythonAgent("voice-agent", "../Fstonge.Aspire.LiveKit.Example.PythonAgent", "main.py")
     .WithOpenAiApiKey(openAiKey);
 ```
 
