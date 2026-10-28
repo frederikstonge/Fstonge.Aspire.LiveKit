@@ -53,23 +53,44 @@ var enableNodeAgent = builder.Configuration.GetValue<bool>("LiveKit:EnableNodeAg
 if (enablePythonAgent || enableNodeAgent)
 {
     var openAiKey = builder.AddParameter("openai-api-key", secret: true);
+    var useDockerImage = builder.Configuration.GetValue<bool>("LiveKit:UseDockerImage", false);
 
     if (enablePythonAgent)
     {
-        livekit.AddPythonAgent(
+        if (useDockerImage)
+        {
+            livekit.AddAgentDockerfile(
+                "python-docker-voice-agent",
+                "../Fstonge.Aspire.LiveKit.Example.Agent",
+                dockerfilePath: "Dockerfile");
+        }
+        else
+        {
+            livekit.AddPythonAgent(
             "python-voice-agent",
             "../Fstonge.Aspire.LiveKit.Example.Agent",
             scriptPath: "main.py")
             .WithOpenAiApiKey(openAiKey);
+        }
     }
 
     if (enableNodeAgent)
     {
-        livekit.AddNodeAgent(
-            "node-voice-agent",
-            "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
-            scriptPath: "agent.js")
-            .WithOpenAiApiKey(openAiKey);
+        if (useDockerImage)
+        {
+            livekit.AddAgentDockerfile(
+                "node-docker-voice-agent",
+                "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
+                dockerfilePath: "Dockerfile");
+        }
+        else
+        {
+            livekit.AddNodeAgent(
+                "node-voice-agent",
+                "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
+                scriptPath: "agent.js")
+                .WithOpenAiApiKey(openAiKey);
+        }
     }
 }
 
