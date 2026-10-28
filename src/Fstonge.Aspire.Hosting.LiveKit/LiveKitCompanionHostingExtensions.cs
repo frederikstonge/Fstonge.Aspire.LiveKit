@@ -18,6 +18,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="healthPort">The optional host port for health check endpoints.</param>
     /// <param name="prometheusPort">The optional host port for Prometheus metrics.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitEgressResource}"/> for configuring the Egress service.</returns>
+    [AspireExportIgnore(Reason = "Use the Redis-specific exported AddEgress overload in generated AppHosts.")]
     public static IResourceBuilder<LiveKitEgressResource> AddEgress<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string name,
@@ -78,6 +79,24 @@ public static partial class LiveKitHostingExtensions
         return egress;
     }
 
+    /// <summary>Adds a LiveKit Egress service using an Aspire Redis resource.</summary>
+    /// <param name="livekit">The LiveKit server resource.</param>
+    /// <param name="name">The name of the Egress resource.</param>
+    /// <param name="redis">The Redis resource used for coordination.</param>
+    /// <param name="version">The container image tag version.</param>
+    /// <param name="healthPort">The optional health endpoint port.</param>
+    /// <param name="prometheusPort">The optional Prometheus metrics port.</param>
+    /// <returns>The added Egress resource.</returns>
+    [AspireExport("addEgress")]
+    internal static IResourceBuilder<LiveKitEgressResource> AddEgressForExport(
+        IResourceBuilder<LiveKitServerResource> livekit,
+        [ResourceName] string name,
+        IResourceBuilder<RedisResource> redis,
+        string? version = null,
+        int? healthPort = null,
+        int? prometheusPort = null) =>
+        AddEgress<RedisResource>(livekit, name, redis, version, healthPort, prometheusPort);
+
     /// <summary>
     /// Configures a bind mount directory for LiveKit Egress local file recording output.
     /// </summary>
@@ -85,6 +104,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="hostPath">The directory path on the host machine.</param>
     /// <param name="containerPath">The destination directory inside the container. Defaults to <c>"/out"</c>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with local storage configured.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressLocalOutputDirectory(
         this IResourceBuilder<LiveKitEgressResource> egress,
         string hostPath,
@@ -117,6 +137,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="secret">An optional parameter resource for the AWS secret access key.</param>
     /// <param name="endpoint">An optional custom S3 endpoint URL (e.g., for MinIO or custom S3-compatible storage).</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with S3 storage configured.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressS3Storage(
         this IResourceBuilder<LiveKitEgressResource> egress,
         string bucket,
@@ -159,6 +180,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="accountName">The parameter resource containing the Azure storage account name.</param>
     /// <param name="accountKey">The parameter resource containing the Azure storage account key.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with Azure Blob Storage configured.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressAzureStorage(
         this IResourceBuilder<LiveKitEgressResource> egress,
         string containerName,
@@ -188,6 +210,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="egress">The Egress resource builder.</param>
     /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with additional configuration applied.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressAdditionalConfiguration(
         this IResourceBuilder<LiveKitEgressResource> egress,
         string yaml)
@@ -226,6 +249,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="healthPort">The optional host port for health check endpoints.</param>
     /// <param name="prometheusPort">The optional host port for Prometheus metrics.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitSipResource}"/> for configuring the SIP service.</returns>
+    [AspireExportIgnore(Reason = "Use the Redis-specific exported AddSip overload in generated AppHosts.")]
     public static IResourceBuilder<LiveKitSipResource> AddSip<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string name,
@@ -315,6 +339,31 @@ public static partial class LiveKitHostingExtensions
         return sip;
     }
 
+    /// <summary>Adds a LiveKit SIP service using an Aspire Redis resource.</summary>
+    /// <param name="livekit">The LiveKit server resource.</param>
+    /// <param name="name">The name of the SIP resource.</param>
+    /// <param name="redis">The Redis resource used for coordination.</param>
+    /// <param name="version">The container image tag version.</param>
+    /// <param name="sipPort">The SIP signaling port.</param>
+    /// <param name="rtpPortStart">The start of the RTP media port range.</param>
+    /// <param name="rtpPortEnd">The end of the RTP media port range.</param>
+    /// <param name="healthPort">The optional health endpoint port.</param>
+    /// <param name="prometheusPort">The optional Prometheus metrics port.</param>
+    /// <returns>The added SIP resource.</returns>
+    [AspireExport("addSip")]
+    internal static IResourceBuilder<LiveKitSipResource> AddSipForExport(
+        IResourceBuilder<LiveKitServerResource> livekit,
+        [ResourceName] string name,
+        IResourceBuilder<RedisResource> redis,
+        string? version = null,
+        int sipPort = 5060,
+        int rtpPortStart = 10000,
+        int rtpPortEnd = 20000,
+        int? healthPort = null,
+        int? prometheusPort = null) =>
+        AddSip<RedisResource>(
+            livekit, name, redis, version, sipPort, rtpPortStart, rtpPortEnd, healthPort, prometheusPort);
+
     /// <summary>
     /// Configures SIP over TLS (SIPS) on TCP with specified certificate and private key files.
     /// </summary>
@@ -323,6 +372,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="keyFile">The path to the TLS private key file.</param>
     /// <param name="tlsPort">The TCP port for SIP TLS signaling. Defaults to 5061.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitSipResource}"/> with TLS enabled.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitSipResource> WithSipTls(
         this IResourceBuilder<LiveKitSipResource> sip,
         string certificateFile,
@@ -358,6 +408,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="sip">The SIP resource builder.</param>
     /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitSipResource}"/> with additional configuration applied.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitSipResource> WithSipAdditionalConfiguration(
         this IResourceBuilder<LiveKitSipResource> sip,
         string yaml)

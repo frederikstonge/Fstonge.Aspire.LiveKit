@@ -11,6 +11,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="configure">A delegate to configure the <see cref="LiveKitServerConfiguration"/>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with the configuration applied.</returns>
+    [AspireExportIgnore(Reason = "Use WithLiveKitAdditionalConfiguration to configure the server in generated AppHosts.")]
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         Action<LiveKitServerConfiguration> configure)
@@ -48,6 +49,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="ingress">The LiveKit Ingress resource builder.</param>
     /// <param name="configure">A delegate to configure the <see cref="LiveKitIngressConfiguration"/>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitIngressResource}"/> with the configuration applied.</returns>
+    [AspireExportIgnore(Reason = "Use WithIngressAdditionalConfiguration to configure Ingress in generated AppHosts.")]
     public static IResourceBuilder<LiveKitIngressResource> WithIngressConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
         Action<LiveKitIngressConfiguration> configure)
@@ -81,6 +83,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="egress">The LiveKit Egress resource builder.</param>
     /// <param name="configure">A delegate to configure the <see cref="LiveKitEgressConfiguration"/>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with the configuration applied.</returns>
+    [AspireExportIgnore(Reason = "Use WithEgressAdditionalConfiguration to configure Egress in generated AppHosts.")]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressConfiguration(
         this IResourceBuilder<LiveKitEgressResource> egress,
         Action<LiveKitEgressConfiguration> configure)
@@ -111,6 +114,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="sip">The LiveKit SIP resource builder.</param>
     /// <param name="configure">A delegate to configure the <see cref="LiveKitSipConfiguration"/>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitSipResource}"/> with the configuration applied.</returns>
+    [AspireExportIgnore(Reason = "Use WithSipAdditionalConfiguration to configure SIP in generated AppHosts.")]
     public static IResourceBuilder<LiveKitSipResource> WithSipConfiguration(
         this IResourceBuilder<LiveKitSipResource> sip,
         Action<LiveKitSipConfiguration> configure)

@@ -1,10 +1,12 @@
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting;
 
 namespace Fstonge.Aspire.Hosting.LiveKit;
 
 /// <summary>
 /// Represents a LiveKit server container resource in a .NET Aspire distributed application.
 /// </summary>
+[AspireExport]
 public sealed class LiveKitServerResource : LiveKitContainerResource
 {
     internal LiveKitServerResource(

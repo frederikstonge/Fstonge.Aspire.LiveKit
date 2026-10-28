@@ -70,6 +70,40 @@ requests or configured storage; a local output directory must be mounted into
 the container. SIP signaling and RTP ports require suitable external routing,
 which Aspire's local bindings do not provision.
 
+## TypeScript AppHosts
+
+This package exports its resource types and supported APIs through Aspire's
+Type System, so the Aspire CLI can generate a typed SDK for TypeScript AppHosts.
+Add the integration and restore the AppHost to generate its SDK:
+
+```sh
+aspire add Fstonge.Aspire.Hosting.LiveKit
+aspire restore
+```
+
+The generated SDK exposes LiveKit server creation, Redis configuration,
+Ingress/Egress/SIP creation, TURN and SIP TLS settings, YAML configuration,
+Egress storage, logging, and the Python, Node.js, npm, and Dockerfile agent
+helpers. For example:
+
+```typescript
+import { createBuilder } from "./.aspire/modules/aspire.mjs";
+
+const builder = await createBuilder();
+const redis = await builder.addRedis("redis");
+const livekit = await builder.addLiveKit("livekit");
+
+await livekit.withRedis(redis);
+const egress = await livekit.addEgress("egress", redis);
+await egress.withEgressAdditionalConfiguration("logging:\n  level: info\n");
+
+await builder.build().run();
+```
+
+The extension also keeps C#-specific callback configuration overloads for
+C# AppHosts. Generated AppHosts can use the corresponding additional-YAML
+methods instead.
+
 ## LiveKit Agent Framework Integration
 
 You can easily orchestrate LiveKit AI Agents (Python or Node.js/npm) directly alongside the LiveKit server:

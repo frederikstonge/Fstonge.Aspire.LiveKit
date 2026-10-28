@@ -24,9 +24,11 @@ public static partial class LiveKitHostingExtensions
     /// <param name="rtcTcpPort">The host port for RTC TCP fallback connections. Defaults to 7881.</param>
     /// <param name="rtcUdpPort">The host port for primary RTC UDP media. Defaults to 7882.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitServerResource}"/> for configuring the LiveKit server.</returns>
+    /// <ats-summary>Adds a LiveKit server with generated secret credentials.</ats-summary>
+    [AspireExport]
     public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
         this IDistributedApplicationBuilder builder,
-        string name,
+        [ResourceName] string name,
         string? version = null,
         int httpPort = 7880,
         int rtcTcpPort = 7881,
@@ -61,9 +63,10 @@ public static partial class LiveKitHostingExtensions
     /// <param name="rtcTcpPort">The host port for RTC TCP fallback connections. Defaults to 7881.</param>
     /// <param name="rtcUdpPort">The host port for primary RTC UDP media. Defaults to 7882.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitServerResource}"/> for configuring the LiveKit server.</returns>
+    [AspireExportIgnore(Reason = "The generated-credentials overload is the cross-language API.")]
     public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
         this IDistributedApplicationBuilder builder,
-        string name,
+        [ResourceName] string name,
         IResourceBuilder<ParameterResource> apiKey,
         IResourceBuilder<ParameterResource> apiSecret,
         string? version = null,
@@ -112,6 +115,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="redis">The Redis resource builder.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with Redis configured.</returns>
+    [AspireExportIgnore(Reason = "Use the Redis-specific export for generated AppHosts.")]
     public static IResourceBuilder<LiveKitServerResource> WithRedis<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         IResourceBuilder<TResource> redis)
@@ -126,11 +130,24 @@ public static partial class LiveKitHostingExtensions
     }
 
     /// <summary>
+    /// Configures a Redis resource for LiveKit clustering and distributed coordination.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource.</param>
+    /// <param name="redis">The Redis resource used for coordination.</param>
+    /// <returns>The LiveKit server resource.</returns>
+    [AspireExport("withRedis")]
+    internal static IResourceBuilder<LiveKitServerResource> WithRedisForExport(
+        IResourceBuilder<LiveKitServerResource> livekit,
+        IResourceBuilder<RedisResource> redis) =>
+        WithRedis<RedisResource>(livekit, redis);
+
+    /// <summary>
     /// Appends additional raw YAML configuration to the LiveKit server configuration.
     /// </summary>
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with additional configuration applied.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitAdditionalConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string yaml)
@@ -157,6 +174,7 @@ public static partial class LiveKitHostingExtensions
     /// <typeparam name="TResource">The type of the LiveKit container resource.</typeparam>
     /// <param name="resourceBuilder">The LiveKit container resource builder.</param>
     /// <returns>The configured resource builder.</returns>
+    [AspireExportIgnore(Reason = "Use resource-specific logging exports in generated AppHosts.")]
     public static IResourceBuilder<TResource> WithJsonLogging<TResource>(
         this IResourceBuilder<TResource> resourceBuilder)
         where TResource : LiveKitContainerResource
@@ -173,6 +191,7 @@ public static partial class LiveKitHostingExtensions
     /// <typeparam name="TResource">The type of the LiveKit container resource.</typeparam>
     /// <param name="resourceBuilder">The LiveKit container resource builder.</param>
     /// <returns>The configured resource builder.</returns>
+    [AspireExportIgnore(Reason = "Use resource-specific logging exports in generated AppHosts.")]
     public static IResourceBuilder<TResource> WithStructuredLogs<TResource>(
         this IResourceBuilder<TResource> resourceBuilder)
         where TResource : LiveKitContainerResource
@@ -196,12 +215,69 @@ public static partial class LiveKitHostingExtensions
         return resourceBuilder;
     }
 
+    /// <summary>Enables JSON console logging for a LiveKit Ingress resource.</summary>
+    /// <param name="resourceBuilder">The Ingress resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitIngressResource> WithIngressJsonLogging(
+        IResourceBuilder<LiveKitIngressResource> resourceBuilder) =>
+        WithJsonLogging(resourceBuilder);
+
+    /// <summary>Enables JSON console logging for a LiveKit Egress resource.</summary>
+    /// <param name="resourceBuilder">The Egress resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitEgressResource> WithEgressJsonLogging(
+        IResourceBuilder<LiveKitEgressResource> resourceBuilder) =>
+        WithJsonLogging(resourceBuilder);
+
+    /// <summary>Enables JSON console logging for a LiveKit SIP resource.</summary>
+    /// <param name="resourceBuilder">The SIP resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitSipResource> WithSipJsonLogging(
+        IResourceBuilder<LiveKitSipResource> resourceBuilder) =>
+        WithJsonLogging(resourceBuilder);
+
+    /// <summary>Enables OTLP log forwarding for the LiveKit server resource.</summary>
+    /// <param name="resourceBuilder">The LiveKit server resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitServerResource> WithServerStructuredLogs(
+        IResourceBuilder<LiveKitServerResource> resourceBuilder) =>
+        WithStructuredLogs(resourceBuilder);
+
+    /// <summary>Enables OTLP log forwarding for a LiveKit Ingress resource.</summary>
+    /// <param name="resourceBuilder">The Ingress resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitIngressResource> WithIngressStructuredLogs(
+        IResourceBuilder<LiveKitIngressResource> resourceBuilder) =>
+        WithStructuredLogs(resourceBuilder);
+
+    /// <summary>Enables OTLP log forwarding for a LiveKit Egress resource.</summary>
+    /// <param name="resourceBuilder">The Egress resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitEgressResource> WithEgressStructuredLogs(
+        IResourceBuilder<LiveKitEgressResource> resourceBuilder) =>
+        WithStructuredLogs(resourceBuilder);
+
+    /// <summary>Enables OTLP log forwarding for a LiveKit SIP resource.</summary>
+    /// <param name="resourceBuilder">The SIP resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<LiveKitSipResource> WithSipStructuredLogs(
+        IResourceBuilder<LiveKitSipResource> resourceBuilder) =>
+        WithStructuredLogs(resourceBuilder);
+
     /// <summary>
     /// Enables the built-in TURN server on UDP for NAT traversal.
     /// </summary>
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="udpPort">The UDP port for the TURN listener. Defaults to 3478.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURN enabled.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitServerResource> WithTurn(
         this IResourceBuilder<LiveKitServerResource> livekit,
         int udpPort = 3478)
@@ -227,6 +303,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="keyFile">The path to the TLS private key file.</param>
     /// <param name="tlsPort">The TCP port for TURNS traffic. Defaults to 5349.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURNS enabled.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitServerResource> WithTurnTls(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string domain,
@@ -261,6 +338,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="includeCredentials">A value indicating whether to include API credentials in the environment variables. Defaults to <see langword="false"/>.</param>
     /// <returns>The updated project resource builder.</returns>
+    [AspireExportIgnore(Reason = "The method accepts arbitrary C# resource types; generated AppHosts can configure environment variables directly.")]
     public static IResourceBuilder<TProject> WithLiveKitReference<TProject>(
         this IResourceBuilder<TProject> project,
         IResourceBuilder<LiveKitServerResource> livekit,
@@ -295,6 +373,7 @@ public static partial class LiveKitHostingExtensions
     /// <param name="whipPort">The HTTP port for WHIP signaling. Defaults to 8080.</param>
     /// <param name="whipUdpPort">The UDP port for WHIP media transport. Defaults to 7885.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitIngressResource}"/> for configuring the Ingress service.</returns>
+    [AspireExportIgnore(Reason = "Use the Redis-specific exported AddIngress overload in generated AppHosts.")]
     public static IResourceBuilder<LiveKitIngressResource> AddIngress<TResource>(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string name,
@@ -354,11 +433,39 @@ public static partial class LiveKitHostingExtensions
     }
 
     /// <summary>
+    /// Adds a LiveKit Ingress service using an Aspire Redis resource.
+    /// </summary>
+    /// <param name="livekit">The LiveKit server resource.</param>
+    /// <param name="name">The name of the Ingress resource.</param>
+    /// <param name="redis">The Redis resource used for coordination.</param>
+    /// <param name="rtmpBaseUrl">The public base URL for RTMP ingress.</param>
+    /// <param name="whipBaseUrl">The public base URL for WHIP ingress.</param>
+    /// <param name="version">The container image tag version.</param>
+    /// <param name="rtmpPort">The TCP port for RTMP ingress.</param>
+    /// <param name="whipPort">The HTTP port for WHIP signaling.</param>
+    /// <param name="whipUdpPort">The UDP port for WHIP media transport.</param>
+    /// <returns>The added Ingress resource.</returns>
+    [AspireExport("addIngress")]
+    internal static IResourceBuilder<LiveKitIngressResource> AddIngressForExport(
+        IResourceBuilder<LiveKitServerResource> livekit,
+        [ResourceName] string name,
+        IResourceBuilder<RedisResource> redis,
+        string rtmpBaseUrl,
+        string whipBaseUrl,
+        string? version = null,
+        int rtmpPort = 1935,
+        int whipPort = 8080,
+        int whipUdpPort = 7885) =>
+        AddIngress<RedisResource>(
+            livekit, name, redis, rtmpBaseUrl, whipBaseUrl, version, rtmpPort, whipPort, whipUdpPort);
+
+    /// <summary>
     /// Appends additional raw YAML configuration to the LiveKit Ingress service configuration.
     /// </summary>
     /// <param name="ingress">The Ingress resource builder.</param>
     /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitIngressResource}"/> with additional configuration applied.</returns>
+    [AspireExport]
     public static IResourceBuilder<LiveKitIngressResource> WithIngressAdditionalConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
         string yaml)

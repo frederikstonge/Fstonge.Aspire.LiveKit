@@ -4,6 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
+    <EnableAspireIntegrationAnalyzers>true</EnableAspireIntegrationAnalyzers>
     <PackageId>Fstonge.Aspire.Hosting.LiveKit</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>.NET Aspire hosting integration for LiveKit.</Description>
