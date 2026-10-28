@@ -70,7 +70,15 @@ The wrapper reads `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and
 `LIVEKIT_API_SECRET` from environment variables or the `LiveKit` configuration
 section. The URL must be an absolute HTTP or HTTPS API URL; the secret must be
 at least 32 bytes. `RoomServiceClient` is registered as a transient service,
-and settings are validated when the host starts or the client is resolved.
+and `IAccessTokenFactory` is registered as a singleton for constructing
+`AccessToken` values from the configured key and secret:
+
+```csharp
+var tokenFactory = serviceProvider.GetRequiredService<IAccessTokenFactory>();
+var accessToken = tokenFactory.GetAccessToken();
+```
+
+Settings are validated when the host starts or the client is resolved.
 Validation errors do not expose credential values.
 
 ## RTC participant connections

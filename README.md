@@ -114,10 +114,18 @@ environment variables, or values in the `LiveKit` configuration section:
 | `LIVEKIT_API_KEY` | Yes | Must be configured |
 | `LIVEKIT_API_SECRET` | Yes | Must be configured and at least 32 bytes |
 
-`RoomServiceClient` is registered as a transient typed HTTP client. Settings
-are validated when the host starts or the client is resolved. Validation
-messages identify missing or invalid settings without exposing credential
-values.
+`RoomServiceClient` is registered as a transient typed HTTP client. The SDK
+also registers `IAccessTokenFactory` as a singleton for creating
+`AccessToken` values from the configured API key and secret:
+
+```csharp
+var tokenFactory = serviceProvider.GetRequiredService<IAccessTokenFactory>();
+var accessToken = tokenFactory.GetAccessToken();
+```
+
+Settings are validated when the host starts or the client is resolved.
+Validation messages identify missing or invalid settings without exposing
+credential values.
 
 The example API registers a startup background service that creates a
 temporary room, joins it using the RTC SDK, disconnects, and deletes the room.

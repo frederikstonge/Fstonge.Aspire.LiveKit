@@ -9,10 +9,18 @@ builder.Services.AddLiveKitSdk(builder.Configuration);
 
 Set `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` using
 environment variables, user secrets, or the `LiveKit` configuration section.
-The wrapper registers `RoomServiceClient` as transient and validates settings
-without writing credential values to errors. See the repository's
-[getting-started guide](../../docs/getting-started.md) for Aspire setup and
-security guidance.
+The wrapper registers `RoomServiceClient` as transient and `IAccessTokenFactory`
+as a singleton for creating `AccessToken` values from the configured API key
+and secret. For example:
+
+```csharp
+var tokenFactory = serviceProvider.GetRequiredService<IAccessTokenFactory>();
+var accessToken = tokenFactory.GetAccessToken();
+```
+
+It validates settings without writing credential values to errors. See the
+repository's [getting-started guide](../../docs/getting-started.md) for Aspire
+setup and security guidance.
 
 The package targets .NET 10.
 
