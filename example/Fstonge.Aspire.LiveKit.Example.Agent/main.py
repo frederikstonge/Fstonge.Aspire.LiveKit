@@ -1,21 +1,29 @@
-import asyncio
 import logging
-import os
 from dotenv import load_dotenv
 
 from livekit.agents import (
     AutoSubscribe,
+    Agent,
+    AgentSession,
     JobContext,
     JobProcess,
     WorkerOptions,
     cli,
-    llm,
 )
-from livekit.agents.pipeline import VoicePipelineAgent
 from livekit.plugins import openai, silero
 
 load_dotenv()
 logger = logging.getLogger("livekit-voice-agent")
+
+
+class VoiceAssistant(Agent):
+    def __init__(self):
+        super().__init__(
+            instructions=(
+                "You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. "
+                "Your output will be converted to speech. Keep responses concise, warm, and natural."
+            )
+        )
 
 
 def prewarm(proc: JobProcess):
@@ -32,24 +40,15 @@ async def entrypoint(ctx: JobContext):
     participant = await ctx.wait_for_participant()
     logger.info(f"Starting voice assistant for participant: {participant.identity}")
 
-    initial_ctx = llm.ChatContext().append(
-        role="system",
-        text=(
-            "You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. "
-            "Your output will be converted to speech. Keep responses concise, warm, and natural."
-        ),
-    )
-
-    agent = VoicePipelineAgent(
+    session = AgentSession(
         vad=ctx.proc.userdata["vad"],
         stt=openai.STT(),
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=openai.TTS(),
-        chat_ctx=initial_ctx,
     )
 
-    agent.start(ctx.room, participant)
-    await agent.say("Hello! How can I help you today?", allow_interruptions=True)
+    await session.start(room=ctx.room, agent=VoiceAssistant())
+    await session.say("Hello! How can I help you today?", allow_interruptions=True)
 
 
 if __name__ == "__main__":
