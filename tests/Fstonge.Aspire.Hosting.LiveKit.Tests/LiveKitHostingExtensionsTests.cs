@@ -85,7 +85,7 @@ public sealed class LiveKitHostingExtensionsTests
         var result = await ExecutionConfigurationBuilder
             .Create(livekit.Resource)
             .WithEnvironmentVariablesConfig()
-            .BuildAsync(context, NullLogger.Instance);
+            .BuildAsync(context, NullLogger.Instance, TestContext.Current.CancellationToken);
         var configuration = Assert.Single(
             result.EnvironmentVariables,
             pair => pair.Key == "LIVEKIT_CONFIG").Value;
@@ -255,7 +255,7 @@ public sealed class LiveKitHostingExtensionsTests
         var result = await ExecutionConfigurationBuilder
             .Create(ingress.Resource)
             .WithEnvironmentVariablesConfig()
-            .BuildAsync(context, NullLogger.Instance);
+            .BuildAsync(context, NullLogger.Instance, TestContext.Current.CancellationToken);
         var configuration = Assert.Single(
             result.EnvironmentVariables,
             pair => pair.Key == "INGRESS_CONFIG_BODY").Value;
