@@ -7,7 +7,7 @@ namespace Fstonge.Aspire.Hosting.LiveKit;
 /// <summary>
 /// Provides extension methods for registering and configuring LiveKit Agent Framework workers with .NET Aspire.
 /// </summary>
-public static partial class LiveKitHostingExtensions
+public static class LiveKitAgentHostingExtensions
 {
     /// <summary>
     /// Configures a resource to connect to LiveKit as an Agent Framework worker by injecting
