@@ -24,8 +24,8 @@ public sealed class LiveKitServiceCollectionExtensionsTests
 
         using var provider = services.BuildServiceProvider();
 
-        var firstClient = provider.GetRequiredService<RoomServiceClient>();
-        var secondClient = provider.GetRequiredService<RoomServiceClient>();
+        var firstClient = provider.GetRequiredService<IRoomManagementService>();
+        var secondClient = provider.GetRequiredService<IRoomManagementService>();
 
         Assert.NotSame(firstClient, secondClient);
     }
@@ -66,7 +66,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         var exception = Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<RoomServiceClient>());
+            () => provider.GetRequiredService<IRoomManagementService>());
 
         Assert.Contains("LIVEKIT_URL", exception.Message);
         Assert.Contains("LIVEKIT_API_KEY", exception.Message);
@@ -91,7 +91,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         var exception = Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<RoomServiceClient>());
+            () => provider.GetRequiredService<IRoomManagementService>());
 
         Assert.Contains("at least 32 bytes", exception.Message);
         Assert.DoesNotContain(shortSecret, exception.Message);
@@ -115,7 +115,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         var exception = Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<RoomServiceClient>());
+            () => provider.GetRequiredService<IRoomManagementService>());
 
         Assert.Contains("at least 32 bytes", exception.Message);
     }
@@ -136,7 +136,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
 
         using var provider = services.BuildServiceProvider();
 
-        var client = provider.GetRequiredService<RoomServiceClient>();
+        var client = provider.GetRequiredService<IRoomManagementService>();
 
         Assert.NotNull(client);
     }
@@ -160,7 +160,7 @@ public sealed class LiveKitServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         var exception = Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<RoomServiceClient>());
+            () => provider.GetRequiredService<IRoomManagementService>());
 
         Assert.Contains("HTTP or HTTPS", exception.Message);
     }

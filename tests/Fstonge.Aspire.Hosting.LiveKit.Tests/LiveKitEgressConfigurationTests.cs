@@ -83,11 +83,18 @@ public sealed class LiveKitEgressConfigurationTests
         Assert.Equal("debug_handler_port", exception.ParamName);
     }
 
+    [Fact]
+    public void ToYaml_RejectsNullTemplateBase()
+    {
+        var configuration = new LiveKitEgressConfiguration { TemplateBase = null };
+
+        Assert.Throws<InvalidOperationException>(() => configuration.ToYaml(jsonLoggingEnabled: false));
+    }
+
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("  ")]
-    public void ToYaml_RejectsBlankTemplateBase(string? templateBase)
+    public void ToYaml_RejectsBlankTemplateBase(string templateBase)
     {
         var configuration = new LiveKitEgressConfiguration { TemplateBase = templateBase };
 
