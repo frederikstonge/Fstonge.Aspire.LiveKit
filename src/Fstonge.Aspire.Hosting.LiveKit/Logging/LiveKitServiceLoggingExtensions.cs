@@ -1,11 +1,10 @@
-using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 public static class LiveKitServiceLoggingExtensions
 {

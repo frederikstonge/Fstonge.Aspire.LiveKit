@@ -1,7 +1,4 @@
-using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting;
-
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
 /// Represents a LiveKit Ingress service container resource in a .NET Aspire distributed application.

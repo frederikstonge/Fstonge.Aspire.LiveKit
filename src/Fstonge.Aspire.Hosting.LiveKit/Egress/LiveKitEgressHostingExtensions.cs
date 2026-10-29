@@ -1,9 +1,6 @@
-using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
-using System.Globalization;
-using System.Net.Sockets;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 public static class LiveKitEgressHostingExtensions
 {

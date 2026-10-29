@@ -1,8 +1,7 @@
-using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Hosting;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 /// <summary>
 /// Provides extension methods for registering and configuring LiveKit Agent Framework workers with .NET Aspire.

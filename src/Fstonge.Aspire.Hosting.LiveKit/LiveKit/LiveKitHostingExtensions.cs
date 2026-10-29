@@ -1,10 +1,9 @@
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting;
 using Microsoft.Extensions.Hosting;
 using System.Globalization;
 using System.Net.Sockets;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 /// <summary>
 /// Provides extension methods for registering and configuring LiveKit resources with .NET Aspire.
@@ -144,7 +143,7 @@ public static class LiveKitHostingExtensions
         string yaml)
     {
         ArgumentNullException.ThrowIfNull(livekit);
-        livekit.Resource.AdditionalConfiguration =  LiveKitConfigurationYaml.ValidateAdditionalConfiguration(
+        livekit.Resource.AdditionalConfiguration = LiveKitConfigurationYaml.ValidateAdditionalConfiguration(
             yaml,
             nameof(yaml),
             "development",

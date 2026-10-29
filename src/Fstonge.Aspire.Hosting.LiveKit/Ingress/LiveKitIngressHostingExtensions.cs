@@ -1,13 +1,8 @@
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Net.Sockets;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 /// <summary>
 /// Provides extension methods for registering and configuring LiveKit resources with .NET Aspire.

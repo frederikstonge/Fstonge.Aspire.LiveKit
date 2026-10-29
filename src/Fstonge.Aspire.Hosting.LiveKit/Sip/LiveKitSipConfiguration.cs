@@ -1,4 +1,4 @@
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 /// <summary>
 /// Represents configuration options for the LiveKit SIP service.

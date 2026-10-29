@@ -1,7 +1,7 @@
 using System.Globalization;
 using Aspire.Hosting.ApplicationModel;
 
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting;
 
 public static class LiveKitHostingHelpers
 {
