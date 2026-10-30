@@ -1,10 +1,9 @@
-using Aspire.Hosting.ApplicationModel;
-
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
 /// Represents a LiveKit SIP service container resource in a .NET Aspire distributed application.
 /// </summary>
+[AspireExport]
 public sealed class LiveKitSipResource : LiveKitContainerResource
 {
     internal LiveKitSipResource(

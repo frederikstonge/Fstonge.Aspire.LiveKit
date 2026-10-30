@@ -1,6 +1,4 @@
-using Aspire.Hosting.ApplicationModel;
-
-namespace Fstonge.Aspire.Hosting.LiveKit;
+namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
 /// Represents a containerized LiveKit resource in a .NET Aspire distributed application.

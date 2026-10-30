@@ -1,3 +1,4 @@
+using Aspire.Hosting;
 using Fstonge.Aspire.Hosting.LiveKit;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests;
