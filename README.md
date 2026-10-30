@@ -253,7 +253,7 @@ versioned independently.
 
 See the [getting-started guide](docs/getting-started.md), the
 [optional services guide](docs/optional-services.md), the
-[agents guide](docs/agents.md), and the
+[agents guide](docs/livekit-agents.md), and the
 [image configuration reference](docs/image-configuration.md) for more detail.
 The [example AppHost](example/Fstonge.Aspire.LiveKit.Example.AppHost/AppHost.cs)
 shows a working setup.

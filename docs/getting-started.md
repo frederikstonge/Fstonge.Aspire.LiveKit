@@ -2,7 +2,7 @@
 
 This guide covers a minimal Aspire setup and connecting .NET applications to
 LiveKit. For more detail, see the [optional services guide](optional-services.md),
-the [agents guide](agents.md), and the
+the [agents guide](livekit-agents.md), and the
 [image configuration reference](image-configuration.md).
 
 ## AppHost
