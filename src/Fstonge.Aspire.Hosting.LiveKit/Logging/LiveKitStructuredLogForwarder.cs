@@ -12,7 +12,7 @@ using OpenTelemetry.Resources;
 namespace Aspire.Hosting;
 
 internal sealed class LiveKitStructuredLogForwarder(
-    LiveKitContainerResource resource,
+    IResource resource,
     ResourceLoggerService resourceLoggerService,
     IConfiguration configuration,
     ILogger<LiveKitStructuredLogForwarder> logger) : BackgroundService

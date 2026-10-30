@@ -62,7 +62,8 @@ if (enablePythonAgent || enableNodeAgent)
                 "python-docker-voice-agent",
                 "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
                 dockerfilePath: "Dockerfile")
-                .WithOpenAiApiKey(openAiKey);
+                .WithOpenAiApiKey(openAiKey)
+                .WithAgentStructuredLogs();
         }
         else
         {
@@ -70,7 +71,8 @@ if (enablePythonAgent || enableNodeAgent)
             "python-voice-agent",
             "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
             scriptPath: "main.py")
-            .WithOpenAiApiKey(openAiKey);
+            .WithOpenAiApiKey(openAiKey)
+            .WithAgentStructuredLogs();
         }
     }
 
@@ -82,7 +84,8 @@ if (enablePythonAgent || enableNodeAgent)
                 "node-docker-voice-agent",
                 "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
                 dockerfilePath: "Dockerfile")
-                .WithOpenAiApiKey(openAiKey);
+                .WithOpenAiApiKey(openAiKey)
+                .WithAgentStructuredLogs();
         }
         else
         {
@@ -90,7 +93,8 @@ if (enablePythonAgent || enableNodeAgent)
                 "node-voice-agent",
                 "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
                 scriptPath: "agent.js")
-                .WithOpenAiApiKey(openAiKey);
+                .WithOpenAiApiKey(openAiKey)
+                .WithAgentStructuredLogs();
         }
     }
 }

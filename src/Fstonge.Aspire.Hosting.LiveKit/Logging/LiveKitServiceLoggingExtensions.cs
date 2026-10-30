@@ -54,4 +54,24 @@ public static class LiveKitServiceLoggingExtensions
 
         return resourceBuilder;
     }
+
+    [AspireExportIgnore(Reason = "Use resource-specific logging exports in generated AppHosts.")]
+    public static IResourceBuilder<TResource> WithAgentStructuredLogs<TResource>(
+        this IResourceBuilder<TResource> resourceBuilder)
+        where TResource : IResource
+    {
+        ArgumentNullException.ThrowIfNull(resourceBuilder);
+
+        var resource = resourceBuilder.Resource;
+        
+        resourceBuilder.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
+            new LiveKitStructuredLogForwarder(
+                resource,
+                serviceProvider.GetRequiredService<ResourceLoggerService>(),
+                serviceProvider.GetRequiredService<IConfiguration>(),
+                serviceProvider.GetRequiredService<ILogger<LiveKitStructuredLogForwarder>>()));
+    
+
+        return resourceBuilder;
+    }
 }
