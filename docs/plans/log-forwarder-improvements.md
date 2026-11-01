@@ -1,1 +1,0 @@
-I want to refactor my log forwarder to support all scenarios right now. Maybe have a base class and different implementation for each different formats (ex: json from python agent is different than json from other livekit apps). Make it more robust.
