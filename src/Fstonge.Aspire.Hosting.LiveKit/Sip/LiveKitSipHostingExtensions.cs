@@ -54,7 +54,7 @@ public static class LiveKitSipHostingExtensions
             throw new ArgumentException("The SIP signaling port must not be inside the RTP port range.", nameof(sipPort));
         }
 
-        livekit.WithRedis(redis);
+        livekit.WithLiveKitServerRedis(redis);
 
         ValidateSipCompanionPort(healthPort, sipPort, rtpPortStart, rtpPortEnd, nameof(healthPort));
         ValidateSipCompanionPort(prometheusPort, sipPort, rtpPortStart, rtpPortEnd, nameof(prometheusPort));

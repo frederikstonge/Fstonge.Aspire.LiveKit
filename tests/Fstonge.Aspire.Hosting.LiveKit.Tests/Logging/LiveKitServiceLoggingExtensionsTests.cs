@@ -10,7 +10,7 @@ public sealed class LiveKitServiceLoggingExtensionsTests
     public void WithJsonLogging_EnablesJsonWithoutRegisteringForwarder()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var ingress = builder.AddLiveKit("livekit")
+        var ingress = builder.AddLiveKitServer("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip");
         var hostedServiceCount = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
 
@@ -26,7 +26,7 @@ public sealed class LiveKitServiceLoggingExtensionsTests
     public void WithStructuredLogs_EnablesJsonAndRegistersOnlyOneForwarderPerResource()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var initialHostedServiceCount = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
 
         livekit.WithStructuredLogs().WithStructuredLogs();

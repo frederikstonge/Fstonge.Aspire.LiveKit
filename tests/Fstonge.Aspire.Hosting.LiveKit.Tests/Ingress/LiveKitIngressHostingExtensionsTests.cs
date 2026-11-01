@@ -12,7 +12,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
+        var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret);
         var redis = builder.AddRedis("redis");
 
         Assert.Empty(builder.Resources.OfType<LiveKitIngressResource>());
@@ -43,7 +43,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
     public async Task WithIngressConfiguration_EmitsTypedAndAdditionalSettings()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var ingress = builder.AddLiveKit("livekit")
+        var ingress = builder.AddLiveKitServer("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
             .WithIngressConfiguration(configuration =>
             {
@@ -65,7 +65,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
     public void AddIngress_RejectsUnsupportedPublicUrlSchemes(string rtmpUrl, string whipUrl)
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var redis = builder.AddRedis("redis");
 
         Assert.Throws<ArgumentException>(() => livekit.AddIngress("ingress", redis, rtmpUrl, whipUrl));
@@ -75,7 +75,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
     public void AddIngress_RejectsInvalidOrCollidingPorts()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var redis = builder.AddRedis("redis");
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -91,7 +91,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
     public void WithIngressAdditionalConfiguration_RejectsMalformedDuplicateOrManagedSettings(string yaml)
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var ingress = builder.AddLiveKit("livekit")
+        var ingress = builder.AddLiveKitServer("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip");
 
         Assert.Throws<ArgumentException>(() => ingress.WithIngressAdditionalConfiguration(yaml));

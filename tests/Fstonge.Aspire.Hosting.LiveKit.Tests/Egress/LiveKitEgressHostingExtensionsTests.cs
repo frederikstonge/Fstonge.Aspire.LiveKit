@@ -11,7 +11,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
+        var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret);
         var redis = builder.AddRedis("redis");
 
         Assert.Empty(builder.Resources.OfType<LiveKitEgressResource>());
@@ -38,7 +38,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     public async Task AddEgress_EmitsTypedAndAdditionalConfiguration()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var redis = builder.AddRedis("redis");
         var egress = livekit.AddEgress("egress", redis)
             .WithEgressConfiguration(configuration =>
@@ -64,7 +64,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     public void AddEgress_RejectsDuplicateOrInvalidListenerPorts()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var redis = builder.AddRedis("redis");
 
         Assert.Throws<ArgumentOutOfRangeException>(() => livekit.AddEgress("bad", redis, healthPort: 0));
@@ -77,7 +77,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     public void WithEgressLocalOutputDirectory_RejectsInvalidAndDuplicateMounts()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var egress = builder.AddLiveKit("livekit").AddEgress("egress", builder.AddRedis("redis"));
+        var egress = builder.AddLiveKitServer("livekit").AddEgress("egress", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() => egress.WithEgressLocalOutputDirectory("", "/out"));
         Assert.Throws<ArgumentException>(() => egress.WithEgressLocalOutputDirectory("./recordings", "out"));
@@ -91,7 +91,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var accessKey = builder.AddParameter("access-key", "access-value", secret: true);
         var secret = builder.AddParameter("secret-key", "secret-value", secret: true);
-        var egress = builder.AddLiveKit("livekit")
+        var egress = builder.AddLiveKitServer("livekit")
             .AddEgress("egress", builder.AddRedis("redis"))
             .WithEgressS3Storage("recordings", "us-east-1", accessKey, secret, "https://s3.example.test");
 
@@ -111,7 +111,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var accessKey = builder.AddParameter("access-key", "access-value", secret: true);
-        var egress = builder.AddLiveKit("livekit")
+        var egress = builder.AddLiveKitServer("livekit")
             .AddEgress("egress", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() =>
@@ -126,7 +126,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var accountName = builder.AddParameter("azure-account", "account-value", secret: true);
         var accountKey = builder.AddParameter("azure-key", "key-value", secret: true);
-        var egress = builder.AddLiveKit("livekit")
+        var egress = builder.AddLiveKitServer("livekit")
             .AddEgress("egress", builder.AddRedis("redis"))
             .WithEgressAzureStorage("recordings", accountName, accountKey);
 
@@ -148,7 +148,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     public void WithEgressAdditionalConfiguration_RejectsMalformedDuplicateOrManagedSettings(string yaml)
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var egress = builder.AddLiveKit("livekit").AddEgress("egress", builder.AddRedis("redis"));
+        var egress = builder.AddLiveKitServer("livekit").AddEgress("egress", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() => egress.WithEgressAdditionalConfiguration(yaml));
     }

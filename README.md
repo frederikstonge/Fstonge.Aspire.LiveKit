@@ -23,15 +23,15 @@ project. Add a LiveKit server with a shared Redis resource:
 ```csharp
 var redis = builder.AddRedis("redis");
 
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis);
 
 var api = builder.AddProject<Projects.Api>("api")
-    .WithLiveKitReference(livekit, includeCredentials: true)
+    .WithLiveKitServerReference(livekit, includeCredentials: true)
     .WaitFor(livekit);
 ```
 
-`AddLiveKit("livekit")` requires no API key or API secret arguments; it
+`AddLiveKitServer("livekit")` requires no API key or API secret arguments; it
 generates both as secret Aspire parameters. During local runs, Aspire persists
 the generated values in the AppHost project's user secrets, so they remain
 stable across restarts without prompting. You can optionally supply your own
@@ -41,24 +41,24 @@ secret parameters:
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
 var apiSecret = builder.AddParameter("livekit-api-secret", secret: true);
 
-var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret, version: "v1.9.0")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret, version: "v1.9.0")
+    .WithLiveKitServerRedis(redis);
 ```
 
-`WithLiveKitReference` provides the server URL. Credentials are only passed to
+`WithLiveKitServerReference` provides the server URL. Credentials are only passed to
 the application when `includeCredentials` is `true`; use this only for trusted
 server-side applications. Never send the API secret to browsers or other
 untrusted clients. Issue short-lived access tokens from a trusted backend.
 
 The server API listens on HTTP port 7880, TCP RTC port 7881, and UDP RTC mux
 port 7882 by default. These can be overridden with the `httpPort`,
-`rtcTcpPort`, and `rtcUdpPort` arguments to `AddLiveKit`. Embedded TURN is
+`rtcTcpPort`, and `rtcUdpPort` arguments to `AddLiveKitServer`. Embedded TURN is
 optional:
 
 ```csharp
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis)
-    .WithTurn(udpPort: 3478);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis)
+    .WithLiveKitServerTurn(udpPort: 3478);
 ```
 
 Ingress, Egress, and SIP resources created from a LiveKit resource appear
@@ -68,8 +68,8 @@ LiveKit server JSON console output is enabled by default. Enable JSON output
 for Ingress, Egress, or SIP with `.WithJsonLogging()`:
 
 ```csharp
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis);
 
 var egress = livekit.AddEgress("egress", redis)
     .WithJsonLogging();
@@ -77,7 +77,7 @@ var egress = livekit.AddEgress("egress", redis)
 
 Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
 `WithEgressConfiguration`, and `WithSipConfiguration` with a callback to set
-typed service options. Use `WithLiveKitAdditionalConfiguration`,
+typed service options. Use `WithLiveKitServerAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` for additional top-level YAML settings
 supported by the selected service version. See the
@@ -93,7 +93,7 @@ companion logs are forwarded as message-only records. The log forwarder also
 supports agent resources, including Python and Node.js agents. An OTLP endpoint
 must be configured on the AppHost.
 
-Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
+Use `WithLiveKitServerTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local
 port bindings do not configure public DNS, firewalls, TLS termination, or
 production load balancing.
@@ -248,7 +248,7 @@ range publishing through your deployment platform.
 ## Versioning and further guidance
 
 Container image tags default to mutable `latest`. Pass explicit versions to
-`AddLiveKit`, `AddIngress`, `AddEgress`, or `AddSip` for repeatable deployments.
+`AddLiveKitServer`, `AddIngress`, `AddEgress`, or `AddSip` for repeatable deployments.
 The server, companion images, Aspire integration, and SDK wrapper can be
 versioned independently.
 

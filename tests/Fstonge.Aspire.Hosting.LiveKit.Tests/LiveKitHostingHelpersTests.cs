@@ -1,7 +1,7 @@
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 
-namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
+namespace Fstonge.Aspire.Hosting.LiveKit.Tests;
 
 public sealed class LiveKitHostingHelpersTests
 {
@@ -26,7 +26,7 @@ public sealed class LiveKitHostingHelpersTests
     public void GetJsonLoggingConfiguration_ReflectsResourceFlag()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
 
         Assert.Equal("logging:\n  json: true\n", LiveKitHostingHelpers.GetJsonLoggingConfiguration(livekit.Resource));
     }

@@ -12,7 +12,7 @@ public sealed class LiveKitSipHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
+        var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret);
         var redis = builder.AddRedis("redis");
         var sip = livekit.AddSip("sip", redis, version: "v1.9.0", healthPort: 8082)
             .WithSipTls("/certs/sip.crt", "/certs/sip.key", tlsPort: 5061)
@@ -48,7 +48,7 @@ public sealed class LiveKitSipHostingExtensionsTests
     public void AddSip_RejectsInvalidListenerRangesAndManagedOverrides()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var redis = builder.AddRedis("redis");
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -65,7 +65,7 @@ public sealed class LiveKitSipHostingExtensionsTests
     public void WithSipTls_RejectsConflictingTlsListenerPorts()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var sip = builder.AddLiveKit("livekit").AddSip("sip", builder.AddRedis("redis"));
+        var sip = builder.AddLiveKitServer("livekit").AddSip("sip", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() => sip.WithSipTls("/cert.crt", "/cert.key", tlsPort: 5060));
         Assert.Throws<ArgumentException>(() => sip.WithSipTls("/cert.crt", "/cert.key", tlsPort: 10001));
@@ -77,7 +77,7 @@ public sealed class LiveKitSipHostingExtensionsTests
     public void WithSipAdditionalConfiguration_RejectsManagedOverrides()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var sip = builder.AddLiveKit("livekit").AddSip("sip", builder.AddRedis("redis"));
+        var sip = builder.AddLiveKitServer("livekit").AddSip("sip", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() => sip.WithSipAdditionalConfiguration("sip_port: 6060"));
     }

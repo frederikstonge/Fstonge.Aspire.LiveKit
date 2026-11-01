@@ -49,7 +49,7 @@ public static class LiveKitIngressHostingExtensions
             throw new ArgumentException("The RTMP and WHIP TCP listener ports must be different.", nameof(whipPort));
         }
 
-        livekit.WithRedis(redis);
+        livekit.WithLiveKitServerRedis(redis);
 
         var ingressResource = new LiveKitIngressResource(name);
         var ingress = livekit.ApplicationBuilder

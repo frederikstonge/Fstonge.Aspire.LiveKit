@@ -13,15 +13,15 @@ shared Redis resource:
 ```csharp
 var redis = builder.AddRedis("redis");
 
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis);
 
 var api = builder.AddProject<Projects.Api>("api")
-    .WithLiveKitReference(livekit, includeCredentials: true)
+    .WithLiveKitServerReference(livekit, includeCredentials: true)
     .WaitFor(livekit);
 ```
 
-`AddLiveKit("livekit")` generates the API key and secret as Aspire secret
+`AddLiveKitServer("livekit")` generates the API key and secret as Aspire secret
 parameters. During local runs, Aspire persists them in the AppHost project's
 user secrets. To supply your own credentials, create secret parameters:
 
@@ -29,11 +29,11 @@ user secrets. To supply your own credentials, create secret parameters:
 var apiKey = builder.AddParameter("livekit-api-key", secret: true);
 var apiSecret = builder.AddParameter("livekit-api-secret", secret: true);
 
-var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret, version: "v1.9.0")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret, version: "v1.9.0")
+    .WithLiveKitServerRedis(redis);
 ```
 
-`WithLiveKitReference` always provides the server URL. It adds credentials to
+`WithLiveKitServerReference` always provides the server URL. It adds credentials to
 the consuming project only when `includeCredentials` is `true`; use this only
 for trusted server-side applications. Never send the API secret to browsers or
 other untrusted clients. Issue short-lived participant tokens from a trusted
@@ -41,12 +41,12 @@ backend instead.
 
 The server API listens on HTTP port 7880, TCP RTC port 7881, and UDP RTC mux
 port 7882 by default. These can be overridden with the `httpPort`,
-`rtcTcpPort`, and `rtcUdpPort` arguments to `AddLiveKit`. For embedded TURN:
+`rtcTcpPort`, and `rtcUdpPort` arguments to `AddLiveKitServer`. For embedded TURN:
 
 ```csharp
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis)
-    .WithTurn(udpPort: 3478);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis)
+    .WithLiveKitServerTurn(udpPort: 3478);
 ```
 
 Aspire captures container console output. Call `.WithStructuredLogs()` on a

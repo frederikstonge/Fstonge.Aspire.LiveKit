@@ -18,8 +18,8 @@ Additional YAML methods support top-level settings available in the selected
 upstream image version:
 
 ```csharp
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis)
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis)
     .WithLiveKitServerConfiguration(configuration =>
     {
         configuration.LogLevel = "info";
@@ -27,7 +27,7 @@ var livekit = builder.AddLiveKit("livekit")
         configuration.Rtc.PortRangeStart = 50000;
         configuration.Rtc.PortRangeEnd = 60000;
     })
-    .WithLiveKitAdditionalConfiguration("""
+    .WithLiveKitServerAdditionalConfiguration("""
         room:
           auto_create: false
         """);
@@ -64,7 +64,7 @@ var sip = livekit.AddSip("sip", redis)
 Typed configuration objects are available for common settings on all four
 services. Their nested options (`Rtc`, `CpuCost`, and `Logging`) are initialized
 and can be configured directly in the callback; unset nested options are omitted
-from the generated YAML. `WithLiveKitAdditionalConfiguration`,
+from the generated YAML. `WithLiveKitServerAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` accept additional top-level settings
 supported by each service version. Settings already managed by typed resource
@@ -79,18 +79,18 @@ logging.
 
 | Configuration | Aspire API | Default or notes |
 |---|---|---|
-| Image version | `AddLiveKit(version: ...)` | `latest` |
-| HTTP API host port | `AddLiveKit(httpPort: ...)` | `7880`, mapped to container port `7880` |
-| RTC TCP port | `AddLiveKit(rtcTcpPort: ...)` | `7881` |
-| RTC UDP mux port | `AddLiveKit(rtcUdpPort: ...)` | `7882` |
-| API key and secret | `AddLiveKit(name)` or `AddLiveKit(name, apiKey, apiSecret)` | Generated as persisted secret parameters, or supplied as secret parameters |
-| Redis | `WithRedis(redis)` | Required for distributed operation and shared with companion services |
+| Image version | `AddLiveKitServer(version: ...)` | `latest` |
+| HTTP API host port | `AddLiveKitServer(httpPort: ...)` | `7880`, mapped to container port `7880` |
+| RTC TCP port | `AddLiveKitServer(rtcTcpPort: ...)` | `7881` |
+| RTC UDP mux port | `AddLiveKitServer(rtcUdpPort: ...)` | `7882` |
+| API key and secret | `AddLiveKitServer(name)` or `AddLiveKitServer(name, apiKey, apiSecret)` | Generated as persisted secret parameters, or supplied as secret parameters |
+| Redis | `WithLiveKitServerRedis(redis)` | Required for distributed operation and shared with companion services |
 | Log level | `WithLiveKitServerConfiguration(c => c.LogLevel = ...)` | Optional override; `debug`, `info`, `warn`, or `error` |
 | RTC external IP discovery | `c.Rtc.UseExternalIp` | Optional; unset by default |
 | RTC media UDP range | `c.Rtc.PortRangeStart` and `c.Rtc.PortRangeEnd` | Optional; set both together; both must be in `1`–`65535` |
-| Embedded TURN/UDP | `WithTurn(udpPort: ...)` | Optional; port defaults to `3478` |
-| Embedded TURN/TLS | `WithTurnTls(domain, certificateFile, keyFile, tlsPort: ...)` | Optional; TLS port defaults to `5349`; mount certificate and key into the container |
-| Additional YAML | `WithLiveKitAdditionalConfiguration(yaml)` | Adds upstream settings not already managed by the integration |
+| Embedded TURN/UDP | `WithLiveKitServerTurn(udpPort: ...)` | Optional; port defaults to `3478` |
+| Embedded TURN/TLS | `WithLiveKitServerTurnTls(domain, certificateFile, keyFile, tlsPort: ...)` | Optional; TLS port defaults to `5349`; mount certificate and key into the container |
+| Additional YAML | `WithLiveKitServerAdditionalConfiguration(yaml)` | Adds upstream settings not already managed by the integration |
 | JSON logs / structured logs | `WithJsonLogging()` / `WithStructuredLogs()` | Server JSON console logging is enabled by default; structured forwarding requires an AppHost OTLP endpoint |
 
 The integration manages the server's `development`, `port`, `log_level`,

@@ -1,6 +1,6 @@
 using Aspire.Hosting;
 
-namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
+namespace Fstonge.Aspire.Hosting.LiveKit.Tests;
 
 public sealed class LiveKitConfigurationYamlTests
 {

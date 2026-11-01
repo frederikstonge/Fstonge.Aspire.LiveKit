@@ -12,7 +12,7 @@ public sealed class LiveKitRedisConfigurationTests
         var password = builder.AddParameter("redis-password", "redis-secret", secret: true);
         var redis = builder.AddRedis("redis").WithPassword(password);
         redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
-        var livekit = builder.AddLiveKit("livekit").WithRedis(redis);
+        var livekit = builder.AddLiveKitServer("livekit").WithLiveKitServerRedis(redis);
 
         var configuration = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
 

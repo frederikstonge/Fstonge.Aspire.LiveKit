@@ -4,8 +4,10 @@ namespace Aspire.Hosting.ApplicationModel;
 /// Represents a LiveKit server container resource in a .NET Aspire distributed application.
 /// </summary>
 [AspireExport]
-public sealed class LiveKitServerResource : LiveKitContainerResource
+public sealed class LiveKitServerResource : LiveKitContainerResource, ILiveKitServerResource
 {
+    private ReferenceExpression? _url;
+
     internal LiveKitServerResource(
         string name,
         IResourceBuilder<ParameterResource> apiKey,
@@ -26,6 +28,17 @@ public sealed class LiveKitServerResource : LiveKitContainerResource
     internal IResourceBuilder<ParameterResource> ApiKey { get; }
 
     internal IResourceBuilder<ParameterResource> ApiSecret { get; }
+
+    internal ReferenceExpression Url =>
+        _url ?? throw new InvalidOperationException("The LiveKit server URL has not been configured.");
+
+    internal void SetUrl(ReferenceExpression url) => _url = url;
+
+    ReferenceExpression ILiveKitServerResource.Url => Url;
+
+    IResourceBuilder<ParameterResource>? ILiveKitServerResource.ApiKey => ApiKey;
+
+    IResourceBuilder<ParameterResource>? ILiveKitServerResource.ApiSecret => ApiSecret;
 
     internal ReferenceExpression? RedisConfiguration { get; set; }
 

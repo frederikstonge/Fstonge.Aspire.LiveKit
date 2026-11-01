@@ -6,10 +6,44 @@ using System.Net.Sockets;
 namespace Aspire.Hosting;
 
 /// <summary>
-/// Provides extension methods for registering and configuring LiveKit resources with .NET Aspire.
+/// Provides extension methods for registering and configuring LiveKit server resources with .NET Aspire.
 /// </summary>
-public static class LiveKitHostingExtensions
+public static class LiveKitServerHostingExtensions
 {
+    /// <summary>
+    /// Adds a reference to a LiveKit server managed outside the Aspire application, using an Aspire parameter for its URL.
+    /// </summary>
+    /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/> to add the resource to.</param>
+    /// <param name="name">The name of the external LiveKit resource.</param>
+    /// <param name="url">The parameter resource containing the absolute HTTP or HTTPS API URL.</param>
+    /// <param name="apiKey">An optional parameter resource containing the LiveKit API key.</param>
+    /// <param name="apiSecret">An optional parameter resource containing the LiveKit API secret.</param>
+    /// <returns>An <see cref="IResourceBuilder{ExternalLiveKitServerResource}"/> for referencing the external server.</returns>
+    [AspireExport]
+    public static IResourceBuilder<ExternalLiveKitServerResource> AddExternalLiveKitServer(
+        this IDistributedApplicationBuilder builder,
+        [ResourceName] string name,
+        IResourceBuilder<ParameterResource> url,
+        IResourceBuilder<ParameterResource>? apiKey = null,
+        IResourceBuilder<ParameterResource>? apiSecret = null)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(url);
+
+        if ((apiKey is null) != (apiSecret is null))
+        {
+            throw new ArgumentException("Both LiveKit API key and secret parameters must be supplied.");
+        }
+
+        var resource = new ExternalLiveKitServerResource(
+            name,
+            ReferenceExpression.Create($"{url}"),
+            apiKey,
+            apiSecret);
+        return builder.AddResource(resource);
+    }
+
     /// <summary>
     /// Adds a LiveKit server container resource to the distributed application builder with explicit API credentials.
     /// </summary>
@@ -23,7 +57,7 @@ public static class LiveKitHostingExtensions
     /// <param name="rtcUdpPort">The host port for primary RTC UDP media. Defaults to 7882.</param>
     /// <returns>An <see cref="IResourceBuilder{LiveKitServerResource}"/> for configuring the LiveKit server.</returns>
     [AspireExport]
-    public static IResourceBuilder<LiveKitServerResource> AddLiveKit(
+    public static IResourceBuilder<LiveKitServerResource> AddLiveKitServer(
         this IDistributedApplicationBuilder builder,
         [ResourceName] string name,
         IResourceBuilder<ParameterResource>? apiKey = null,
@@ -70,6 +104,7 @@ public static class LiveKitHostingExtensions
             .WithEndpoint(port: rtcTcpPort, targetPort: rtcTcpPort, name: "rtc-tcp", protocol: ProtocolType.Tcp)
             .WithEndpoint(port: rtcUdpPort, targetPort: rtcUdpPort, name: "rtc-udp", protocol: ProtocolType.Udp);
 
+        resource.SetUrl(ReferenceExpression.Create($"{server.GetEndpoint("http")}"));
         return server.WithEnvironment(
             context => context.EnvironmentVariables["LIVEKIT_CONFIG"] = CreateServerConfiguration(resource));
     }
@@ -81,7 +116,7 @@ public static class LiveKitHostingExtensions
     /// <param name="redis">The Redis resource builder.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with Redis configured.</returns>
     [AspireExport]
-    public static IResourceBuilder<LiveKitServerResource> WithRedis(
+    public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerRedis(
         this IResourceBuilder<LiveKitServerResource> livekit,
         IResourceBuilder<RedisResource> redis)
     {
@@ -99,7 +134,7 @@ public static class LiveKitHostingExtensions
     /// <param name="livekit">The LiveKit server resource builder.</param>
     /// <param name="configure">A delegate to configure the <see cref="LiveKitServerConfiguration"/>.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with the configuration applied.</returns>
-    [AspireExportIgnore(Reason = "Use WithLiveKitAdditionalConfiguration to configure the server in generated AppHosts.")]
+    [AspireExportIgnore(Reason = "Use WithLiveKitServerAdditionalConfiguration to configure the server in generated AppHosts.")]
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         Action<LiveKitServerConfiguration> configure)
@@ -138,7 +173,7 @@ public static class LiveKitHostingExtensions
     /// <param name="yaml">A valid YAML string containing additional top-level settings.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with additional configuration applied.</returns>
     [AspireExport]
-    public static IResourceBuilder<LiveKitServerResource> WithLiveKitAdditionalConfiguration(
+    public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerAdditionalConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string yaml)
     {
@@ -162,7 +197,7 @@ public static class LiveKitHostingExtensions
     /// <param name="resourceBuilder">The LiveKit server resource.</param>
     /// <returns>The configured resource.</returns>
     [AspireExport]
-    internal static IResourceBuilder<LiveKitServerResource> WithServerJsonLogging(
+    internal static IResourceBuilder<LiveKitServerResource> WithLiveKitServerJsonLogging(
         IResourceBuilder<LiveKitServerResource> resourceBuilder) =>
         LiveKitServiceLoggingExtensions.WithJsonLogging(resourceBuilder);
     /// <summary>Enables OTLP log forwarding for the LiveKit server resource.</summary>
@@ -170,7 +205,7 @@ public static class LiveKitHostingExtensions
     /// <returns>The configured resource.</returns>
 
     [AspireExport]
-    internal static IResourceBuilder<LiveKitServerResource> WithServerStructuredLogs(
+    internal static IResourceBuilder<LiveKitServerResource> WithLiveKitServerStructuredLogs(
         IResourceBuilder<LiveKitServerResource> resourceBuilder) =>
         LiveKitServiceLoggingExtensions.WithStructuredLogs(resourceBuilder);
 
@@ -181,7 +216,7 @@ public static class LiveKitHostingExtensions
     /// <param name="udpPort">The UDP port for the TURN listener. Defaults to 3478.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURN enabled.</returns>
     [AspireExport]
-    public static IResourceBuilder<LiveKitServerResource> WithTurn(
+    public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerTurn(
         this IResourceBuilder<LiveKitServerResource> livekit,
         int udpPort = 3478)
     {
@@ -207,7 +242,7 @@ public static class LiveKitHostingExtensions
     /// <param name="tlsPort">The TCP port for TURNS traffic. Defaults to 5349.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with TURNS enabled.</returns>
     [AspireExport]
-    public static IResourceBuilder<LiveKitServerResource> WithTurnTls(
+    public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerTurnTls(
         this IResourceBuilder<LiveKitServerResource> livekit,
         string domain,
         string certificateFile,
@@ -242,21 +277,29 @@ public static class LiveKitHostingExtensions
     /// <param name="includeCredentials">A value indicating whether to include API credentials in the environment variables. Defaults to <see langword="false"/>.</param>
     /// <returns>The updated project resource builder.</returns>
     [AspireExportIgnore(Reason = "The method accepts arbitrary C# resource types; generated AppHosts can configure environment variables directly.")]
-    public static IResourceBuilder<TProject> WithLiveKitReference<TProject>(
+    public static IResourceBuilder<TProject> WithLiveKitServerReference<TProject, TLiveKit>(
         this IResourceBuilder<TProject> project,
-        IResourceBuilder<LiveKitServerResource> livekit,
+        IResourceBuilder<TLiveKit> livekit,
         bool includeCredentials = false)
         where TProject : IResource, IResourceWithEnvironment
+        where TLiveKit : IResource, ILiveKitServerResource
     {
         ArgumentNullException.ThrowIfNull(project);
         ArgumentNullException.ThrowIfNull(livekit);
 
-        project.WithEnvironment("LIVEKIT_URL", livekit.GetEndpoint("http"));
-
+        project.WithEnvironment("LIVEKIT_URL", livekit.Resource.Url);
         if (includeCredentials)
         {
-            project.WithEnvironment("LIVEKIT_API_KEY", livekit.Resource.ApiKey);
-            project.WithEnvironment("LIVEKIT_API_SECRET", livekit.Resource.ApiSecret);
+            var apiKey = livekit.Resource.ApiKey;
+            var apiSecret = livekit.Resource.ApiSecret;
+            if (apiKey is null || apiSecret is null)
+            {
+                throw new InvalidOperationException(
+                    "API credentials were requested, but the LiveKit resource does not provide API key and secret parameters.");
+            }
+
+            project.WithEnvironment("LIVEKIT_API_KEY", apiKey);
+            project.WithEnvironment("LIVEKIT_API_SECRET", apiSecret);
         }
 
         return project;

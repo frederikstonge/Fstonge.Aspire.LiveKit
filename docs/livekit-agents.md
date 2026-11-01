@@ -16,8 +16,8 @@ key to each agent:
 
 ```csharp
 var redis = builder.AddRedis("redis");
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis);
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis);
 
 var openAiKey = builder.AddParameter("openai-api-key", secret: true);
 

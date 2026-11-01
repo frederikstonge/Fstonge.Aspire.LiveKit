@@ -33,7 +33,7 @@ public static class LiveKitEgressHostingExtensions
             throw new ArgumentException("The health and Prometheus ports must be different.", nameof(prometheusPort));
         }
 
-        livekit.WithRedis(redis);
+        livekit.WithLiveKitServerRedis(redis);
 
         var resource = new LiveKitEgressResource(name, livekit.Resource, healthPort, prometheusPort);
         var egress = livekit.ApplicationBuilder

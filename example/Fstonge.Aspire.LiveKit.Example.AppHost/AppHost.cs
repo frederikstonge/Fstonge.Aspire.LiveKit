@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(cache)
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(cache)
     .WithStructuredLogs()
     .WithLiveKitServerConfiguration(config => 
     {
@@ -100,7 +100,7 @@ if (enablePythonAgent || enableNodeAgent)
 }
 
 var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")
-    .WithLiveKitReference(livekit, includeCredentials: true)
+    .WithLiveKitServerReference(livekit, includeCredentials: true)
     .WaitFor(livekit)
     .WithHttpHealthCheck("/health");
 

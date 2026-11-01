@@ -4,13 +4,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
 
-public sealed class LiveKitHostingExtensionsTests
+public sealed class LiveKitServerHostingExtensionsTests
 {
     [Fact]
     public void AddLiveKit_UsesLatestImageAndGeneratedSecretParameters()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var image = Assert.Single(livekit.Resource.Annotations.OfType<ContainerImageAnnotation>());
         var parameters = builder.Resources.OfType<ParameterResource>().ToDictionary(p => p.Name);
         var key = parameters["livekit-api-key"];
@@ -32,8 +32,8 @@ public sealed class LiveKitHostingExtensionsTests
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => builder.AddLiveKit("invalid", httpPort: 0));
-        Assert.Throws<ArgumentException>(() => builder.AddLiveKit("duplicate", httpPort: 7881, rtcTcpPort: 7881));
+        Assert.Throws<ArgumentOutOfRangeException>(() => builder.AddLiveKitServer("invalid", httpPort: 0));
+        Assert.Throws<ArgumentException>(() => builder.AddLiveKitServer("duplicate", httpPort: 7881, rtcTcpPort: 7881));
     }
 
     [Fact]
@@ -45,10 +45,10 @@ public sealed class LiveKitHostingExtensionsTests
         var redisPassword = builder.AddParameter("redis-password", "redis-secret", secret: true);
         var redis = builder.AddRedis("redis").WithPassword(redisPassword);
         redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret, version: "v1.9.0")
-            .WithRedis(redis)
-            .WithTurn(udpPort: 3478)
-            .WithTurnTls("turn.example.test", "/certs/turn.crt", "/certs/turn.key", tlsPort: 5349);
+        var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret, version: "v1.9.0")
+            .WithLiveKitServerRedis(redis)
+            .WithLiveKitServerTurn(udpPort: 3478)
+            .WithLiveKitServerTurnTls("turn.example.test", "/certs/turn.crt", "/certs/turn.key", tlsPort: 5349);
 
         var image = Assert.Single(livekit.Resource.Annotations.OfType<ContainerImageAnnotation>());
         var endpointNames = livekit.Resource.Annotations.OfType<EndpointAnnotation>()
@@ -80,11 +80,11 @@ public sealed class LiveKitHostingExtensionsTests
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
-        var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
+        var livekit = builder.AddLiveKitServer("livekit", apiKey, apiSecret);
         var withoutCredentials = builder.AddExecutable("without-credentials", "node", ".")
-            .WithLiveKitReference(livekit);
+            .WithLiveKitServerReference(livekit);
         var withCredentials = builder.AddExecutable("with-credentials", "node", ".")
-            .WithLiveKitReference(livekit, includeCredentials: true);
+            .WithLiveKitServerReference(livekit, includeCredentials: true);
 
         var without = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withoutCredentials.Resource);
         var with = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withCredentials.Resource);
@@ -97,10 +97,51 @@ public sealed class LiveKitHostingExtensionsTests
     }
 
     [Fact]
+    public async Task AddExternalLiveKit_UsesUrlParameterAndOptionalCredentialsWithoutAddingAContainer()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var url = builder.AddParameter("external-livekit-url", "https://livekit.example.test");
+        var externalWithoutCredentials = builder.AddExternalLiveKitServer("external-without-credentials", url);
+        var uncredentialedProject = builder.AddExecutable("uncredentialed-api", "node", ".")
+            .WithLiveKitServerReference(externalWithoutCredentials);
+        var apiKey = builder.AddParameter("external-api-key", "test-key", secret: true);
+        var apiSecret = builder.AddParameter("external-api-secret", "test-secret", secret: true);
+        var externalLiveKit = builder.AddExternalLiveKitServer("external-livekit", url, apiKey, apiSecret);
+        var project = builder.AddExecutable("api", "node", ".")
+            .WithLiveKitServerReference(externalLiveKit, includeCredentials: true);
+
+        var environment = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(project.Resource);
+        var uncredentialedEnvironment =
+            await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(uncredentialedProject.Resource);
+
+        Assert.DoesNotContain(externalLiveKit.Resource.Annotations, annotation => annotation is ContainerImageAnnotation);
+        Assert.Contains(environment, pair => pair.Key == "LIVEKIT_URL" && pair.Value == "{external-livekit-url.value}");
+        Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "{external-api-key.value}");
+        Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "{external-api-secret.value}");
+        Assert.Contains(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_URL");
+        Assert.DoesNotContain(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_API_KEY");
+        Assert.DoesNotContain(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_API_SECRET");
+        Assert.Throws<InvalidOperationException>(() =>
+            builder.AddExecutable("api-without-credentials", "node", ".")
+                .WithLiveKitServerReference(externalWithoutCredentials, includeCredentials: true));
+    }
+
+    [Fact]
+    public void AddExternalLiveKit_RejectsIncompleteCredentials()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var url = builder.AddParameter("external-livekit-url", "https://livekit.example.test");
+        var apiKey = builder.AddParameter("external-api-key", "test-key", secret: true);
+
+        Assert.Throws<ArgumentException>(() =>
+            builder.AddExternalLiveKitServer("incomplete-credentials", url, apiKey));
+    }
+
+    [Fact]
     public async Task WithLiveKitServerConfiguration_RetainsExistingSettingsWhenUpdateFails()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit")
+        var livekit = builder.AddLiveKitServer("livekit")
             .WithLiveKitServerConfiguration(configuration =>
             {
                 configuration.LogLevel = "warn";
@@ -129,28 +170,28 @@ public sealed class LiveKitHostingExtensionsTests
     public async Task WithLiveKitAdditionalConfiguration_AppendsYamlAndRejectsManagedKeys()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit")
-            .WithLiveKitAdditionalConfiguration("custom_setting:\n  enabled: true");
+        var livekit = builder.AddLiveKitServer("livekit")
+            .WithLiveKitServerAdditionalConfiguration("custom_setting:\n  enabled: true");
 
         var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
 
         Assert.Contains("custom_setting:", yaml);
         Assert.Contains("enabled: true", yaml);
-        Assert.Throws<ArgumentException>(() => livekit.WithLiveKitAdditionalConfiguration("logging:\n  json: false"));
+        Assert.Throws<ArgumentException>(() => livekit.WithLiveKitServerAdditionalConfiguration("logging:\n  json: false"));
     }
 
     [Fact]
     public void WithTurnAndTurnTls_ValidatePortsAndReturnConfiguredBuilder()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit", rtcTcpPort: 7881);
+        var livekit = builder.AddLiveKitServer("livekit", rtcTcpPort: 7881);
 
-        Assert.Same(livekit, livekit.WithTurn(udpPort: 3478));
+        Assert.Same(livekit, livekit.WithLiveKitServerTurn(udpPort: 3478));
         Assert.Same(
             livekit,
-            livekit.WithTurnTls("turn.example.test", "/certs/tls.crt", "/certs/tls.key", tlsPort: 5349));
-        Assert.Throws<ArgumentOutOfRangeException>(() => livekit.WithTurn(udpPort: 0));
+            livekit.WithLiveKitServerTurnTls("turn.example.test", "/certs/tls.crt", "/certs/tls.key", tlsPort: 5349));
+        Assert.Throws<ArgumentOutOfRangeException>(() => livekit.WithLiveKitServerTurn(udpPort: 0));
         Assert.Throws<ArgumentException>(() =>
-            livekit.WithTurnTls("turn.example.test", "/certs/tls.crt", "/certs/tls.key", tlsPort: 7881));
+            livekit.WithLiveKitServerTurnTls("turn.example.test", "/certs/tls.crt", "/certs/tls.key", tlsPort: 7881));
     }
 }

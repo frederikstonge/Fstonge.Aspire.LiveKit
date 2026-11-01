@@ -10,7 +10,7 @@ public sealed class LiveKitAgentHostingExtensionsTests
     public async Task WithLiveKitAgentReference_AddsCredentialsNameAndDevelopmentFlag()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
         var agent = builder.AddExecutable("agent", "python", ".", "agent.py")
             .WithLiveKitAgentReference(livekit, "voice-agent");
 
@@ -30,7 +30,7 @@ public sealed class LiveKitAgentHostingExtensionsTests
     public void AddPythonNodeNpmAndDockerAgents_AddParentRelationships()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
-        var livekit = builder.AddLiveKit("livekit");
+        var livekit = builder.AddLiveKitServer("livekit");
 
         var python = livekit.AddPythonAgent("python-agent", ".", "main.py", "python3", ["--verbose"]);
         var node = livekit.AddNodeAgent("node-agent", ".", "agent.js", "nodejs", ["--verbose"]);

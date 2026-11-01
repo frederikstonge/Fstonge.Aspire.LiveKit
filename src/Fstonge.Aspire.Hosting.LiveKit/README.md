@@ -12,8 +12,8 @@ endpoint. The log forwarder supports all resource types in this integration,
 including executable and containerized Python and Node.js agents:
 
 ```csharp
-var livekit = builder.AddLiveKit("livekit")
-    .WithRedis(redis)
+var livekit = builder.AddLiveKitServer("livekit")
+    .WithLiveKitServerRedis(redis)
     .WithStructuredLogs();
 
 var ingress = livekit.AddIngress(
@@ -41,7 +41,7 @@ The package targets .NET 10.
 Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
 `WithEgressConfiguration`, or `WithSipConfiguration` with an `Action<T>`
 callback to configure typed service options. Use
-`WithLiveKitAdditionalConfiguration`, `WithIngressAdditionalConfiguration`,
+`WithLiveKitServerAdditionalConfiguration`, `WithIngressAdditionalConfiguration`,
 `WithEgressAdditionalConfiguration`, and `WithSipAdditionalConfiguration` for
 additional top-level YAML settings supported by the selected service version.
 See the repository's
@@ -63,12 +63,37 @@ YamlDotNet serializes typed options and parses extension YAML. Additional YAML
 must be a single top-level mapping and cannot override settings managed by the
 integration.
 
-No API key or secret arguments are required when calling `AddLiveKit(name)`.
+No API key or secret arguments are required when calling `AddLiveKitServer(name)`.
 The server API key and secret are generated as secret Aspire parameters and,
 during local runs, persisted in the AppHost project's user secrets. You can
 optionally provide your own secret parameters. Credentials are available to
-consuming projects only when `WithLiveKitReference` is called with
+consuming projects only when `WithLiveKitServerReference` is called with
 `includeCredentials: true`.
+
+To connect to a LiveKit server managed outside the Aspire application, add an
+external resource instead. This does not start a container; it makes the
+external URL available to dependent resources. Supply secret parameters when
+the application also needs API credentials:
+
+```csharp
+var livekitUrl = builder.AddParameter("livekit-url");
+var livekitApiKey = builder.AddParameter("livekit-api-key", secret: true);
+var livekitApiSecret = builder.AddParameter("livekit-api-secret", secret: true);
+var livekit = builder.AddExternalLiveKitServer(
+    "livekit",
+    livekitUrl,
+    livekitApiKey,
+    livekitApiSecret);
+
+var api = builder.AddProject<Projects.Api>("api")
+    .WithLiveKitServerReference(livekit, includeCredentials: true);
+```
+
+Configure `livekit-url` as an absolute HTTP or HTTPS URL using your AppHost's
+parameter configuration. API credentials are optional unless the consumer
+needs them; both key and secret must be supplied together. The external
+resource does not provision, monitor, or configure networking for the LiveKit
+deployment.
 
 Egress and SIP are independently opt-in and require the server's Redis
 resource. Egress output targets are supplied to its recording/streaming
@@ -87,7 +112,8 @@ aspire add Fstonge.Aspire.Hosting.LiveKit
 aspire restore
 ```
 
-The generated SDK exposes LiveKit server creation, Redis configuration,
+The generated SDK exposes LiveKit server creation and external LiveKit
+references, Redis configuration,
 Ingress/Egress/SIP creation, TURN and SIP TLS settings, YAML configuration,
 Egress storage, logging, and the Python, Node.js, npm, and Dockerfile agent
 helpers. For example:

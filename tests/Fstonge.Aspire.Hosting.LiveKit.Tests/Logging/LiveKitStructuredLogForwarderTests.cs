@@ -9,7 +9,7 @@ public sealed class LiveKitStructuredLogForwarderTests
     [Fact]
     public async Task StartAsync_ReportsMissingOtlpEndpoint()
     {
-        var resource = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKit("livekit").Resource;
+        var resource = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit").Resource;
         using var forwarder = new LiveKitStructuredLogForwarder(
             resource,
             null!,
