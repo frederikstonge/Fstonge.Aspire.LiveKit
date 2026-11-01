@@ -6,8 +6,10 @@ containers to a .NET Aspire AppHost.
 Ingress, Egress, and SIP resources appear nested under their LiveKit server in
 the Aspire dashboard.
 
-Use `.WithStructuredLogs()` on any of these resources to forward its logs from
-Aspire's resource log stream to the dashboard's OTLP endpoint:
+Use `.WithStructuredLogs()` on LiveKit, Ingress, Egress, or SIP resources to
+forward logs from Aspire's resource log stream to the dashboard's OTLP
+endpoint. The log forwarder supports all resource types in this integration,
+including executable and containerized Python and Node.js agents:
 
 ```csharp
 var livekit = builder.AddLiveKit("livekit")
@@ -50,7 +52,8 @@ Server JSON console logging is enabled by default. Call `.WithJsonLogging()` on
 Ingress, Egress, or SIP to enable JSON console output without OTLP forwarding.
 Aspire captures console output for all resources. To also forward logs to the
 dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on
-the resource; this also enables JSON logging. LiveKit server JSON and
+the resource; this also enables JSON logging for LiveKit, Ingress, Egress, and
+SIP resources. Agent resources are supported too. LiveKit server JSON and
 tab-delimited records, Python agent JSON records, and other object-shaped JSON
 records are forwarded with their parsed fields. Plain-text output and malformed
 or unsupported JSON are forwarded as message-only logs. The AppHost must have
@@ -145,8 +148,13 @@ var customAgent = builder.AddExecutable("custom-agent", "python", "../agent", "m
 This automatically:
 - Injects `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`.
 - Injects `LIVEKIT_AGENT_NAME` and sets `LIVEKIT_AGENT_DEV=true` in development environments (`builder.Environment.IsDevelopment()`).
-- Automatically passes `dev` (in development) or `start` CLI commands to the agent executable.
 - Waits for the LiveKit server to be healthy (`WaitFor(livekit)`).
+
+`WithLiveKitAgentReference` does not change the resource's executable, command-line
+arguments, or container command. Configure those for your worker explicitly.
+The `AddPythonAgent`, `AddNodeAgent`, and `AddNpmAgent` helpers add their
+development (`dev`) or production (`start`) command conventions; Dockerfile
+agents use the command defined by the image.
 
 ### AI Provider Helpers
 Fluent extensions are provided for common LLM, STT, and TTS providers:

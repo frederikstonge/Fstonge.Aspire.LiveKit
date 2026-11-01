@@ -51,9 +51,10 @@ var livekit = builder.AddLiveKit("livekit")
 
 Aspire captures container console output. Call `.WithStructuredLogs()` on a
 resource to also forward logs to the dashboard's Structured Logs view over
-OTLP. This requires an OTLP endpoint on the AppHost. See the [image
-configuration reference](image-configuration.md) for logging and additional
-configuration options.
+OTLP. The forwarder supports all resource types in this integration, including
+Python and Node.js agent resources. This requires an OTLP endpoint on the
+AppHost. See the [image configuration reference](image-configuration.md) for
+logging and additional configuration options.
 
 Ingress, Egress, and SIP are optional resources. See the
 [optional services guide](optional-services.md) for their setup, storage, and

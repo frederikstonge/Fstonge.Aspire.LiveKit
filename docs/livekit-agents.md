@@ -152,7 +152,9 @@ Run the AppHost from the repository root:
 dotnet run --project example/Fstonge.Aspire.LiveKit.Example.AppHost
 ```
 
-Use the Aspire dashboard to inspect agent resource state and logs. A running
-agent worker still needs to receive a job in a room; verify that your client
-connects to the same LiveKit server and requests or dispatches the agent as
-appropriate for your LiveKit setup.
+Use the Aspire dashboard to inspect agent resource state and logs. Agent logs
+are supported by the structured log forwarder for both executable and
+containerized agents, like the other resource types in this integration. A
+running agent worker still needs to receive a job in a room; verify that your
+client connects to the same LiveKit server and requests or dispatches the agent
+as appropriate for your LiveKit setup.

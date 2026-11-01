@@ -89,8 +89,9 @@ Aspire captures the container's console output. To also export logs to the
 dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on a
 LiveKit, Ingress, Egress, or SIP resource. This enables JSON logging for that
 resource; JSON records are forwarded with parsed fields, while plain-text
-companion logs are forwarded as message-only records. An OTLP endpoint must be
-configured on the AppHost.
+companion logs are forwarded as message-only records. The log forwarder also
+supports agent resources, including Python and Node.js agents. An OTLP endpoint
+must be configured on the AppHost.
 
 Use `WithTurnTls` to configure embedded TURN/TLS. Mount its certificate and
 private key into the LiveKit container at the configured paths. Aspire's local
