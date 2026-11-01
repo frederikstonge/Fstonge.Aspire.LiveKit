@@ -1,15 +1,15 @@
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
+using Microsoft.Extensions.Hosting;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitHostingExtensionsTests
 {
     [Fact]
     public void AddLiveKit_UsesLatestImageAndGeneratedSecretParameters()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
         var image = Assert.Single(livekit.Resource.Annotations.OfType<ContainerImageAnnotation>());
         var parameters = builder.Resources.OfType<ParameterResource>().ToDictionary(p => p.Name);
@@ -30,7 +30,7 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
     [Fact]
     public void AddLiveKit_RejectsInvalidPortsAndDuplicateHttpTcpPort()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
 
         Assert.Throws<ArgumentOutOfRangeException>(() => builder.AddLiveKit("invalid", httpPort: 0));
         Assert.Throws<ArgumentException>(() => builder.AddLiveKit("duplicate", httpPort: 7881, rtcTcpPort: 7881));
@@ -39,7 +39,7 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
     [Fact]
     public async Task AddLiveKit_EmitsServerConfigurationAndKeepsCredentialsOutOfYamlSettings()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "01234567890123456789012345678901", secret: true);
         var redisPassword = builder.AddParameter("redis-password", "redis-secret", secret: true);
@@ -54,7 +54,7 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
         var endpointNames = livekit.Resource.Annotations.OfType<EndpointAnnotation>()
             .Select(endpoint => endpoint.Name)
             .ToHashSet(StringComparer.Ordinal);
-        var yaml = await appHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
 
         Assert.Equal("livekit/livekit-server", image.Image);
         Assert.Equal("v1.9.0", image.Tag);
@@ -63,21 +63,21 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
         Assert.Contains("rtc-udp", endpointNames);
         Assert.Contains("turn-udp", endpointNames);
         Assert.Contains("turn-tls", endpointNames);
-        Assert.Contains("development: true", yaml);
-        Assert.Contains("address: redis:6379", yaml);
+        Assert.Equal(builder.Environment.IsDevelopment(), yaml.Contains("development: true", StringComparison.Ordinal));
+        Assert.Contains("address: {redis.bindings.tcp.host}:{redis.bindings.tcp.port}", yaml);
         Assert.Contains("password:", yaml);
-        Assert.Contains("tls:", yaml);
+        Assert.Contains("\nturn:\n", yaml);
         Assert.Contains("udp_port: 3478", yaml);
         Assert.Contains("domain: turn.example.test", yaml);
         Assert.Contains("json: true", yaml);
-        Assert.Contains("test-key", yaml);
-        Assert.Contains("01234567890123456789012345678901", yaml);
+        Assert.Contains("{api-key.value}", yaml);
+        Assert.Contains("{api-secret.value}", yaml);
     }
 
     [Fact]
     public async Task WithLiveKitReference_OnlyAddsCredentialsWhenRequested()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
         var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
@@ -86,20 +86,20 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
         var withCredentials = builder.AddExecutable("with-credentials", "node", ".")
             .WithLiveKitReference(livekit, includeCredentials: true);
 
-        var without = await appHost.BuildEnvironmentAsync(withoutCredentials.Resource);
-        var with = await appHost.BuildEnvironmentAsync(withCredentials.Resource);
+        var without = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withoutCredentials.Resource);
+        var with = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withCredentials.Resource);
 
         Assert.Contains(without, pair => pair.Key == "LIVEKIT_URL");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_KEY");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_SECRET");
-        Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "test-key");
-        Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "test-secret");
+        Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "{api-key.value}");
+        Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "{api-secret.value}");
     }
 
     [Fact]
     public async Task WithLiveKitServerConfiguration_RetainsExistingSettingsWhenUpdateFails()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit")
             .WithLiveKitServerConfiguration(configuration =>
             {
@@ -117,7 +117,7 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
                 configuration.Rtc.PortRangeEnd = null;
             }));
 
-        var yaml = await appHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
         Assert.Contains("log_level: warn", yaml);
         Assert.Contains("use_external_ip: true", yaml);
         Assert.Contains("port_range_start: 50000", yaml);
@@ -128,11 +128,11 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
     [Fact]
     public async Task WithLiveKitAdditionalConfiguration_AppendsYamlAndRejectsManagedKeys()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit")
             .WithLiveKitAdditionalConfiguration("custom_setting:\n  enabled: true");
 
-        var yaml = await appHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
 
         Assert.Contains("custom_setting:", yaml);
         Assert.Contains("enabled: true", yaml);
@@ -142,7 +142,7 @@ public sealed class LiveKitHostingExtensionsTests(DistributedApplicationBuilderT
     [Fact]
     public void WithTurnAndTurnTls_ValidatePortsAndReturnConfiguredBuilder()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit", rtcTcpPort: 7881);
 
         Assert.Same(livekit, livekit.WithTurn(udpPort: 3478));

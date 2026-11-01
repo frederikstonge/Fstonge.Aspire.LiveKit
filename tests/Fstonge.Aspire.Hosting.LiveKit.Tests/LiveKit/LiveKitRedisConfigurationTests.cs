@@ -1,37 +1,42 @@
 using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitRedisConfigurationTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitRedisConfigurationTests
 {
     [Fact]
     public async Task Create_UsesRedisAddressAndOptionalPasswordAndTls()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var password = builder.AddParameter("redis-password", "redis-secret", secret: true);
         var redis = builder.AddRedis("redis").WithPassword(password);
         redis.Resource.PrimaryEndpoint.EndpointAnnotation.TlsEnabled = true;
         var livekit = builder.AddLiveKit("livekit").WithRedis(redis);
 
-        var configuration = await appHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+        var configuration = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
 
-        Assert.Contains("address: redis:6379", configuration);
+        Assert.Contains("address: {redis.bindings.tcp.host}:{redis.bindings.tcp.port}", configuration);
         Assert.Contains("password:", configuration);
-        Assert.Contains("redis-secret", configuration);
-        Assert.Contains("tls:", configuration);
-        Assert.Contains("enabled: true", configuration);
+        Assert.Contains("{redis-password.value}", configuration);
+        var redisConfiguration = LiveKitRedisConfiguration.Create(redis);
+        Assert.Contains(
+            redisConfiguration.ValueProviders,
+            provider => provider is ReferenceExpression { IsConditional: true });
     }
 
     [Fact]
     public void Create_UsesConnectionStringForNonRedisResources()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var connectionString = builder.AddConnectionString("cache", "redis://cache.example.test:6379");
 
-        var configuration = LiveKitRedisConfiguration.Create(connectionString).ToString();
+        var configuration = LiveKitRedisConfiguration.Create(connectionString);
 
-        Assert.Contains("redis:", configuration);
-        Assert.Contains("redis://cache.example.test:6379", configuration);
+        Assert.Equal("redis:\n  address: {0}\n", configuration.Format);
+        var connectionStringReference = Assert.IsType<ReferenceExpression>(Assert.Single(configuration.ValueProviders));
+        Assert.Equal(
+            connectionString.Resource.ConnectionStringExpression.ManifestExpressions,
+            connectionStringReference.ManifestExpressions);
     }
 }

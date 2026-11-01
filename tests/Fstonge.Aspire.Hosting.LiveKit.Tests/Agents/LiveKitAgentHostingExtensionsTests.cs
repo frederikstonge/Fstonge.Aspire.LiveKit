@@ -4,18 +4,17 @@ using Microsoft.Extensions.Hosting;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Agents;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitAgentHostingExtensionsTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitAgentHostingExtensionsTests
 {
     [Fact]
     public async Task WithLiveKitAgentReference_AddsCredentialsNameAndDevelopmentFlag()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
         var agent = builder.AddExecutable("agent", "python", ".", "agent.py")
             .WithLiveKitAgentReference(livekit, "voice-agent");
 
-        var environment = await appHost.BuildEnvironmentAsync(agent.Resource);
+        var environment = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(agent.Resource);
 
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_URL");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_KEY");
@@ -30,7 +29,7 @@ public sealed class LiveKitAgentHostingExtensionsTests(DistributedApplicationBui
     [Fact]
     public void AddPythonNodeNpmAndDockerAgents_AddParentRelationships()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
 
         var python = livekit.AddPythonAgent("python-agent", ".", "main.py", "python3", ["--verbose"]);
@@ -47,13 +46,13 @@ public sealed class LiveKitAgentHostingExtensionsTests(DistributedApplicationBui
             resource => Assert.Contains(
                 resource.Annotations.OfType<ResourceRelationshipAnnotation>(),
                 relationship => ReferenceEquals(relationship.Resource, livekit.Resource)
-                    && relationship.Type == "parent"));
+                    && string.Equals(relationship.Type, "Parent", StringComparison.OrdinalIgnoreCase)));
     }
 
     [Fact]
     public async Task ProviderKeyHelpers_AddProviderEnvironmentVariables()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var openaiKey = builder.AddParameter("openai-key", "openai-secret", secret: true);
         var cartesiaKey = builder.AddParameter("cartesia-key", "cartesia-secret", secret: true);
         var anthropicKey = builder.AddParameter("anthropic-key", "anthropic-secret", secret: true);
@@ -63,13 +62,13 @@ public sealed class LiveKitAgentHostingExtensionsTests(DistributedApplicationBui
             .WithCartesiaApiKey(cartesiaKey)
             .WithElevenLabsApiKey("elevenlabs-literal")
             .WithAnthropicApiKey(anthropicKey);
-        var environment = await appHost.BuildEnvironmentAsync(agent.Resource);
+        var environment = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(agent.Resource);
 
-        Assert.Contains(environment, pair => pair.Key == "OPENAI_API_KEY" && pair.Value == "openai-secret");
+        Assert.Contains(environment, pair => pair.Key == "OPENAI_API_KEY" && pair.Value == "{openai-key.value}");
         Assert.Contains(environment, pair => pair.Key == "DEEPGRAM_API_KEY" && pair.Value == "deepgram-literal");
-        Assert.Contains(environment, pair => pair.Key == "CARTESIA_API_KEY" && pair.Value == "cartesia-secret");
+        Assert.Contains(environment, pair => pair.Key == "CARTESIA_API_KEY" && pair.Value == "{cartesia-key.value}");
         Assert.Contains(environment, pair => pair.Key == "ELEVEN_API_KEY" && pair.Value == "elevenlabs-literal");
-        Assert.Contains(environment, pair => pair.Key == "ANTHROPIC_API_KEY" && pair.Value == "anthropic-secret");
+        Assert.Contains(environment, pair => pair.Key == "ANTHROPIC_API_KEY" && pair.Value == "{anthropic-key.value}");
     }
 
     private static void AssertParent(IResource resource, IResource parent)
@@ -77,6 +76,6 @@ public sealed class LiveKitAgentHostingExtensionsTests(DistributedApplicationBui
         Assert.Contains(
             resource.Annotations.OfType<ResourceRelationshipAnnotation>(),
             relationship => ReferenceEquals(relationship.Resource, parent)
-                && relationship.Type == "parent");
+                && string.Equals(relationship.Type, "Parent", StringComparison.OrdinalIgnoreCase));
     }
 }

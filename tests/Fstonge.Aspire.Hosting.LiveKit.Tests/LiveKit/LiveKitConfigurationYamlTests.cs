@@ -28,7 +28,8 @@ public sealed class LiveKitConfigurationYamlTests
         var value = LiveKitConfigurationYaml.SerializeScalar("value: #1");
 
         Assert.Contains("value: #1", value);
-        Assert.StartsWith("\"", value);
+        Assert.StartsWith("'", value);
+        Assert.EndsWith("'", value);
     }
 
     [Fact]

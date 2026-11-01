@@ -4,13 +4,12 @@ using System.Net.Sockets;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Ingress;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitIngressHostingExtensionsTests
 {
     [Fact]
     public async Task AddIngress_RegistersResourceEndpointsAndRuntimeConfiguration()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var apiKey = builder.AddParameter("api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("api-secret", "test-secret", secret: true);
         var livekit = builder.AddLiveKit("livekit", apiKey, apiSecret);
@@ -25,7 +24,7 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
             version: "v1.9.0");
         var image = Assert.Single(ingress.Resource.Annotations.OfType<ContainerImageAnnotation>());
         var endpoints = ingress.Resource.Annotations.OfType<EndpointAnnotation>().ToArray();
-        var yaml = await appHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY");
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY");
 
         Assert.Single(builder.Resources.OfType<LiveKitIngressResource>());
         Assert.Equal("livekit/ingress", image.Image);
@@ -33,17 +32,17 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
         Assert.Contains(endpoints, endpoint => endpoint.Name == "rtmp" && endpoint.Protocol == ProtocolType.Tcp);
         Assert.Contains(endpoints, endpoint => endpoint.Name == "whip" && endpoint.Protocol == ProtocolType.Tcp);
         Assert.Contains(endpoints, endpoint => endpoint.Name == "whip-udp" && endpoint.Protocol == ProtocolType.Udp);
-        Assert.Contains("api_key: test-key", yaml);
-        Assert.Contains("api_secret: test-secret", yaml);
+        Assert.Contains("api_key: \"{api-key.value}\"", yaml);
+        Assert.Contains("api_secret: \"{api-secret.value}\"", yaml);
         Assert.Contains("ws_url: \"ws://livekit:7880\"", yaml);
         Assert.Contains("redis:", yaml);
-        Assert.Contains("rtmp_base_url: rtmps://example.test/live", await appHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG"));
+        Assert.Contains("rtmp_base_url: rtmps://example.test/live", await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG"));
     }
 
     [Fact]
     public async Task WithIngressConfiguration_EmitsTypedAndAdditionalSettings()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var ingress = builder.AddLiveKit("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
             .WithIngressConfiguration(configuration =>
@@ -53,7 +52,7 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
             })
             .WithIngressAdditionalConfiguration("custom_setting: true");
 
-        var yaml = await appHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY");
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY");
 
         Assert.Contains("rtmp_cpu_cost: 2", yaml);
         Assert.Contains("level: info", yaml);
@@ -65,7 +64,7 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
     [InlineData("rtmp://example.test/live", "ftp://example.test/whip")]
     public void AddIngress_RejectsUnsupportedPublicUrlSchemes(string rtmpUrl, string whipUrl)
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
         var redis = builder.AddRedis("redis");
 
@@ -75,7 +74,7 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
     [Fact]
     public void AddIngress_RejectsInvalidOrCollidingPorts()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
         var redis = builder.AddRedis("redis");
 
@@ -91,7 +90,7 @@ public sealed class LiveKitIngressHostingExtensionsTests(DistributedApplicationB
     [InlineData("api_key: managed")]
     public void WithIngressAdditionalConfiguration_RejectsMalformedDuplicateOrManagedSettings(string yaml)
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var ingress = builder.AddLiveKit("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip");
 

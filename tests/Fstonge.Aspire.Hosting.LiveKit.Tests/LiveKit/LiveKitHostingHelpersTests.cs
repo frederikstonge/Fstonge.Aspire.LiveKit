@@ -3,8 +3,7 @@ using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitHostingHelpersTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitHostingHelpersTests
 {
     [Theory]
     [InlineData(0)]
@@ -26,7 +25,7 @@ public sealed class LiveKitHostingHelpersTests(DistributedApplicationBuilderTest
     [Fact]
     public void GetJsonLoggingConfiguration_ReflectsResourceFlag()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
 
         Assert.Equal("logging:\n  json: true\n", LiveKitHostingHelpers.GetJsonLoggingConfiguration(livekit.Resource));
@@ -38,7 +37,7 @@ public sealed class LiveKitHostingHelpersTests(DistributedApplicationBuilderTest
         var configured = LiveKitHostingHelpers.GetHttpPortConfiguration(8080, "health_port");
         var omitted = LiveKitHostingHelpers.GetHttpPortConfiguration(null, "health_port");
 
-        Assert.Equal("health_port: 8080\n", configured.ToString());
-        Assert.Equal(string.Empty, omitted.ToString());
+        Assert.Equal("health_port: 8080\n", configured.Format);
+        Assert.Equal(string.Empty, omitted.Format);
     }
 }

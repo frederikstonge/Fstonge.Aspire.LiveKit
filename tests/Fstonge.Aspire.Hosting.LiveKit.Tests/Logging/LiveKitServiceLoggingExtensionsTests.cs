@@ -4,13 +4,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Logging;
 
-[Collection(DistributedApplicationBuilderTestCollection.Name)]
-public sealed class LiveKitServiceLoggingExtensionsTests(DistributedApplicationBuilderTestHost appHost)
+public sealed class LiveKitServiceLoggingExtensionsTests
 {
     [Fact]
     public void WithJsonLogging_EnablesJsonWithoutRegisteringForwarder()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var ingress = builder.AddLiveKit("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip");
         var hostedServiceCount = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
@@ -26,7 +25,7 @@ public sealed class LiveKitServiceLoggingExtensionsTests(DistributedApplicationB
     [Fact]
     public void WithStructuredLogs_EnablesJsonAndRegistersOnlyOneForwarderPerResource()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var livekit = builder.AddLiveKit("livekit");
         var initialHostedServiceCount = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
 
@@ -41,7 +40,7 @@ public sealed class LiveKitServiceLoggingExtensionsTests(DistributedApplicationB
     [Fact]
     public void WithAgentStructuredLogs_RegistersForwarderForAgentResource()
     {
-        var builder = appHost.CreateBuilder();
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var agent = builder.AddExecutable("agent", "node", ".");
         var hostedServicesBefore = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
 

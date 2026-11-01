@@ -18,10 +18,10 @@ public sealed class LiveKitIngressCpuCostConfigurationTests
 
         var settings = configuration.ToDictionary();
 
-        Assert.Equal(2, settings["rtmp_cpu_cost"]);
+        Assert.Equal(2d, settings["rtmp_cpu_cost"]);
         Assert.Equal(1.5, settings["whip_cpu_cost"]);
         Assert.Equal(0.1, settings["whip_bypass_transcoding_cpu_cost"]);
-        Assert.Equal(3, settings["url_cpu_cost"]);
+        Assert.Equal(3d, settings["url_cpu_cost"]);
         Assert.Equal(0.3, settings["min_idle_ratio"]);
     }
 
