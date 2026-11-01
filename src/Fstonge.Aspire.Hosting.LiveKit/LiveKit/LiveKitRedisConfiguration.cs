@@ -20,6 +20,6 @@ internal static class LiveKitRedisConfiguration
             ReferenceExpression.Empty);
 
         return ReferenceExpression.Create(
-            $"redis:\n  address: {redisResource.Host}:{redisResource.Port}\n{password}{tls}");
+            $"redis:\n  address: {redisResource.Host}:{redisResource.Port}\n{password}{tls}\n");
     }
 }
