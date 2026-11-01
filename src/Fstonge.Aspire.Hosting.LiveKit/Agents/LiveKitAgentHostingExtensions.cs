@@ -205,6 +205,14 @@ public static class LiveKitAgentHostingExtensions
         return agent;
     }
 
+    /// <summary>Enables OTLP log forwarding for a LiveKit Egress resource.</summary>
+    /// <param name="resourceBuilder">The Egress resource.</param>
+    /// <returns>The configured resource.</returns>
+    [AspireExport]
+    internal static IResourceBuilder<IResource> WithAgentStructuredLogs(
+        IResourceBuilder<IResource> resourceBuilder) =>
+        LiveKitServiceLoggingExtensions.WithAgentStructuredLogs(resourceBuilder);
+
     /// <summary>
     /// Injects an OpenAI API key parameter into the agent resource environment.
     /// </summary>

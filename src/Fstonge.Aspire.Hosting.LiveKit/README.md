@@ -24,9 +24,10 @@ var ingress = livekit.AddIngress(
 
 The AppHost must have an OTLP endpoint configured through
 `ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL`, `OTEL_EXPORTER_OTLP_ENDPOINT`, or
-`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. Server JSON records are forwarded with
-their parsed fields. Companion-service JSON records are parsed when available;
-plain-text records are forwarded as message-only logs. Logs remain available
+`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`. LiveKit server JSON and tab-delimited
+records, Python agent JSON records, and other object-shaped JSON records are
+forwarded with their parsed fields. Plain-text output and malformed or
+unsupported JSON remain available as message-only logs. Logs remain available
 in the resource console output. See the repository's
 [getting-started guide](../../docs/getting-started.md) for shared Redis setup,
 secret parameters, and examples; see the
@@ -49,9 +50,11 @@ Server JSON console logging is enabled by default. Call `.WithJsonLogging()` on
 Ingress, Egress, or SIP to enable JSON console output without OTLP forwarding.
 Aspire captures console output for all resources. To also forward logs to the
 dashboard's Structured Logs view over OTLP, call `.WithStructuredLogs()` on
-the resource; this also enables JSON logging. JSON records are forwarded with
-parsed fields when possible, and plain-text companion records are forwarded as
-message-only logs. The AppHost must have an OTLP endpoint configured.
+the resource; this also enables JSON logging. LiveKit server JSON and
+tab-delimited records, Python agent JSON records, and other object-shaped JSON
+records are forwarded with their parsed fields. Plain-text output and malformed
+or unsupported JSON are forwarded as message-only logs. The AppHost must have
+an OTLP endpoint configured.
 
 YamlDotNet serializes typed options and parses extension YAML. Additional YAML
 must be a single top-level mapping and cannot override settings managed by the
