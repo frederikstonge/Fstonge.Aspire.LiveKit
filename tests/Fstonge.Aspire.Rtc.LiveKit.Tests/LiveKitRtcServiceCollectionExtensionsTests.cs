@@ -8,6 +8,26 @@ namespace Fstonge.Aspire.Rtc.LiveKit.Tests;
 public sealed class LiveKitRtcServiceCollectionExtensionsTests
 {
     [Theory]
+    [InlineData("ftp://livekit.example.test")]
+    [InlineData("https://user:password@livekit.example.test")]
+    public void LiveKitRtcRoomFactory_RejectsInvalidUrls(string url)
+    {
+        var exception = Assert.Throws<OptionsValidationException>(() =>
+            new LiveKitRtcRoomFactory(Options.Create(new LiveKitRtcOptions { Url = url })));
+
+        Assert.Contains("LIVEKIT_URL", exception.Message);
+    }
+
+    [Fact]
+    public async Task LiveKitRtcRoomFactory_RejectsMissingToken()
+    {
+        var factory = new LiveKitRtcRoomFactory(
+            Options.Create(new LiveKitRtcOptions { Url = "http://localhost:7880" }));
+
+        await Assert.ThrowsAsync<ArgumentException>(() => factory.ConnectAsync(" "));
+    }
+
+    [Theory]
     [InlineData("http://localhost:7880", "ws://localhost:7880/")]
     [InlineData("https://livekit.example.test/path", "wss://livekit.example.test/path")]
     [InlineData("ws://localhost:7880", "ws://localhost:7880/")]

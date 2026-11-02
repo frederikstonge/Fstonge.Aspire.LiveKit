@@ -52,4 +52,17 @@ public sealed class LiveKitTabDelimitedLogParserTests
         Assert.Equal(content, record.Message);
         Assert.False(record.Properties.ContainsKey("livekit.timestamp"));
     }
+
+    [Fact]
+    public void Parse_FallsBackToPlainTextWhenAttributesAreNotAnObject()
+    {
+        const string content =
+            "2026-01-02T03:04:05Z\tERROR\tlivekit.room\troom.go:12\trequest failed\t[]";
+
+        var record = parser.Parse(content, isErrorMessage: false, lineNumber: 23);
+
+        Assert.Equal(LogLevel.Error, record.Level);
+        Assert.Equal(content, record.Message);
+        Assert.False(record.Properties.ContainsKey("livekit.timestamp"));
+    }
 }

@@ -164,11 +164,6 @@ public sealed class LiveKitSipConfiguration
     {
         if (value is { } setting)
         {
-            if (!double.IsFinite(setting))
-            {
-                throw new ArgumentOutOfRangeException(name, "Configuration values must be finite numbers.");
-            }
-
             yaml[name] = setting;
         }
     }

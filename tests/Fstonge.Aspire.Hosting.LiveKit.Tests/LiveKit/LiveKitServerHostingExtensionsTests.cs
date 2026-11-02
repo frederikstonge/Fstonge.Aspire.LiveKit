@@ -75,6 +75,18 @@ public sealed class LiveKitServerHostingExtensionsTests
     }
 
     [Fact]
+    public async Task AddLiveKit_EmitsDevelopmentConfigurationInDevelopmentEnvironment()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        builder.Environment.EnvironmentName = Environments.Development;
+        var livekit = builder.AddLiveKitServer("livekit");
+
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+
+        Assert.Contains("development: true", yaml);
+    }
+
+    [Fact]
     public async Task WithLiveKitReference_OnlyAddsCredentialsWhenRequested()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
@@ -167,6 +179,15 @@ public sealed class LiveKitServerHostingExtensionsTests
     }
 
     [Fact]
+    public void WithLiveKitServerConfiguration_RejectsEmptyConfiguration()
+    {
+        var livekit = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit");
+
+        Assert.Throws<InvalidOperationException>(() =>
+            livekit.WithLiveKitServerConfiguration(_ => { }));
+    }
+
+    [Fact]
     public async Task WithLiveKitAdditionalConfiguration_AppendsYamlAndRejectsManagedKeys()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
@@ -193,5 +214,18 @@ public sealed class LiveKitServerHostingExtensionsTests
         Assert.Throws<ArgumentOutOfRangeException>(() => livekit.WithLiveKitServerTurn(udpPort: 0));
         Assert.Throws<ArgumentException>(() =>
             livekit.WithLiveKitServerTurnTls("turn.example.test", "/certs/tls.crt", "/certs/tls.key", tlsPort: 7881));
+        Assert.Throws<ArgumentException>(() =>
+            livekit.WithLiveKitServerTurn(udpPort: livekit.Resource.RtcUdpPort));
+    }
+
+    [Fact]
+    public void LiveKitServerLoggingWrappers_ConfigureJsonAndStructuredLogging()
+    {
+        var livekit = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit");
+
+        Assert.Same(livekit, LiveKitServerHostingExtensions.WithLiveKitServerJsonLogging(livekit));
+        Assert.True(livekit.Resource.JsonLoggingEnabled);
+        Assert.Same(livekit, LiveKitServerHostingExtensions.WithLiveKitServerStructuredLogs(livekit));
+        Assert.True(livekit.Resource.StructuredLogForwardingEnabled);
     }
 }

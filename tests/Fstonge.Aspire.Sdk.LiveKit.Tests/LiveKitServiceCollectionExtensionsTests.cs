@@ -9,6 +9,46 @@ namespace Fstonge.Aspire.Sdk.LiveKit.Tests;
 public sealed class LiveKitServiceCollectionExtensionsTests
 {
     [Fact]
+    public void LiveKitAccessTokenFactory_CreatesTokenFromConfiguredCredentials()
+    {
+        var factory = new LiveKitAccessTokenFactory(Options.Create(new LiveKitOptions
+        {
+            ApiKey = "local-key",
+            ApiSecret = "01234567890123456789012345678901"
+        }));
+
+        Assert.NotNull(factory.GetAccessToken());
+    }
+
+    [Fact]
+    public async Task RoomManagementService_ForwardsRequestsToLiveKitClient()
+    {
+        using var httpClient = new HttpClient(new FailingHttpMessageHandler());
+        var service = new RoomManagementService(
+            httpClient,
+            Options.Create(new LiveKitOptions
+            {
+                Url = "http://localhost:7880",
+                ApiKey = "local-key",
+                ApiSecret = "01234567890123456789012345678901"
+            }));
+
+        await Assert.ThrowsAnyAsync<Exception>(() => service.CreateRoomAsync(new CreateRoomRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.ListRoomsAsync(new ListRoomsRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.DeleteRoomAsync(new DeleteRoomRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.UpdateRoomMetadataAsync(new UpdateRoomMetadataRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.GetParticipantAsync(new RoomParticipantIdentity()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.ListParticipantsAsync(new ListParticipantsRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.MoveParticipantAsync(new MoveParticipantRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.RemoveParticipantAsync(new RoomParticipantIdentity()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.UpdateParticipantAsync(new UpdateParticipantRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.ForwardParticipantAsync(new ForwardParticipantRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.UpdateSubscriptionsAsync(new UpdateSubscriptionsRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.MutePublishedTrackAsync(new MuteRoomTrackRequest()));
+        await Assert.ThrowsAnyAsync<Exception>(() => service.SendDataAsync(new SendDataRequest()));
+    }
+
+    [Fact]
     public void AddLiveKitSdk_UsesRootEnvironmentContractAndRegistersRoomClient()
     {
         var configuration = new ConfigurationBuilder()
@@ -163,5 +203,13 @@ public sealed class LiveKitServiceCollectionExtensionsTests
             () => provider.GetRequiredService<IRoomManagementService>());
 
         Assert.Contains("HTTP or HTTPS", exception.Message);
+    }
+
+    private sealed class FailingHttpMessageHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken) =>
+            Task.FromException<HttpResponseMessage>(new HttpRequestException("Expected test transport failure."));
     }
 }

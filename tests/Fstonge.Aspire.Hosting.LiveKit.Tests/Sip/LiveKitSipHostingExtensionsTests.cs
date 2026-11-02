@@ -45,6 +45,25 @@ public sealed class LiveKitSipHostingExtensionsTests
     }
 
     [Fact]
+    public void AddSip_AddsFixedRtpAndPrometheusEndpoints()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var sip = builder.AddLiveKitServer("livekit")
+            .AddSip(
+                "sip",
+                builder.AddRedis("redis"),
+                rtpPortStart: 12000,
+                rtpPortEnd: 12000,
+                prometheusPort: 9090);
+
+        var endpoints = sip.Resource.Annotations.OfType<EndpointAnnotation>().ToArray();
+
+        Assert.Contains(endpoints, endpoint =>
+            endpoint.Name == "rtp-udp" && endpoint.Port == 12000 && endpoint.Protocol == ProtocolType.Udp);
+        Assert.Contains(endpoints, endpoint => endpoint.Name == "prometheus" && endpoint.Port == 9090);
+    }
+
+    [Fact]
     public void AddSip_RejectsInvalidListenerRangesAndManagedOverrides()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
@@ -80,6 +99,18 @@ public sealed class LiveKitSipHostingExtensionsTests
         var sip = builder.AddLiveKitServer("livekit").AddSip("sip", builder.AddRedis("redis"));
 
         Assert.Throws<ArgumentException>(() => sip.WithSipAdditionalConfiguration("sip_port: 6060"));
+    }
+
+    [Fact]
+    public void SipLoggingWrappers_ConfigureJsonAndStructuredLogging()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var sip = builder.AddLiveKitServer("livekit").AddSip("sip", builder.AddRedis("redis"));
+
+        Assert.Same(sip, LiveKitSipHostingExtensions.WithSipJsonLogging(sip));
+        Assert.True(sip.Resource.JsonLoggingEnabled);
+        Assert.Same(sip, LiveKitSipHostingExtensions.WithSipStructuredLogs(sip));
+        Assert.True(sip.Resource.StructuredLogForwardingEnabled);
     }
 
 }

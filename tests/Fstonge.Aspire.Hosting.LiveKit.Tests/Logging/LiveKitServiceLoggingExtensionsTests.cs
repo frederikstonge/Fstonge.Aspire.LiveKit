@@ -1,6 +1,7 @@
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Logging;
 
@@ -35,6 +36,11 @@ public sealed class LiveKitServiceLoggingExtensionsTests
         Assert.True(livekit.Resource.StructuredLogForwardingEnabled);
         Assert.Equal(initialHostedServiceCount + 1, builder.Services.Count(
             service => service.ServiceType == typeof(IHostedService)));
+
+        using var serviceProvider = builder.Services.BuildServiceProvider();
+        var registration = builder.Services.Last(service =>
+            service.ServiceType == typeof(IHostedService) && service.ImplementationFactory is not null);
+        Assert.IsType<LiveKitStructuredLogForwarder>(registration.ImplementationFactory!(serviceProvider));
     }
 
     [Fact]
@@ -48,5 +54,34 @@ public sealed class LiveKitServiceLoggingExtensionsTests
 
         Assert.Equal(hostedServicesBefore + 1, builder.Services.Count(
             service => service.ServiceType == typeof(IHostedService)));
+
+        using var serviceProvider = builder.Services.BuildServiceProvider();
+        var registration = builder.Services.Last(service =>
+            service.ServiceType == typeof(IHostedService) && service.ImplementationFactory is not null);
+        Assert.IsType<LiveKitStructuredLogForwarder>(registration.ImplementationFactory!(serviceProvider));
+    }
+
+    [Fact]
+    public void ResourceSpecificLoggingWrappers_ConfigureEgressIngressAndAgentResources()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var livekit = builder.AddLiveKitServer("livekit");
+        var redis = builder.AddRedis("redis");
+        var egress = livekit.AddEgress("egress", redis);
+        var ingress = livekit.AddIngress("ingress", redis, "rtmp://example.test/live", "http://example.test/whip");
+        var agent = builder.AddExecutable("agent", "node", ".");
+        var agentBuilder = builder.CreateResourceBuilder<IResource>(agent.Resource);
+
+        Assert.Same(egress, LiveKitEgressHostingExtensions.WithEgressJsonLogging(egress));
+        Assert.Same(egress, LiveKitEgressHostingExtensions.WithEgressStructuredLogs(egress));
+        Assert.Same(ingress, LiveKitIngressHostingExtensions.WithIngressJsonLogging(ingress));
+        Assert.Same(ingress, LiveKitIngressHostingExtensions.WithIngressStructuredLogs(ingress));
+        Assert.Same(
+            agentBuilder,
+            LiveKitAgentHostingExtensions.WithAgentStructuredLogs(
+                agentBuilder));
+
+        Assert.True(egress.Resource.StructuredLogForwardingEnabled);
+        Assert.True(ingress.Resource.StructuredLogForwardingEnabled);
     }
 }

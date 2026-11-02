@@ -27,4 +27,15 @@ public sealed class NodeAgentJsonLogParserTests
         Assert.Equal(123L, record.Properties["pid"]);
         Assert.Equal("worker", record.Properties["hostname"]);
     }
+
+    [Fact]
+    public void Parse_UsesInformationForFractionalNodeAgentLogLevel()
+    {
+        var record = parser.Parse(
+            """{"level":1.5,"time":1767323045500,"msg":"node agent event"}""",
+            isErrorMessage: false,
+            lineNumber: 14);
+
+        Assert.Equal(LogLevel.Information, record.Level);
+    }
 }

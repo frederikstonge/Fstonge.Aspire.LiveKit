@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -19,6 +19,41 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
+
+      - name: Run tests
+        run: dotnet test --solution Fstonge.Aspire.LiveKit.slnx --configuration Release --coverage --coverage-output-format cobertura
+
+      - name: Generate code coverage report
+        if: always()
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: TestResults/*.cobertura.xml
+          format: markdown
+          output: file
+          hide_branch_rate: true
+          hide_complexity: true
+          indicators: false
+          fail_below_min: true
+          thresholds: "100 100"
+
+      - name: Add code coverage to workflow summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f code-coverage-results.md ]]; then
+            cat code-coverage-results.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Code coverage" >> "$GITHUB_STEP_SUMMARY"
+            echo "No coverage summary was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload code coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-coverage-report
+          path: TestResults/*.cobertura.xml
+          if-no-files-found: warn
 
       - name: Pack projects
         shell: pwsh

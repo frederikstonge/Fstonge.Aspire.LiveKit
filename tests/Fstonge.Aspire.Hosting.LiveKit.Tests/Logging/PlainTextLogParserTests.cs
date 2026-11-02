@@ -33,4 +33,17 @@ public sealed class PlainTextLogParserTests
         Assert.Equal(true, record.Properties["aspire.log.is_error_stream"]);
         Assert.Equal(21, record.Properties["livekit.log.line_number"]);
     }
+
+    [Fact]
+    public void Parse_AddsTimestampToTimestampedPlainText()
+    {
+        var timestamp = DateTimeOffset.Parse("2026-01-02T03:04:05Z");
+        var record = parser.Parse(
+            "2026-01-02T03:04:05Z ERROR: worker stopped",
+            isErrorMessage: false,
+            lineNumber: 23);
+
+        Assert.Equal(LogLevel.Error, record.Level);
+        Assert.Equal(timestamp, record.Properties["livekit.timestamp"]);
+    }
 }

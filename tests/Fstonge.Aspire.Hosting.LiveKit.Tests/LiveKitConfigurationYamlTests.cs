@@ -43,6 +43,15 @@ public sealed class LiveKitConfigurationYamlTests
         Assert.Equal("custom_setting: true\n", yaml);
     }
 
+    [Fact]
+    public void ValidateAdditionalConfiguration_RejectsNonScalarTopLevelKeys()
+    {
+        var exception = Assert.Throws<ArgumentException>(() =>
+            LiveKitConfigurationYaml.ValidateAdditionalConfiguration("? [one, two]\n: value", "yaml"));
+
+        Assert.Contains("Top-level YAML keys must be scalar", exception.Message);
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("setting: [")]
@@ -60,5 +69,11 @@ public sealed class LiveKitConfigurationYamlTests
     public void ValidateLogLevel_RejectsUnsupportedLevel()
     {
         Assert.Throws<ArgumentException>(() => LiveKitConfigurationYaml.ValidateLogLevel("trace", "level"));
+    }
+
+    [Fact]
+    public void ValidateLogLevel_ReturnsEmptyForNull()
+    {
+        Assert.Equal(string.Empty, LiveKitConfigurationYaml.ValidateLogLevel(null, "level"));
     }
 }

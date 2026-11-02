@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using LiveKit.Rtc;
 using Microsoft.Extensions.Options;
 
@@ -22,6 +23,8 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
     public Uri ServerUrl { get; }
 
     /// <inheritdoc />
+    // The successful connection path requires a running LiveKit server.
+    [ExcludeFromCodeCoverage]
     public async Task<Room> ConnectAsync(string participantToken, RoomOptions? roomOptions = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(participantToken);
