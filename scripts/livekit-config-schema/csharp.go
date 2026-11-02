@@ -15,6 +15,8 @@ type schemaDocument map[string]any
 type csharpGenerator struct {
 	definitions map[string]schemaDocument
 	typeNames   map[string]string
+	rootType    string
+	rootSchema  schemaDocument
 }
 
 func generateCSharp(schema schemaDocument, namespace, rootType string) ([]byte, error) {
@@ -29,6 +31,8 @@ func generateCSharp(schema schemaDocument, namespace, rootType string) ([]byte, 
 	g := &csharpGenerator{
 		definitions: make(map[string]schemaDocument, len(rawDefinitions)),
 		typeNames:   make(map[string]string, len(rawDefinitions)),
+		rootType:    csharpIdentifier(rootType),
+		rootSchema:  schema,
 	}
 	for key, rawDefinition := range rawDefinitions {
 		definition, ok := rawDefinition.(map[string]any)
@@ -46,8 +50,8 @@ func generateCSharp(schema schemaDocument, namespace, rootType string) ([]byte, 
 	source.WriteString("using YamlDotNet.Serialization;\n\n")
 	fmt.Fprintf(&source, "namespace %s;\n\n", namespace)
 
-	fmt.Fprintf(&source, "public sealed class %s\n{\n", csharpIdentifier(rootType))
-	if err := g.writeProperties(&source, schema, "    "); err != nil {
+	fmt.Fprintf(&source, "public sealed class %s\n{\n", g.rootType)
+	if err := g.writeProperties(&source, schema, "    ", true); err != nil {
 		return nil, err
 	}
 	source.WriteString("}\n")
@@ -63,7 +67,7 @@ func generateCSharp(schema schemaDocument, namespace, rootType string) ([]byte, 
 		definition := g.definitions[key]
 		source.WriteString("\n")
 		fmt.Fprintf(&source, "public sealed class %s\n{\n", g.typeNames[key])
-		if err := g.writeProperties(&source, definition, "    "); err != nil {
+		if err := g.writeProperties(&source, definition, "    ", false); err != nil {
 			return nil, fmt.Errorf("definition %q: %w", key, err)
 		}
 		source.WriteString("}\n")
@@ -74,6 +78,7 @@ func generateCSharp(schema schemaDocument, namespace, rootType string) ([]byte, 
 
 func (g *csharpGenerator) assignTypeNames() {
 	baseNames := make(map[string][]string)
+	propertyNames := make(map[string]map[string]struct{})
 	for key := range g.definitions {
 		if !g.isObjectDefinition(g.definitions[key]) {
 			continue
@@ -81,11 +86,40 @@ func (g *csharpGenerator) assignTypeNames() {
 		baseName := csharpIdentifier(strings.SplitN(key, "_", 2)[0])
 		baseNames[baseName] = append(baseNames[baseName], key)
 	}
+	g.collectReferencePropertyNames(propertyNames)
+
+	candidates := make(map[string]string)
+	candidateCounts := make(map[string]int)
+	for key := range g.definitions {
+		if !g.isObjectDefinition(g.definitions[key]) {
+			continue
+		}
+		baseName := csharpIdentifier(strings.SplitN(key, "_", 2)[0])
+		if baseName != "Config" || len(propertyNames[key]) != 1 {
+			continue
+		}
+		for propertyName := range propertyNames[key] {
+			candidate := propertyName + "Config"
+			if candidate == g.rootType {
+				continue
+			}
+			candidates[key] = candidate
+			candidateCounts[candidate]++
+		}
+	}
+	for candidate := range candidateCounts {
+		if _, exists := baseNames[candidate]; exists {
+			candidateCounts[candidate]++
+		}
+	}
+
 	for baseName, keys := range baseNames {
 		sort.Strings(keys)
 		for _, key := range keys {
 			name := baseName
-			if len(keys) > 1 {
+			if candidate, exists := candidates[key]; exists && candidateCounts[candidate] == 1 {
+				name = candidate
+			} else if len(keys) > 1 {
 				hash := strings.SplitN(key, "_", 2)
 				if len(hash) == 2 {
 					name += "_" + hash[1]
@@ -96,6 +130,47 @@ func (g *csharpGenerator) assignTypeNames() {
 	}
 }
 
+func (g *csharpGenerator) collectReferencePropertyNames(propertyNames map[string]map[string]struct{}) {
+	var visit func(any, string)
+	visit = func(value any, propertyName string) {
+		switch value := value.(type) {
+		case map[string]any:
+			if reference, ok := value["$ref"].(string); ok {
+				const prefix = "#/$defs/"
+				if strings.HasPrefix(reference, prefix) {
+					key := strings.TrimPrefix(reference, prefix)
+					if propertyNames[key] == nil {
+						propertyNames[key] = make(map[string]struct{})
+					}
+					propertyNames[key][csharpIdentifier(propertyName)] = struct{}{}
+				}
+			}
+			for key, child := range value {
+				if key == "properties" {
+					if properties, ok := child.(map[string]any); ok {
+						for name, property := range properties {
+							visit(property, name)
+						}
+					}
+					continue
+				}
+				visit(child, propertyName)
+			}
+		case []any:
+			for _, child := range value {
+				visit(child, propertyName)
+			}
+		}
+	}
+
+	definitions := make(map[string]any, len(g.definitions))
+	for key, definition := range g.definitions {
+		definitions[key] = map[string]any(definition)
+	}
+	visit(definitions, "")
+	visit(map[string]any(g.rootSchema), "")
+}
+
 func (g *csharpGenerator) isObjectDefinition(schema schemaDocument) bool {
 	if schema["type"] != "object" {
 		return false
@@ -104,7 +179,7 @@ func (g *csharpGenerator) isObjectDefinition(schema schemaDocument) bool {
 	return hasProperties
 }
 
-func (g *csharpGenerator) writeProperties(source *bytes.Buffer, schema schemaDocument, indent string) error {
+func (g *csharpGenerator) writeProperties(source *bytes.Buffer, schema schemaDocument, indent string, initializeObjectReferences bool) error {
 	properties, ok := schema["properties"].(map[string]any)
 	if !ok {
 		return nil
@@ -132,9 +207,36 @@ func (g *csharpGenerator) writeProperties(source *bytes.Buffer, schema schemaDoc
 			return fmt.Errorf("property %q: %w", key, err)
 		}
 		fmt.Fprintf(source, "%s[YamlMember(Alias = %s)]\n", indent, strconv.Quote(key))
-		fmt.Fprintf(source, "%spublic %s %s { get; set; }\n\n", indent, propertyType, propertyName)
+		initialize := initializeObjectReferences && g.isObjectReference(propertySchema)
+		if initialize {
+			propertyType = strings.TrimSuffix(propertyType, "?")
+		}
+		fmt.Fprintf(source, "%spublic %s %s { get; set; }", indent, propertyType, propertyName)
+		if initialize {
+			fmt.Fprint(source, " = new();")
+		}
+		fmt.Fprint(source, "\n\n")
 	}
 	return nil
+}
+
+func (g *csharpGenerator) isObjectReference(schema map[string]any) bool {
+	if reference, ok := schema["$ref"].(string); ok {
+		const prefix = "#/$defs/"
+		if !strings.HasPrefix(reference, prefix) {
+			return false
+		}
+		return g.isObjectDefinition(g.definitions[strings.TrimPrefix(reference, prefix)])
+	}
+	if alternatives, ok := schema["anyOf"].([]any); ok {
+		for _, alternative := range alternatives {
+			candidate, ok := alternative.(map[string]any)
+			if ok && candidate["type"] != "null" && g.isObjectReference(candidate) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (g *csharpGenerator) typeFor(schema map[string]any) (string, error) {

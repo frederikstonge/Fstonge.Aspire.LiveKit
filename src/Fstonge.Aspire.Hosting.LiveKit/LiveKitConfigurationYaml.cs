@@ -93,6 +93,7 @@ internal static class LiveKitConfigurationYaml
             throw new ArgumentException("The generated configuration must contain one top-level YAML mapping.", parameterName);
         }
 
+        RemoveEmptyMappings(root);
         var reserved = reservedKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var (keyNode, _) in root.Children)
@@ -116,6 +117,23 @@ internal static class LiveKitConfigurationYaml
         }
 
         return root;
+    }
+
+    private static void RemoveEmptyMappings(YamlMappingNode mapping)
+    {
+        foreach (var (key, value) in mapping.Children.ToArray())
+        {
+            if (value is not YamlMappingNode child)
+            {
+                continue;
+            }
+
+            RemoveEmptyMappings(child);
+            if (child.Children.Count == 0)
+            {
+                mapping.Children.Remove(key);
+            }
+        }
     }
 
     public static void EnableJsonLogging(YamlMappingNode configuration, string parameterName)

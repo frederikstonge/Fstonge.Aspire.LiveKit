@@ -9,11 +9,7 @@ public sealed class LiveKitConfigurationYamlTests
     public void SerializeConfiguration_UsesUpstreamAliasesAndMergesJsonLogging()
     {
         var yaml = LiveKitConfigurationYaml.SerializeConfiguration(
-            new LiveKitIngressUpstreamConfiguration
-            {
-                CpuCost = new CPUCostConfig { RtmpCpuCost = 2 },
-                Logging = new Config_7837b7412944 { Level = "warn" },
-            },
+            CreateIngressConfiguration(),
             "configuration",
             jsonLoggingEnabled: true,
             additionalYaml: null);
@@ -22,6 +18,19 @@ public sealed class LiveKitConfigurationYamlTests
         Assert.Contains("rtmp_cpu_cost: 2", yaml);
         Assert.Contains("level: warn", yaml);
         Assert.Contains("json: true", yaml);
+    }
+
+    [Fact]
+    public void SerializeConfiguration_DoesNotEmitEmptyInitializedObjects()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            LiveKitConfigurationYaml.SerializeConfiguration(
+                new LiveKitIngressUpstreamConfiguration(),
+                "configuration",
+                jsonLoggingEnabled: false,
+                additionalYaml: null));
+
+        Assert.Contains("At least one configuration setting", exception.Message);
     }
 
     [Fact]
@@ -45,13 +54,21 @@ public sealed class LiveKitConfigurationYamlTests
             LiveKitConfigurationYaml.SerializeConfiguration(
                 new LiveKitIngressUpstreamConfiguration
                 {
-                    CpuCost = new CPUCostConfig { RtmpCpuCost = 2 },
+                    CpuCost = { RtmpCpuCost = 2 },
                 },
                 "configuration",
                 jsonLoggingEnabled: false,
                 additionalYaml: "cpu_cost:\n  whip_cpu_cost: 1"));
 
         Assert.Contains("configured both", exception.Message);
+    }
+
+    private static LiveKitIngressUpstreamConfiguration CreateIngressConfiguration()
+    {
+        var configuration = new LiveKitIngressUpstreamConfiguration();
+        configuration.CpuCost.RtmpCpuCost = 2;
+        configuration.Logging.Level = "warn";
+        return configuration;
     }
 
     [Fact]

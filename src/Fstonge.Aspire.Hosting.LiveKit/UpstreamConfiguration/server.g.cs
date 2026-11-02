@@ -9,19 +9,19 @@ namespace Aspire.Hosting.LiveKit.Configuration.Server;
 public sealed class LiveKitServerUpstreamConfiguration
 {
     [YamlMember(Alias = "agents")]
-    public Config_a3f1297b5db8? Agents { get; set; }
+    public AgentsConfig Agents { get; set; } = new();
 
     [YamlMember(Alias = "api")]
-    public APIConfig? Api { get; set; }
+    public APIConfig Api { get; set; } = new();
 
     [YamlMember(Alias = "audio")]
-    public AudioConfig? Audio { get; set; }
+    public AudioConfig Audio { get; set; } = new();
 
     [YamlMember(Alias = "bind_addresses")]
     public List<string?>? BindAddresses { get; set; }
 
     [YamlMember(Alias = "debug_handler")]
-    public DebugHandlerConfig? DebugHandler { get; set; }
+    public DebugHandlerConfig DebugHandler { get; set; } = new();
 
     [YamlMember(Alias = "development")]
     public bool? Development { get; set; }
@@ -33,7 +33,7 @@ public sealed class LiveKitServerUpstreamConfiguration
     public bool? EnableParticipantDataBlob { get; set; }
 
     [YamlMember(Alias = "ingress")]
-    public IngressConfig? Ingress { get; set; }
+    public IngressConfig Ingress { get; set; } = new();
 
     [YamlMember(Alias = "key_file")]
     public string? KeyFile { get; set; }
@@ -42,67 +42,67 @@ public sealed class LiveKitServerUpstreamConfiguration
     public Dictionary<string, string?>? Keys { get; set; }
 
     [YamlMember(Alias = "limit")]
-    public LimitConfig? Limit { get; set; }
+    public LimitConfig Limit { get; set; } = new();
 
     [YamlMember(Alias = "log_level")]
     public string? LogLevel { get; set; }
 
     [YamlMember(Alias = "logging")]
-    public LoggingConfig? Logging { get; set; }
+    public LoggingConfig Logging { get; set; } = new();
 
     [YamlMember(Alias = "metric")]
-    public MetricConfig? Metric { get; set; }
+    public MetricConfig Metric { get; set; } = new();
 
     [YamlMember(Alias = "node_selector")]
-    public NodeSelectorConfig? NodeSelector { get; set; }
+    public NodeSelectorConfig NodeSelector { get; set; } = new();
 
     [YamlMember(Alias = "node_stats")]
-    public NodeStatsConfig? NodeStats { get; set; }
+    public NodeStatsConfig NodeStats { get; set; } = new();
 
     [YamlMember(Alias = "port")]
     public long? Port { get; set; }
 
     [YamlMember(Alias = "prometheus")]
-    public PrometheusConfig? Prometheus { get; set; }
+    public PrometheusConfig Prometheus { get; set; } = new();
 
     [YamlMember(Alias = "prometheus_port")]
     public long? PrometheusPort { get; set; }
 
     [YamlMember(Alias = "psrpc")]
-    public PSRPCConfig? Psrpc { get; set; }
+    public PSRPCConfig Psrpc { get; set; } = new();
 
     [YamlMember(Alias = "redis")]
-    public RedisConfig? Redis { get; set; }
+    public RedisConfig Redis { get; set; } = new();
 
     [YamlMember(Alias = "region")]
     public string? Region { get; set; }
 
     [YamlMember(Alias = "room")]
-    public RoomConfig? Room { get; set; }
+    public RoomConfig Room { get; set; } = new();
 
     [YamlMember(Alias = "rtc")]
-    public RTCConfig? Rtc { get; set; }
+    public RTCConfig Rtc { get; set; } = new();
 
     [YamlMember(Alias = "signal_relay")]
-    public SignalRelayConfig? SignalRelay { get; set; }
+    public SignalRelayConfig SignalRelay { get; set; } = new();
 
     [YamlMember(Alias = "sip")]
-    public SIPConfig? Sip { get; set; }
+    public SIPConfig Sip { get; set; } = new();
 
     [YamlMember(Alias = "trace")]
-    public TracingConfig? Trace { get; set; }
+    public TracingConfig Trace { get; set; } = new();
 
     [YamlMember(Alias = "turn")]
-    public TURNConfig? Turn { get; set; }
+    public TURNConfig Turn { get; set; } = new();
 
     [YamlMember(Alias = "video")]
-    public VideoConfig? Video { get; set; }
+    public VideoConfig Video { get; set; } = new();
 
     [YamlMember(Alias = "webhook")]
-    public WebHookConfig? Webhook { get; set; }
+    public WebHookConfig Webhook { get; set; } = new();
 
     [YamlMember(Alias = "webtransport")]
-    public WebTransportConfig? Webtransport { get; set; }
+    public WebTransportConfig Webtransport { get; set; } = new();
 
 }
 
@@ -213,7 +213,7 @@ public sealed class CompressionConfig
 
 }
 
-public sealed class Config_6642be211bf8
+public sealed class TlsConfig
 {
     [YamlMember(Alias = "ca_cert_file")]
     public string? CaCertFile { get; set; }
@@ -235,7 +235,7 @@ public sealed class Config_6642be211bf8
 
 }
 
-public sealed class Config_a3f1297b5db8
+public sealed class AgentsConfig
 {
     [YamlMember(Alias = "enable_user_data_recording")]
     public bool? EnableUserDataRecording { get; set; }
@@ -1056,7 +1056,7 @@ public sealed class RedisConfig
     public string? SentinelUsername { get; set; }
 
     [YamlMember(Alias = "tls")]
-    public Config_6642be211bf8? Tls { get; set; }
+    public TlsConfig? Tls { get; set; }
 
     [YamlMember(Alias = "use_tls")]
     public bool? UseTls { get; set; }

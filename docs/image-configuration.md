@@ -40,22 +40,14 @@ from the generated model; a top-level setting cannot be specified in both the
 typed model and additional YAML.
 
 ```csharp
-using Aspire.Hosting.LiveKit.Configuration.Egress;
-using Aspire.Hosting.LiveKit.Configuration.Ingress;
-using Aspire.Hosting.LiveKit.Configuration.Server;
-using Aspire.Hosting.LiveKit.Configuration.Sip;
-
 var livekit = builder.AddLiveKitServer("livekit")
     .WithLiveKitServerRedis(redis)
     .WithLiveKitServerConfiguration(configuration =>
     {
         configuration.LogLevel = "info";
-        configuration.Rtc = new RTCConfig
-        {
-            UseExternalIp = true,
-            PortRangeStart = 50000,
-            PortRangeEnd = 60000,
-        };
+        configuration.Rtc.UseExternalIp = true;
+        configuration.Rtc.PortRangeStart = 50000;
+        configuration.Rtc.PortRangeEnd = 60000;
     })
     .WithLiveKitServerAdditionalConfiguration("""
         room:
@@ -69,13 +61,10 @@ var ingress = livekit.AddIngress(
         "http://localhost:8080/whip")
     .WithIngressConfiguration(configuration =>
     {
-        configuration.CpuCost = new CPUCostConfig
-        {
-            RtmpCpuCost = 2,
-            WhipCpuCost = 2,
-            WhipBypassTranscodingCpuCost = 0.1,
-            UrlCpuCost = 2,
-        };
+        configuration.CpuCost.RtmpCpuCost = 2;
+        configuration.CpuCost.WhipCpuCost = 2;
+        configuration.CpuCost.WhipBypassTranscodingCpuCost = 0.1;
+        configuration.CpuCost.UrlCpuCost = 2;
     });
 
 var egress = livekit.AddEgress("egress", redis)

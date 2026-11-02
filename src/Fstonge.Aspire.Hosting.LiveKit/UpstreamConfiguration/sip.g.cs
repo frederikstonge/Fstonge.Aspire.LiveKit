@@ -57,7 +57,7 @@ public sealed class LiveKitSipUpstreamConfiguration
     public string? LocalNet { get; set; }
 
     [YamlMember(Alias = "logging")]
-    public Config_7837b7412944? Logging { get; set; }
+    public LoggingConfig Logging { get; set; } = new();
 
     [YamlMember(Alias = "max_active_calls")]
     public long? MaxActiveCalls { get; set; }
@@ -93,10 +93,10 @@ public sealed class LiveKitSipUpstreamConfiguration
     public long? PrometheusPort { get; set; }
 
     [YamlMember(Alias = "psrpc")]
-    public PSRPCConfig? Psrpc { get; set; }
+    public PSRPCConfig Psrpc { get; set; } = new();
 
     [YamlMember(Alias = "redis")]
-    public RedisConfig? Redis { get; set; }
+    public RedisConfig Redis { get; set; } = new();
 
     [YamlMember(Alias = "rtp_draining_duration")]
     public string? RtpDrainingDuration { get; set; }
@@ -105,7 +105,7 @@ public sealed class LiveKitSipUpstreamConfiguration
     public string? RtpDrainingIdleTimeout { get; set; }
 
     [YamlMember(Alias = "rtp_port")]
-    public PortRange? RtpPort { get; set; }
+    public PortRange RtpPort { get; set; } = new();
 
     [YamlMember(Alias = "sip_hostname")]
     public string? SipHostname { get; set; }
@@ -126,10 +126,10 @@ public sealed class LiveKitSipUpstreamConfiguration
     public bool? SymmetricRtp { get; set; }
 
     [YamlMember(Alias = "tcp")]
-    public TCPConfig? Tcp { get; set; }
+    public TCPConfig Tcp { get; set; } = new();
 
     [YamlMember(Alias = "tls")]
-    public TLSConfig? Tls { get; set; }
+    public TLSConfig Tls { get; set; } = new();
 
     [YamlMember(Alias = "udp_max_payload")]
     public long? UdpMaxPayload { get; set; }
@@ -155,7 +155,7 @@ public sealed class CompressionConfig
 
 }
 
-public sealed class Config_6642be211bf8
+public sealed class TlsConfig
 {
     [YamlMember(Alias = "ca_cert_file")]
     public string? CaCertFile { get; set; }
@@ -177,7 +177,7 @@ public sealed class Config_6642be211bf8
 
 }
 
-public sealed class Config_7837b7412944
+public sealed class LoggingConfig
 {
     [YamlMember(Alias = "component_levels")]
     public Dictionary<string, string?>? ComponentLevels { get; set; }
@@ -279,7 +279,7 @@ public sealed class RedisConfig
     public string? SentinelUsername { get; set; }
 
     [YamlMember(Alias = "tls")]
-    public Config_6642be211bf8? Tls { get; set; }
+    public TlsConfig? Tls { get; set; }
 
     [YamlMember(Alias = "use_tls")]
     public bool? UseTls { get; set; }

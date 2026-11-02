@@ -15,7 +15,7 @@ public sealed class LiveKitIngressUpstreamConfiguration
     public string? ApiSecret { get; set; }
 
     [YamlMember(Alias = "cpu_cost")]
-    public CPUCostConfig? CpuCost { get; set; }
+    public CPUCostConfig CpuCost { get; set; } = new();
 
     [YamlMember(Alias = "debug_handler_port")]
     public long? DebugHandlerPort { get; set; }
@@ -36,7 +36,7 @@ public sealed class LiveKitIngressUpstreamConfiguration
     public long? HttpRelayPort { get; set; }
 
     [YamlMember(Alias = "logging")]
-    public Config_7837b7412944? Logging { get; set; }
+    public LoggingConfig Logging { get; set; } = new();
 
     [YamlMember(Alias = "multicast_interface")]
     public string? MulticastInterface { get; set; }
@@ -48,16 +48,16 @@ public sealed class LiveKitIngressUpstreamConfiguration
     public long? PrometheusPort { get; set; }
 
     [YamlMember(Alias = "psrpc")]
-    public PSRPCConfig? Psrpc { get; set; }
+    public PSRPCConfig Psrpc { get; set; } = new();
 
     [YamlMember(Alias = "psrpc_skip_claim")]
     public bool? PsrpcSkipClaim { get; set; }
 
     [YamlMember(Alias = "redis")]
-    public RedisConfig? Redis { get; set; }
+    public RedisConfig Redis { get; set; } = new();
 
     [YamlMember(Alias = "rtc_config")]
-    public RTCConfig? RtcConfig { get; set; }
+    public RTCConfig RtcConfig { get; set; } = new();
 
     [YamlMember(Alias = "rtmp_port")]
     public long? RtmpPort { get; set; }
@@ -115,7 +115,7 @@ public sealed class CompressionConfig
 
 }
 
-public sealed class Config_6642be211bf8
+public sealed class TlsConfig
 {
     [YamlMember(Alias = "ca_cert_file")]
     public string? CaCertFile { get; set; }
@@ -137,7 +137,7 @@ public sealed class Config_6642be211bf8
 
 }
 
-public sealed class Config_7837b7412944
+public sealed class LoggingConfig
 {
     [YamlMember(Alias = "component_levels")]
     public Dictionary<string, string?>? ComponentLevels { get; set; }
@@ -351,7 +351,7 @@ public sealed class RedisConfig
     public string? SentinelUsername { get; set; }
 
     [YamlMember(Alias = "tls")]
-    public Config_6642be211bf8? Tls { get; set; }
+    public TlsConfig? Tls { get; set; }
 
     [YamlMember(Alias = "use_tls")]
     public bool? UseTls { get; set; }

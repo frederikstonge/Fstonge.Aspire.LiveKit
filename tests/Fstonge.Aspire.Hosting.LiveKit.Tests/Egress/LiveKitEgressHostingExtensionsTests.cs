@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Aspire.Hosting.LiveKit.Configuration.Egress;
 using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Egress;
@@ -47,7 +46,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
                 configuration.TemplatePort = 7981;
                 configuration.PulseSinkReapGraceSec = 45;
                 configuration.EnableChromeSandbox = true;
-                configuration.Logging = new Config_7837b7412944 { Level = "debug" };
+                configuration.Logging.Level = "debug";
             })
             .WithEgressAdditionalConfiguration("custom_setting:\n  enabled: true");
 

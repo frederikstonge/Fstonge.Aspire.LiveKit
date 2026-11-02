@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Aspire.Hosting.LiveKit.Configuration.Ingress;
 using Aspire.Hosting.ApplicationModel;
 using System.Net.Sockets;
 
@@ -48,8 +47,8 @@ public sealed class LiveKitIngressHostingExtensionsTests
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
             .WithIngressConfiguration(configuration =>
             {
-                configuration.CpuCost = new CPUCostConfig { RtmpCpuCost = 2 };
-                configuration.Logging = new Config_7837b7412944 { Level = "info" };
+                configuration.CpuCost.RtmpCpuCost = 2;
+                configuration.Logging.Level = "info";
             })
             .WithIngressAdditionalConfiguration("custom_setting: true");
 
@@ -67,7 +66,7 @@ public sealed class LiveKitIngressHostingExtensionsTests
         var ingress = builder.AddLiveKitServer("livekit")
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
             .WithIngressConfiguration(configuration =>
-                configuration.CpuCost = new CPUCostConfig { RtmpCpuCost = 2 })
+                configuration.CpuCost.RtmpCpuCost = 2)
             .WithIngressAdditionalConfiguration("cpu_cost:\n  whip_cpu_cost: 1");
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(() =>

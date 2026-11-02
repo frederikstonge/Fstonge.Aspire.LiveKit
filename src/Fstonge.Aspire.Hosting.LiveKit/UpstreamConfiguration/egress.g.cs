@@ -15,10 +15,10 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public string? ApiSecret { get; set; }
 
     [YamlMember(Alias = "audio_tempo_controller")]
-    public AudioTempoController? AudioTempoController { get; set; }
+    public AudioTempoController AudioTempoController { get; set; } = new();
 
     [YamlMember(Alias = "backup")]
-    public StorageConfig? Backup { get; set; }
+    public StorageConfig Backup { get; set; } = new();
 
     [YamlMember(Alias = "chrome_flags")]
     public Dictionary<string, object?>? ChromeFlags { get; set; }
@@ -27,10 +27,10 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public string? ClusterId { get; set; }
 
     [YamlMember(Alias = "cpu_cost")]
-    public CPUCostConfig? CpuCost { get; set; }
+    public CPUCostConfig CpuCost { get; set; } = new();
 
     [YamlMember(Alias = "debug")]
-    public DebugConfig? Debug { get; set; }
+    public DebugConfig Debug { get; set; } = new();
 
     [YamlMember(Alias = "debug_handler_port")]
     public long? DebugHandlerPort { get; set; }
@@ -72,13 +72,13 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public long? IoWorkers { get; set; }
 
     [YamlMember(Alias = "latency")]
-    public LatencyConfig? Latency { get; set; }
+    public LatencyConfig Latency { get; set; } = new();
 
     [YamlMember(Alias = "latency_overrides")]
     public Dictionary<string, LatencyConfig?>? LatencyOverrides { get; set; }
 
     [YamlMember(Alias = "logging")]
-    public Config_7837b7412944? Logging { get; set; }
+    public LoggingConfig Logging { get; set; } = new();
 
     [YamlMember(Alias = "max_upload_queue")]
     public long? MaxUploadQueue { get; set; }
@@ -90,13 +90,13 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public long? PrometheusPort { get; set; }
 
     [YamlMember(Alias = "psrpc")]
-    public PSRPCConfig? Psrpc { get; set; }
+    public PSRPCConfig Psrpc { get; set; } = new();
 
     [YamlMember(Alias = "pulse_sink_reap_grace_sec")]
     public long? PulseSinkReapGraceSec { get; set; }
 
     [YamlMember(Alias = "redis")]
-    public RedisConfig? Redis { get; set; }
+    public RedisConfig Redis { get; set; } = new();
 
     [YamlMember(Alias = "s3_allow_request_assume_role_external_id")]
     public bool? S3AllowRequestAssumeRoleExternalId { get; set; }
@@ -114,10 +114,10 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public string? S3AssumeRoleSecret { get; set; }
 
     [YamlMember(Alias = "session_limits")]
-    public SessionLimits? SessionLimits { get; set; }
+    public SessionLimits SessionLimits { get; set; } = new();
 
     [YamlMember(Alias = "storage")]
-    public StorageConfig? Storage { get; set; }
+    public StorageConfig Storage { get; set; } = new();
 
     [YamlMember(Alias = "template_base")]
     public string? TemplateBase { get; set; }
@@ -126,7 +126,7 @@ public sealed class LiveKitEgressUpstreamConfiguration
     public long? TemplatePort { get; set; }
 
     [YamlMember(Alias = "test_overrides")]
-    public TestOverrides? TestOverrides { get; set; }
+    public TestOverrides TestOverrides { get; set; } = new();
 
     [YamlMember(Alias = "video_encoder_threads")]
     public long? VideoEncoderThreads { get; set; }
@@ -243,7 +243,7 @@ public sealed class CompressionConfig
 
 }
 
-public sealed class Config_6642be211bf8
+public sealed class TlsConfig
 {
     [YamlMember(Alias = "ca_cert_file")]
     public string? CaCertFile { get; set; }
@@ -265,7 +265,7 @@ public sealed class Config_6642be211bf8
 
 }
 
-public sealed class Config_7837b7412944
+public sealed class LoggingConfig
 {
     [YamlMember(Alias = "component_levels")]
     public Dictionary<string, string?>? ComponentLevels { get; set; }
@@ -485,7 +485,7 @@ public sealed class RedisConfig
     public string? SentinelUsername { get; set; }
 
     [YamlMember(Alias = "tls")]
-    public Config_6642be211bf8? Tls { get; set; }
+    public TlsConfig? Tls { get; set; }
 
     [YamlMember(Alias = "use_tls")]
     public bool? UseTls { get; set; }

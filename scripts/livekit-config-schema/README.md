@@ -34,6 +34,14 @@ var serializer = new SerializerBuilder()
 var yaml = serializer.Serialize(configuration);
 ```
 
+Root properties that reference generated object definitions are automatically
+instantiated as non-nullable properties, so nested configuration is directly
+available without manually constructing each section. Empty nested mappings
+are removed when Aspire serializes configuration. Hash-suffixed `Config`
+definitions with a unique referring property are named from that property (for
+example `LoggingConfig`). Ambiguous references retain their disambiguated
+Go-derived name.
+
 The upstream refresh script generates each schema first, validates it, and
 then uses that schema file as input for C# model generation.
 

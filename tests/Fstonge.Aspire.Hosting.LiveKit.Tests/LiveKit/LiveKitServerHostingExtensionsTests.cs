@@ -1,5 +1,4 @@
 using Aspire.Hosting;
-using Aspire.Hosting.LiveKit.Configuration.Server;
 using YamlDotNet.RepresentationModel;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Hosting;
@@ -159,19 +158,17 @@ public sealed class LiveKitServerHostingExtensionsTests
             .WithLiveKitServerConfiguration(configuration =>
             {
                 configuration.LogLevel = "warn";
-                configuration.Rtc = new RTCConfig
-                {
-                    UseExternalIp = true,
-                    PortRangeStart = 50000,
-                    PortRangeEnd = 60000,
-                };
+                configuration.Rtc.UseExternalIp = true;
+                configuration.Rtc.PortRangeStart = 50000;
+                configuration.Rtc.PortRangeEnd = 60000;
             });
 
         Assert.Throws<InvalidOperationException>(() =>
             livekit.WithLiveKitServerConfiguration(configuration =>
             {
                 configuration.LogLevel = "debug";
-                configuration.Rtc = new RTCConfig { PortRangeStart = 40000 };
+                configuration.Rtc.PortRangeStart = 40000;
+                configuration.Rtc.PortRangeEnd = null;
             }));
 
         var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
@@ -190,8 +187,8 @@ public sealed class LiveKitServerHostingExtensionsTests
             .WithLiveKitServerConfiguration(configuration =>
             {
                 configuration.LogLevel = "info";
-                configuration.Rtc = new RTCConfig { UseExternalIp = true };
-                configuration.Logging = new LoggingConfig { Json = true };
+                configuration.Rtc.UseExternalIp = true;
+                configuration.Logging.Json = true;
             });
 
         var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
@@ -225,11 +222,10 @@ public sealed class LiveKitServerHostingExtensionsTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
             livekit.WithLiveKitServerConfiguration(configuration =>
-                configuration.Rtc = new RTCConfig
-                {
-                    PortRangeStart = start,
-                    PortRangeEnd = end,
-                }));
+            {
+                configuration.Rtc.PortRangeStart = start;
+                configuration.Rtc.PortRangeEnd = end;
+            }));
     }
 
     [Fact]
@@ -239,7 +235,7 @@ public sealed class LiveKitServerHostingExtensionsTests
 
         var exception = Assert.Throws<ArgumentException>(() =>
             livekit.WithLiveKitServerConfiguration(configuration =>
-                configuration.Rtc = new RTCConfig { TcpPort = 9000 }));
+                configuration.Rtc.TcpPort = 9000));
 
         Assert.Contains("managed by the LiveKit resource configuration", exception.Message);
     }

@@ -5,6 +5,26 @@ namespace Fstonge.Aspire.Hosting.LiveKit.Tests.UpstreamConfiguration;
 public sealed class GeneratedUpstreamConfigurationTests
 {
     [Fact]
+    public void CommonNestedConfigurationProperties_AreInitialized()
+    {
+        var server = new global::Aspire.Hosting.LiveKit.Configuration.Server.LiveKitServerUpstreamConfiguration();
+        var ingress = new global::Aspire.Hosting.LiveKit.Configuration.Ingress.LiveKitIngressUpstreamConfiguration();
+        var egress = new global::Aspire.Hosting.LiveKit.Configuration.Egress.LiveKitEgressUpstreamConfiguration();
+        var sip = new global::Aspire.Hosting.LiveKit.Configuration.Sip.LiveKitSipUpstreamConfiguration();
+
+        Assert.NotNull(server.Logging);
+        Assert.NotNull(server.Rtc);
+        Assert.NotNull(server.Redis);
+        Assert.NotNull(ingress.Logging);
+        Assert.NotNull(ingress.CpuCost);
+        Assert.NotNull(ingress.Redis);
+        Assert.NotNull(egress.Logging);
+        Assert.NotNull(egress.Backup);
+        Assert.NotNull(sip.Logging);
+        Assert.NotNull(sip.Tls);
+    }
+
+    [Fact]
     public void IngressConfiguration_SerializesAndDeserializesUsingUpstreamYamlNames()
     {
         var configuration = new global::Aspire.Hosting.LiveKit.Configuration.Ingress.LiveKitIngressUpstreamConfiguration
