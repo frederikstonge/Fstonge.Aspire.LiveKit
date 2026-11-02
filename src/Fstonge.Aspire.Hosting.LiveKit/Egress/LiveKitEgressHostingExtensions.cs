@@ -1,4 +1,5 @@
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.LiveKit.Configuration.Egress;
 
 namespace Aspire.Hosting;
 
@@ -185,29 +186,32 @@ public static class LiveKitEgressHostingExtensions
     /// Applies typed configuration settings to the LiveKit Egress service.
     /// </summary>
     /// <param name="egress">The LiveKit Egress resource builder.</param>
-    /// <param name="configure">A delegate to configure the <see cref="LiveKitEgressConfiguration"/>.</param>
+    /// <param name="configure">A delegate to configure the generated upstream Egress model.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitEgressResource}"/> with the configuration applied.</returns>
     [AspireExportIgnore(Reason = "Use WithEgressAdditionalConfiguration to configure Egress in generated AppHosts.")]
     public static IResourceBuilder<LiveKitEgressResource> WithEgressConfiguration(
         this IResourceBuilder<LiveKitEgressResource> egress,
-        Action<LiveKitEgressConfiguration> configure)
+        Action<LiveKitEgressUpstreamConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(egress);
         ArgumentNullException.ThrowIfNull(configure);
         var current = egress.Resource.Configuration;
         var configuration = current is null
-            ? new LiveKitEgressConfiguration()
-            : new LiveKitEgressConfiguration
-            {
-                TemplatePort = current.TemplatePort,
-                DebugHandlerPort = current.DebugHandlerPort,
-                PulseSinkReapGraceSeconds = current.PulseSinkReapGraceSeconds,
-                TemplateBase = current.TemplateBase,
-                EnableChromeSandbox = current.EnableChromeSandbox,
-                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
-            };
+            ? new LiveKitEgressUpstreamConfiguration()
+            : LiveKitConfigurationYaml.CloneConfiguration(current);
         configure(configuration);
-        _ = configuration.ToYaml(egress.Resource.JsonLoggingEnabled);
+        _ = LiveKitConfigurationYaml.SerializeConfiguration(
+            configuration,
+            nameof(configure),
+            egress.Resource.JsonLoggingEnabled,
+            egress.Resource.AdditionalConfiguration,
+            "api_key",
+            "api_secret",
+            "ws_url",
+            "redis",
+            "health_port",
+            "prometheus_port",
+            "storage");
         egress.Resource.Configuration = configuration;
         return egress;
     }
@@ -234,12 +238,7 @@ public static class LiveKitEgressHostingExtensions
             "health_port",
             "prometheus_port",
             "storage",
-            "logging",
-            "template_port",
-            "debug_handler_port",
-            "pulse_sink_reap_grace_sec",
-            "template_base",
-            "enable_chrome_sandbox");
+            "logging");
         return egress;
     }
 
@@ -269,7 +268,20 @@ public static class LiveKitEgressHostingExtensions
         return ReferenceExpression.Create(
             $"{LiveKitRedisConfiguration.Create(redis)}" +
             $"{healthPort}{prometheusPort}{resource.StorageConfiguration ?? string.Empty}" +
-            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource)}" +
+            $"{(resource.Configuration is { } config
+                ? LiveKitConfigurationYaml.SerializeConfiguration(
+                    config,
+                    nameof(resource.Configuration),
+                    resource.JsonLoggingEnabled,
+                    resource.AdditionalConfiguration,
+                    "api_key",
+                    "api_secret",
+                    "ws_url",
+                    "redis",
+                    "health_port",
+                    "prometheus_port",
+                    "storage")
+                : LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource))}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 

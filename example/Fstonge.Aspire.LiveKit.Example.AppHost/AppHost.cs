@@ -1,3 +1,6 @@
+using IngressConfig = Aspire.Hosting.LiveKit.Configuration.Ingress;
+using EgressConfig = Aspire.Hosting.LiveKit.Configuration.Egress;
+using SipConfig = Aspire.Hosting.LiveKit.Configuration.Sip;
 using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -8,7 +11,7 @@ var livekit = builder.AddLiveKitServer("livekit")
     .WithStructuredLogs()
     .WithLiveKitServerConfiguration(config => 
     {
-        config.LogLevel = "Info";
+        config.LogLevel = "info";
     });
 
 livekit.AddIngress(
@@ -19,7 +22,7 @@ livekit.AddIngress(
     .WithStructuredLogs()
     .WithIngressConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging = new IngressConfig.Config_7837b7412944 { Level = "info" };
     });
 
 livekit.AddEgress(
@@ -30,7 +33,7 @@ livekit.AddEgress(
     .WithStructuredLogs()
     .WithEgressConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging = new EgressConfig.Config_7837b7412944 { Level = "info" };
     });
 
 livekit.AddSip(
@@ -43,7 +46,7 @@ livekit.AddSip(
     .WithStructuredLogs()
     .WithSipConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging = new SipConfig.Config_7837b7412944 { Level = "info" };
     });
 
 var enablePythonAgent = builder.Configuration.GetValue<bool>("LiveKit:EnablePythonAgent", false);

@@ -1,4 +1,5 @@
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.LiveKit.Configuration.Sip;
 using System.Globalization;
 using System.Net.Sockets;
 
@@ -150,35 +151,34 @@ public static class LiveKitSipHostingExtensions
     /// Applies typed configuration settings to the LiveKit SIP service.
     /// </summary>
     /// <param name="sip">The LiveKit SIP resource builder.</param>
-    /// <param name="configure">A delegate to configure the <see cref="LiveKitSipConfiguration"/>.</param>
+    /// <param name="configure">A delegate to configure the generated upstream SIP model.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitSipResource}"/> with the configuration applied.</returns>
     [AspireExportIgnore(Reason = "Use WithSipAdditionalConfiguration to configure SIP in generated AppHosts.")]
     public static IResourceBuilder<LiveKitSipResource> WithSipConfiguration(
         this IResourceBuilder<LiveKitSipResource> sip,
-        Action<LiveKitSipConfiguration> configure)
+        Action<LiveKitSipUpstreamConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(sip);
         ArgumentNullException.ThrowIfNull(configure);
         var current = sip.Resource.Configuration;
         var configuration = current is null
-            ? new LiveKitSipConfiguration()
-            : new LiveKitSipConfiguration
-            {
-                ClusterId = current.ClusterId,
-                MaxCpuUtilization = current.MaxCpuUtilization,
-                MaxActiveCalls = current.MaxActiveCalls,
-                UseExternalIp = current.UseExternalIp,
-                LocalNet = current.LocalNet,
-                Nat1To1Ip = current.Nat1To1Ip,
-                MediaUseExternalIp = current.MediaUseExternalIp,
-                MediaNat1To1Ip = current.MediaNat1To1Ip,
-                UdpMaxPayload = current.UdpMaxPayload,
-                EnableJitterBuffer = current.EnableJitterBuffer,
-                EnableJitterBufferProbability = current.EnableJitterBufferProbability,
-                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
-            };
+            ? new LiveKitSipUpstreamConfiguration()
+            : LiveKitConfigurationYaml.CloneConfiguration(current);
         configure(configuration);
-        _ = configuration.ToYaml(sip.Resource.JsonLoggingEnabled);
+        _ = LiveKitConfigurationYaml.SerializeConfiguration(
+            configuration,
+            nameof(configure),
+            sip.Resource.JsonLoggingEnabled,
+            sip.Resource.AdditionalConfiguration,
+            "api_key",
+            "api_secret",
+            "ws_url",
+            "redis",
+            "sip_port",
+            "rtp_port",
+            "health_port",
+            "prometheus_port",
+            "tls");
         sip.Resource.Configuration = configuration;
         return sip;
     }
@@ -207,18 +207,7 @@ public static class LiveKitSipHostingExtensions
             "health_port",
             "prometheus_port",
             "tls",
-            "logging",
-            "cluster_id",
-            "max_cpu_utilization",
-            "max_active_calls",
-            "use_external_ip",
-            "local_net",
-            "nat_1_to_1_ip",
-            "media_use_external_ip",
-            "media_nat_1_to_1_ip",
-            "udp_max_payload",
-            "enable_jitter_buffer",
-            "enable_jitter_buffer_prob");
+            "logging");
         return sip;
     }
 
@@ -257,7 +246,22 @@ public static class LiveKitSipHostingExtensions
             $"sip_port: {resource.SipPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"rtp_port: {LiveKitConfigurationYaml.SerializeScalar($"{resource.RtpPortStart.ToString(CultureInfo.InvariantCulture)}-{resource.RtpPortEnd.ToString(CultureInfo.InvariantCulture)}")}\n" +
             $"{healthPort}{prometheusPort}{tls}" +
-            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource)}" +
+            $"{(resource.Configuration is { } config
+                ? LiveKitConfigurationYaml.SerializeConfiguration(
+                    config,
+                    nameof(resource.Configuration),
+                    resource.JsonLoggingEnabled,
+                    resource.AdditionalConfiguration,
+                    "api_key",
+                    "api_secret",
+                    "ws_url",
+                    "redis",
+                    "sip_port",
+                    "rtp_port",
+                    "health_port",
+                    "prometheus_port",
+                    "tls")
+                : LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource))}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
     }
 

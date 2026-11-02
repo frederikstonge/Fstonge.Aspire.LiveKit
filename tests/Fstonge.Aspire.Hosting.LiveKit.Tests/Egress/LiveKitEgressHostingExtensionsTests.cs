@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Aspire.Hosting.LiveKit.Configuration.Egress;
 using Aspire.Hosting.ApplicationModel;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.Egress;
@@ -44,9 +45,9 @@ public sealed class LiveKitEgressHostingExtensionsTests
             .WithEgressConfiguration(configuration =>
             {
                 configuration.TemplatePort = 7981;
-                configuration.PulseSinkReapGraceSeconds = 45;
+                configuration.PulseSinkReapGraceSec = 45;
                 configuration.EnableChromeSandbox = true;
-                configuration.Logging.Level = "debug";
+                configuration.Logging = new Config_7837b7412944 { Level = "debug" };
             })
             .WithEgressAdditionalConfiguration("custom_setting:\n  enabled: true");
 
@@ -144,7 +145,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     [Theory]
     [InlineData("invalid: [yaml")]
     [InlineData("custom: true\nCUSTOM: false")]
-    [InlineData("Template_Port: 8000")]
+    [InlineData("storage: {}")]
     public void WithEgressAdditionalConfiguration_RejectsMalformedDuplicateOrManagedSettings(string yaml)
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();

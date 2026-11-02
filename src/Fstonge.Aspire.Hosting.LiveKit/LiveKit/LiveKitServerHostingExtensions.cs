@@ -1,7 +1,9 @@
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.LiveKit.Configuration.Server;
 using Microsoft.Extensions.Hosting;
 using System.Globalization;
 using System.Net.Sockets;
+using YamlDotNet.RepresentationModel;
 
 namespace Aspire.Hosting;
 
@@ -132,32 +134,31 @@ public static class LiveKitServerHostingExtensions
     /// Applies typed configuration settings to the LiveKit server.
     /// </summary>
     /// <param name="livekit">The LiveKit server resource builder.</param>
-    /// <param name="configure">A delegate to configure the <see cref="LiveKitServerConfiguration"/>.</param>
+    /// <param name="configure">A delegate to configure the generated upstream server model.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitServerResource}"/> with the configuration applied.</returns>
     [AspireExportIgnore(Reason = "Use WithLiveKitServerAdditionalConfiguration to configure the server in generated AppHosts.")]
     public static IResourceBuilder<LiveKitServerResource> WithLiveKitServerConfiguration(
         this IResourceBuilder<LiveKitServerResource> livekit,
-        Action<LiveKitServerConfiguration> configure)
+        Action<LiveKitServerUpstreamConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(livekit);
         ArgumentNullException.ThrowIfNull(configure);
         var current = livekit.Resource.Configuration;
         var configuration = current is null
-            ? new LiveKitServerConfiguration()
-            : new LiveKitServerConfiguration
-            {
-                LogLevel = current.LogLevel,
-                Rtc = new LiveKitServerRtcConfiguration
-                {
-                    UseExternalIp = current.Rtc.UseExternalIp,
-                    PortRangeStart = current.Rtc.PortRangeStart,
-                    PortRangeEnd = current.Rtc.PortRangeEnd,
-                },
-            };
+            ? new LiveKitServerUpstreamConfiguration()
+            : LiveKitConfigurationYaml.CloneConfiguration(current);
         configure(configuration);
-        var topLevelConfiguration = configuration.ToDictionary();
-        var rtcConfiguration = configuration.Rtc.ToDictionary();
-        if (topLevelConfiguration.Count == 0 && rtcConfiguration.Count == 0)
+        var configurationNode = LiveKitConfigurationYaml.CreateConfigurationNode(
+            configuration,
+            nameof(configure),
+            "development",
+            "port",
+            "redis",
+            "turn",
+            "ingress",
+            "keys");
+        ValidateServerRtcConfiguration(configurationNode, nameof(configure));
+        if (configurationNode.Children.Count == 0)
         {
             throw new InvalidOperationException("At least one LiveKit server configuration setting must be provided.");
         }
@@ -183,7 +184,6 @@ public static class LiveKitServerHostingExtensions
             nameof(yaml),
             "development",
             "port",
-            "log_level",
             "rtc",
             "redis",
             "turn",
@@ -313,25 +313,76 @@ public static class LiveKitServerHostingExtensions
             configuration.Append($"development: true\n");
         }
 
-        var rtcConfiguration = new Dictionary<string, object?>
+        var rtcConfiguration = new YamlMappingNode
         {
-            ["tcp_port"] = resource.RtcTcpPort,
-            ["udp_port"] = resource.RtcUdpPort
+            { new YamlScalarNode("tcp_port"), new YamlScalarNode(resource.RtcTcpPort.ToString(CultureInfo.InvariantCulture)) },
+            { new YamlScalarNode("udp_port"), new YamlScalarNode(resource.RtcUdpPort.ToString(CultureInfo.InvariantCulture)) },
         };
         if (resource.Configuration is { } serverConfiguration)
         {
-            foreach (var (key, value) in serverConfiguration.Rtc.ToDictionary())
+            var configurationNode = LiveKitConfigurationYaml.CreateConfigurationNode(
+                serverConfiguration,
+                nameof(serverConfiguration),
+                "development",
+                "port",
+                "redis",
+                "turn",
+                "ingress",
+                "keys");
+            if (resource.JsonLoggingEnabled)
             {
-                rtcConfiguration[key] = value;
+                LiveKitConfigurationYaml.EnableJsonLogging(configurationNode, nameof(serverConfiguration));
             }
+
+            var rtcKey = new YamlScalarNode("rtc");
+            if (configurationNode.Children.Remove(rtcKey, out var customRtcNode))
+            {
+                if (customRtcNode is not YamlMappingNode customRtc)
+                {
+                    throw new ArgumentException("The RTC configuration must be a YAML mapping.", nameof(serverConfiguration));
+                }
+
+                foreach (var (key, value) in customRtc.Children)
+                {
+                    if (key is not YamlScalarNode { Value: { } keyName })
+                    {
+                        throw new ArgumentException("RTC configuration keys must be scalar values.", nameof(serverConfiguration));
+                    }
+
+                    if (keyName is "tcp_port" or "udp_port")
+                    {
+                        throw new ArgumentException(
+                            $"The RTC '{keyName}' setting is managed by the LiveKit resource configuration.",
+                            nameof(serverConfiguration));
+                    }
+
+                    rtcConfiguration.Add(key, value);
+                }
+            }
+
+            ValidateServerPortRange(rtcConfiguration, nameof(serverConfiguration));
+            LiveKitConfigurationYaml.ValidateNoDuplicateTopLevelSettings(
+                configurationNode,
+                resource.AdditionalConfiguration,
+                nameof(serverConfiguration));
+            configuration.Append($"{LiveKitConfigurationYaml.Serialize(new YamlMappingNode
+            {
+                { new YamlScalarNode("rtc"), rtcConfiguration },
+            })}");
+            if (configurationNode.Children.Count > 0)
+            {
+                configuration.Append($"{LiveKitConfigurationYaml.Serialize(configurationNode)}");
+            }
+        }
+        else
+        {
+            configuration.Append($"{LiveKitConfigurationYaml.Serialize(new YamlMappingNode
+            {
+                { new YamlScalarNode("rtc"), rtcConfiguration },
+            })}");
         }
 
         configuration.Append($"port: 7880\n");
-        configuration.Append(
-            $"{LiveKitConfigurationYaml.Serialize(new Dictionary<string, object?>
-            {
-                ["rtc"] = rtcConfiguration
-            })}");
 
         if (resource.RedisConfiguration is { } redisSection)
         {
@@ -362,22 +413,77 @@ public static class LiveKitServerHostingExtensions
             : ReferenceExpression.Empty;
         configuration.Append($"{ingressSection}");
 
-        if (resource.Configuration is { } configurationOptions)
+        if (resource.Configuration is null && resource.JsonLoggingEnabled)
         {
-            configuration.Append($"{LiveKitConfigurationYaml.Serialize(configurationOptions.ToDictionary())}");
-        }
-
-        if (LiveKitConfigurationYaml.CreateLogging(null, resource.JsonLoggingEnabled) is { } loggingConfiguration)
-        {
-            configuration.Append($"{LiveKitConfigurationYaml.Serialize(new Dictionary<string, object?>
-            {
-                ["logging"] = loggingConfiguration
-            })}");
+            var loggingConfiguration = new YamlMappingNode();
+            LiveKitConfigurationYaml.EnableJsonLogging(loggingConfiguration, nameof(resource.JsonLoggingEnabled));
+            configuration.Append($"{LiveKitConfigurationYaml.Serialize(loggingConfiguration)}");
         }
 
         configuration.Append($"{resource.AdditionalConfiguration ?? string.Empty}");
         configuration.Append($"keys:\n  \"{resource.ApiKey}\": \"{resource.ApiSecret}\"\n");
 
         return configuration.Build();
+    }
+
+    private static void ValidateServerRtcConfiguration(YamlMappingNode configuration, string parameterName)
+    {
+        if (!configuration.Children.TryGetValue(new YamlScalarNode("rtc"), out var rtcNode))
+        {
+            return;
+        }
+
+        if (rtcNode is not YamlMappingNode rtc)
+        {
+            throw new ArgumentException("The RTC configuration must be a YAML mapping.", parameterName);
+        }
+
+        foreach (var reservedPort in new[] { "tcp_port", "udp_port" })
+        {
+            if (rtc.Children.ContainsKey(new YamlScalarNode(reservedPort)))
+            {
+                throw new ArgumentException(
+                    $"The RTC '{reservedPort}' setting is managed by the LiveKit resource configuration.",
+                    parameterName);
+            }
+        }
+
+        ValidateServerPortRange(rtc, parameterName);
+    }
+
+    private static void ValidateServerPortRange(YamlMappingNode rtc, string parameterName)
+    {
+        var startKey = new YamlScalarNode("port_range_start");
+        var endKey = new YamlScalarNode("port_range_end");
+        var hasStart = rtc.Children.TryGetValue(startKey, out var startNode);
+        var hasEnd = rtc.Children.TryGetValue(endKey, out var endNode);
+        if (hasStart != hasEnd)
+        {
+            throw new InvalidOperationException("Both RTC port range bounds must be configured together.");
+        }
+
+        if (!hasStart)
+        {
+            return;
+        }
+
+        if (startNode is not YamlScalarNode { Value: { } startText }
+            || !int.TryParse(startText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var start))
+        {
+            throw new ArgumentOutOfRangeException(parameterName, "RTC port range start must be an integer.");
+        }
+        if (endNode is not YamlScalarNode { Value: { } endText }
+            || !int.TryParse(endText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var end))
+        {
+            throw new ArgumentOutOfRangeException(parameterName, "RTC port range end must be an integer.");
+        }
+        if (start is < 1 or > 65535)
+        {
+            throw new ArgumentOutOfRangeException(parameterName, "RTC port numbers must be between 1 and 65535.");
+        }
+        if (end < start || end > 65535)
+        {
+            throw new ArgumentOutOfRangeException(parameterName, "The RTC port range end must be between its start and 65535.");
+        }
     }
 }

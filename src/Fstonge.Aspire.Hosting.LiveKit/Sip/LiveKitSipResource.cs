@@ -1,3 +1,5 @@
+using Aspire.Hosting.LiveKit.Configuration.Sip;
+
 namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
@@ -36,7 +38,7 @@ public sealed class LiveKitSipResource : LiveKitContainerResource
 
     internal int? PrometheusPort { get; }
 
-    internal LiveKitSipConfiguration? Configuration { get; set; }
+    internal LiveKitSipUpstreamConfiguration? Configuration { get; set; }
 
     internal int? TlsPort { get; set; }
 

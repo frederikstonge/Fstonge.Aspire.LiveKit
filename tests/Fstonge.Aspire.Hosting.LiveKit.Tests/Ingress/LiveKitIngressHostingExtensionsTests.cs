@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using Aspire.Hosting.LiveKit.Configuration.Ingress;
 using Aspire.Hosting.ApplicationModel;
 using System.Net.Sockets;
 
@@ -47,8 +48,8 @@ public sealed class LiveKitIngressHostingExtensionsTests
             .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
             .WithIngressConfiguration(configuration =>
             {
-                configuration.CpuCost.RtmpCpuCost = 2;
-                configuration.Logging.Level = "info";
+                configuration.CpuCost = new CPUCostConfig { RtmpCpuCost = 2 };
+                configuration.Logging = new Config_7837b7412944 { Level = "info" };
             })
             .WithIngressAdditionalConfiguration("custom_setting: true");
 
@@ -57,6 +58,22 @@ public sealed class LiveKitIngressHostingExtensionsTests
         Assert.Contains("rtmp_cpu_cost: 2", yaml);
         Assert.Contains("level: info", yaml);
         Assert.Contains("custom_setting: true", yaml);
+    }
+
+    [Fact]
+    public async Task WithIngressConfiguration_RejectsDuplicateTypedAndAdditionalSettings()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var ingress = builder.AddLiveKitServer("livekit")
+            .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
+            .WithIngressConfiguration(configuration =>
+                configuration.CpuCost = new CPUCostConfig { RtmpCpuCost = 2 })
+            .WithIngressAdditionalConfiguration("cpu_cost:\n  whip_cpu_cost: 1");
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY"));
+
+        Assert.Contains("configured both", exception.Message);
     }
 
     [Theory]
