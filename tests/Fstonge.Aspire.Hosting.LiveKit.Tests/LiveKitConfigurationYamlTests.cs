@@ -1,25 +1,74 @@
 using Aspire.Hosting;
+using Aspire.Hosting.LiveKit.Configuration.Ingress;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests;
 
 public sealed class LiveKitConfigurationYamlTests
 {
     [Fact]
-    public void CreateLogging_CombinesLevelAndJsonFlag()
+    public void SerializeConfiguration_UsesUpstreamAliasesAndMergesJsonLogging()
     {
-        var settings = LiveKitConfigurationYaml.CreateLogging(
-            new LiveKitServiceLoggingConfiguration { Level = "WARN" },
-            jsonLoggingEnabled: true);
+        var yaml = LiveKitConfigurationYaml.SerializeConfiguration(
+            CreateIngressConfiguration(),
+            "configuration",
+            jsonLoggingEnabled: true,
+            additionalYaml: null);
 
-        Assert.NotNull(settings);
-        Assert.Equal("warn", settings["level"]);
-        Assert.Equal(true, settings["json"]);
+        Assert.Contains("cpu_cost:", yaml);
+        Assert.Contains("rtmp_cpu_cost: 2", yaml);
+        Assert.Contains("level: warn", yaml);
+        Assert.Contains("json: true", yaml);
     }
 
     [Fact]
-    public void CreateLogging_ReturnsNullWhenNoSettingsAreEnabled()
+    public void SerializeConfiguration_DoesNotEmitEmptyInitializedObjects()
     {
-        Assert.Null(LiveKitConfigurationYaml.CreateLogging(null, jsonLoggingEnabled: false));
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            LiveKitConfigurationYaml.SerializeConfiguration(
+                new LiveKitIngressUpstreamConfiguration(),
+                "configuration",
+                jsonLoggingEnabled: false,
+                additionalYaml: null));
+
+        Assert.Contains("At least one configuration setting", exception.Message);
+    }
+
+    [Fact]
+    public void SerializeConfiguration_RejectsAspireManagedSettings()
+    {
+        var exception = Assert.Throws<ArgumentException>(() =>
+            LiveKitConfigurationYaml.SerializeConfiguration(
+                new LiveKitIngressUpstreamConfiguration { ApiKey = "user-key" },
+                "configuration",
+                jsonLoggingEnabled: false,
+                additionalYaml: null,
+                "api_key"));
+
+        Assert.Contains("managed by the typed LiveKit resource configuration", exception.Message);
+    }
+
+    [Fact]
+    public void SerializeConfiguration_RejectsDuplicateTypedAndAdditionalTopLevelSettings()
+    {
+        var exception = Assert.Throws<ArgumentException>(() =>
+            LiveKitConfigurationYaml.SerializeConfiguration(
+                new LiveKitIngressUpstreamConfiguration
+                {
+                    CpuCost = { RtmpCpuCost = 2 },
+                },
+                "configuration",
+                jsonLoggingEnabled: false,
+                additionalYaml: "cpu_cost:\n  whip_cpu_cost: 1"));
+
+        Assert.Contains("configured both", exception.Message);
+    }
+
+    private static LiveKitIngressUpstreamConfiguration CreateIngressConfiguration()
+    {
+        var configuration = new LiveKitIngressUpstreamConfiguration();
+        configuration.CpuCost.RtmpCpuCost = 2;
+        configuration.Logging.Level = "warn";
+        return configuration;
     }
 
     [Fact]
@@ -65,15 +114,4 @@ public sealed class LiveKitConfigurationYamlTests
             LiveKitConfigurationYaml.ValidateAdditionalConfiguration(yaml, "yaml", "managed"));
     }
 
-    [Fact]
-    public void ValidateLogLevel_RejectsUnsupportedLevel()
-    {
-        Assert.Throws<ArgumentException>(() => LiveKitConfigurationYaml.ValidateLogLevel("trace", "level"));
-    }
-
-    [Fact]
-    public void ValidateLogLevel_ReturnsEmptyForNull()
-    {
-        Assert.Equal(string.Empty, LiveKitConfigurationYaml.ValidateLogLevel(null, "level"));
-    }
 }

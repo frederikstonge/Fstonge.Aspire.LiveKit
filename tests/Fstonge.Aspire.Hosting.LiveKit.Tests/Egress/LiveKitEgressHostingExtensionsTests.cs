@@ -44,7 +44,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
             .WithEgressConfiguration(configuration =>
             {
                 configuration.TemplatePort = 7981;
-                configuration.PulseSinkReapGraceSeconds = 45;
+                configuration.PulseSinkReapGraceSec = 45;
                 configuration.EnableChromeSandbox = true;
                 configuration.Logging.Level = "debug";
             })
@@ -144,7 +144,7 @@ public sealed class LiveKitEgressHostingExtensionsTests
     [Theory]
     [InlineData("invalid: [yaml")]
     [InlineData("custom: true\nCUSTOM: false")]
-    [InlineData("Template_Port: 8000")]
+    [InlineData("storage: {}")]
     public void WithEgressAdditionalConfiguration_RejectsMalformedDuplicateOrManagedSettings(string yaml)
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();

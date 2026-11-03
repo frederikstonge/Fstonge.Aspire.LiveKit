@@ -1,0 +1,48 @@
+name: Monitor LiveKit configuration schemas
+
+on:
+  schedule:
+    - cron: "23 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.27.x"
+
+      - name: Test schema generator
+        working-directory: scripts/livekit-config-schema
+        run: go test ./...
+
+      - name: Generate upstream configuration schemas
+        shell: pwsh
+        run: ./scripts/refresh-livekit-upstream.ps1
+
+      - name: Create schema update pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/livekit-configuration-schemas
+          delete-branch: true
+          commit-message: Refresh LiveKit configuration schemas
+          title: Refresh LiveKit configuration schemas
+          body: |
+            Regenerates JSON Schemas from the LiveKit server, Ingress, Egress,
+            and SIP Go configuration types, then generates C# models from those
+            schemas.
+
+            Review schema and generated model changes before updating the typed
+            Aspire-facing configuration APIs.
+          add-paths: |
+            schemas/livekit-upstream/
+            src/Fstonge.Aspire.Hosting.LiveKit/UpstreamConfiguration/

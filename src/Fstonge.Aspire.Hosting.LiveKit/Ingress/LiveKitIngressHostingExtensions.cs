@@ -1,4 +1,5 @@
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.LiveKit.Configuration.Ingress;
 using System.Globalization;
 using System.Net.Sockets;
 
@@ -84,32 +85,32 @@ public static class LiveKitIngressHostingExtensions
     /// Applies typed configuration settings to the LiveKit Ingress service.
     /// </summary>
     /// <param name="ingress">The LiveKit Ingress resource builder.</param>
-    /// <param name="configure">A delegate to configure the <see cref="LiveKitIngressConfiguration"/>.</param>
+    /// <param name="configure">A delegate to configure the generated upstream Ingress model.</param>
     /// <returns>The <see cref="IResourceBuilder{LiveKitIngressResource}"/> with the configuration applied.</returns>
     [AspireExportIgnore(Reason = "Use WithIngressAdditionalConfiguration to configure Ingress in generated AppHosts.")]
     public static IResourceBuilder<LiveKitIngressResource> WithIngressConfiguration(
         this IResourceBuilder<LiveKitIngressResource> ingress,
-        Action<LiveKitIngressConfiguration> configure)
+        Action<LiveKitIngressUpstreamConfiguration> configure)
     {
         ArgumentNullException.ThrowIfNull(ingress);
         ArgumentNullException.ThrowIfNull(configure);
         var current = ingress.Resource.Configuration;
         var configuration = current is null
-            ? new LiveKitIngressConfiguration()
-            : new LiveKitIngressConfiguration
-            {
-                CpuCost = new LiveKitIngressCpuCostConfiguration
-                {
-                    RtmpCpuCost = current.CpuCost.RtmpCpuCost,
-                    WhipCpuCost = current.CpuCost.WhipCpuCost,
-                    WhipBypassTranscodingCpuCost = current.CpuCost.WhipBypassTranscodingCpuCost,
-                    UrlCpuCost = current.CpuCost.UrlCpuCost,
-                    MinIdleRatio = current.CpuCost.MinIdleRatio,
-                },
-                Logging = new LiveKitServiceLoggingConfiguration { Level = current.Logging.Level },
-            };
+            ? new LiveKitIngressUpstreamConfiguration()
+            : LiveKitConfigurationYaml.CloneConfiguration(current);
         configure(configuration);
-        _ = configuration.ToYaml(ingress.Resource.JsonLoggingEnabled);
+        _ = LiveKitConfigurationYaml.SerializeConfiguration(
+            configuration,
+            nameof(configure),
+            ingress.Resource.JsonLoggingEnabled,
+            ingress.Resource.AdditionalConfiguration,
+            "api_key",
+            "api_secret",
+            "ws_url",
+            "redis",
+            "rtmp_port",
+            "whip_port",
+            "rtc_config");
         ingress.Resource.Configuration = configuration;
         return ingress;
     }
@@ -136,8 +137,7 @@ public static class LiveKitIngressHostingExtensions
             "rtmp_port",
             "whip_port",
             "rtc_config",
-            "logging",
-            "cpu_cost");
+            "logging");
         return ingress;
     }
 
@@ -171,7 +171,20 @@ public static class LiveKitIngressHostingExtensions
             $"rtmp_port: {rtmpPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"whip_port: {whipPort.ToString(CultureInfo.InvariantCulture)}\n" +
             $"rtc_config:\n  udp_port: {whipUdpPort.ToString(CultureInfo.InvariantCulture)}\n" +
-            $"{resource.Configuration?.ToYaml(resource.JsonLoggingEnabled) ?? LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource)}" +
+            $"{(resource.Configuration is { } config
+                ? LiveKitConfigurationYaml.SerializeConfiguration(
+                    config,
+                    nameof(resource.Configuration),
+                    resource.JsonLoggingEnabled,
+                    resource.AdditionalConfiguration,
+                    "api_key",
+                    "api_secret",
+                    "ws_url",
+                    "redis",
+                    "rtmp_port",
+                    "whip_port",
+                    "rtc_config")
+                : LiveKitHostingHelpers.GetJsonLoggingConfiguration(resource))}" +
             $"{resource.AdditionalConfiguration ?? string.Empty}");
 
     private static void ValidatePublicUrl(string value, params string[] allowedSchemes)

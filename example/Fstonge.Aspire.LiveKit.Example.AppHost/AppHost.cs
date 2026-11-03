@@ -8,7 +8,7 @@ var livekit = builder.AddLiveKitServer("livekit")
     .WithStructuredLogs()
     .WithLiveKitServerConfiguration(config => 
     {
-        config.LogLevel = "Info";
+        config.LogLevel = "info";
     });
 
 livekit.AddIngress(
@@ -19,7 +19,7 @@ livekit.AddIngress(
     .WithStructuredLogs()
     .WithIngressConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging.Level = "info";
     });
 
 livekit.AddEgress(
@@ -30,7 +30,7 @@ livekit.AddEgress(
     .WithStructuredLogs()
     .WithEgressConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging.Level = "info";
     });
 
 livekit.AddSip(
@@ -43,7 +43,7 @@ livekit.AddSip(
     .WithStructuredLogs()
     .WithSipConfiguration(config =>
     {
-        config.Logging.Level = "Info";
+        config.Logging.Level = "info";
     });
 
 var enablePythonAgent = builder.Configuration.GetValue<bool>("LiveKit:EnablePythonAgent", false);

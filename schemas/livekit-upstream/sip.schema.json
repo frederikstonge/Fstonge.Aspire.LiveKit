@@ -1,0 +1,461 @@
+{
+  "$defs": {
+    "CompressionConfig_929be9a4585f": {
+      "properties": {
+        "max_decompressed_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "quality": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "Config_6642be211bf8": {
+      "properties": {
+        "ca_cert_file": {
+          "type": "string"
+        },
+        "client_cert_file": {
+          "type": "string"
+        },
+        "client_key_file": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "insecure": {
+          "type": "boolean"
+        },
+        "server_name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Config_7837b7412944": {
+      "properties": {
+        "component_levels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_seconds": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "json": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "level": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sample": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PSRPCConfig_bb38bffffcf7": {
+      "properties": {
+        "backoff": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "buffer_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "compression": {
+          "$ref": "#/$defs/CompressionConfig_929be9a4585f",
+          "x-yaml-omitempty": true
+        },
+        "max_attempts": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PortRange_b90c80c0fccc": {
+      "properties": {
+        "end": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "start": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RedisConfig_be23e1e4c9e1": {
+      "properties": {
+        "address": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "cluster_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "db": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "dial_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_redirects": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "pool_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "pool_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "read_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_master_name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tls": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Config_6642be211bf8"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "use_tls": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "write_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "TCPConfig_249103aa5f63": {
+      "properties": {
+        "dial_port": {
+          "$ref": "#/$defs/PortRange_b90c80c0fccc"
+        }
+      },
+      "type": "object"
+    },
+    "TLSCert_17b8e63dccbf": {
+      "properties": {
+        "cert_file": {
+          "type": "string"
+        },
+        "key_file": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "TLSConfig_8b29a3484be5": {
+      "properties": {
+        "alpn": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "certs": {
+          "items": {
+            "$ref": "#/$defs/TLSCert_17b8e63dccbf"
+          },
+          "type": "array"
+        },
+        "cipher_suites": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "key_log": {
+          "type": "string"
+        },
+        "max_version": {
+          "type": "string"
+        },
+        "min_version": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "port_listen": {
+          "type": "integer"
+        },
+        "warn_only": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "add_record_route": {
+      "type": "boolean"
+    },
+    "api_key": {
+      "type": "string"
+    },
+    "api_secret": {
+      "type": "string"
+    },
+    "audio_dtmf": {
+      "type": "boolean"
+    },
+    "cluster_id": {
+      "type": "string"
+    },
+    "codecs": {
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "type": "object"
+    },
+    "disable_rejected_invite_cache": {
+      "type": "boolean"
+    },
+    "enable_jitter_buffer": {
+      "type": "boolean"
+    },
+    "enable_jitter_buffer_prob": {
+      "type": "number"
+    },
+    "experimental": {
+      "properties": {
+        "inbound_wait_ack": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "health_port": {
+      "type": "integer"
+    },
+    "hide_inbound_port": {
+      "type": "boolean"
+    },
+    "ignore_local_addr_in_sdp": {
+      "type": "boolean"
+    },
+    "jaeger_url": {
+      "type": "string"
+    },
+    "listen_ip": {
+      "type": "string"
+    },
+    "local_net": {
+      "type": "string"
+    },
+    "logging": {
+      "$ref": "#/$defs/Config_7837b7412944"
+    },
+    "max_active_calls": {
+      "type": "integer"
+    },
+    "max_cpu_utilization": {
+      "type": "number"
+    },
+    "media_nat_1_to_1_ip": {
+      "type": "string"
+    },
+    "media_timeout": {
+      "format": "duration",
+      "type": "string"
+    },
+    "media_timeout_initial": {
+      "format": "duration",
+      "type": "string"
+    },
+    "media_use_external_ip": {
+      "type": "boolean"
+    },
+    "nat_1_to_1_ip": {
+      "type": "string"
+    },
+    "nodeid": {
+      "type": "string"
+    },
+    "outbound_route_headers": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "pprof_port": {
+      "type": "integer"
+    },
+    "prometheus_port": {
+      "type": "integer"
+    },
+    "psrpc": {
+      "$ref": "#/$defs/PSRPCConfig_bb38bffffcf7",
+      "x-yaml-omitempty": true
+    },
+    "redis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedisConfig_be23e1e4c9e1"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rtp_draining_duration": {
+      "format": "duration",
+      "type": "string"
+    },
+    "rtp_draining_idle_timeout": {
+      "format": "duration",
+      "type": "string"
+    },
+    "rtp_port": {
+      "$ref": "#/$defs/PortRange_b90c80c0fccc"
+    },
+    "sip_hostname": {
+      "type": "string"
+    },
+    "sip_port": {
+      "type": "integer"
+    },
+    "sip_port_listen": {
+      "type": "integer"
+    },
+    "sip_ringing_interval": {
+      "format": "duration",
+      "type": "string"
+    },
+    "sip_trunk_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "symmetric_rtp": {
+      "type": "boolean"
+    },
+    "tcp": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TCPConfig_249103aa5f63"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tls": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TLSConfig_8b29a3484be5"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "udp_max_payload": {
+      "type": "integer"
+    },
+    "use_external_ip": {
+      "type": "boolean"
+    },
+    "ws_url": {
+      "type": "string"
+    }
+  },
+  "title": "Config",
+  "type": "object",
+  "x-go-package": "github.com/livekit/sip/pkg/config"
+}

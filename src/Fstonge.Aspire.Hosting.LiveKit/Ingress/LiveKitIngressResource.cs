@@ -1,3 +1,5 @@
+using Aspire.Hosting.LiveKit.Configuration.Ingress;
+
 namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
@@ -11,7 +13,7 @@ public sealed class LiveKitIngressResource : LiveKitContainerResource
     {
     }
 
-    internal LiveKitIngressConfiguration? Configuration { get; set; }
+    internal LiveKitIngressUpstreamConfiguration? Configuration { get; set; }
 
     internal string? AdditionalConfiguration { get; set; }
 }

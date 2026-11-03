@@ -1,3 +1,5 @@
+using Aspire.Hosting.LiveKit.Configuration.Egress;
+
 namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
@@ -24,7 +26,7 @@ public sealed class LiveKitEgressResource : LiveKitContainerResource
 
     internal int? PrometheusPort { get; }
 
-    internal LiveKitEgressConfiguration? Configuration { get; set; }
+    internal LiveKitEgressUpstreamConfiguration? Configuration { get; set; }
 
     internal string? AdditionalConfiguration { get; set; }
 

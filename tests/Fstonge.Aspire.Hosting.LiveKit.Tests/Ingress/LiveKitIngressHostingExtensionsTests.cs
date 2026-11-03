@@ -59,6 +59,22 @@ public sealed class LiveKitIngressHostingExtensionsTests
         Assert.Contains("custom_setting: true", yaml);
     }
 
+    [Fact]
+    public async Task WithIngressConfiguration_RejectsDuplicateTypedAndAdditionalSettings()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var ingress = builder.AddLiveKitServer("livekit")
+            .AddIngress("ingress", builder.AddRedis("redis"), "rtmp://example.test/live", "http://example.test/whip")
+            .WithIngressConfiguration(configuration =>
+                configuration.CpuCost.RtmpCpuCost = 2)
+            .WithIngressAdditionalConfiguration("cpu_cost:\n  whip_cpu_cost: 1");
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() =>
+            DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(ingress.Resource, "INGRESS_CONFIG_BODY"));
+
+        Assert.Contains("configured both", exception.Message);
+    }
+
     [Theory]
     [InlineData("https://example.test/whip", "rtmp://example.test/live")]
     [InlineData("rtmp://example.test/live", "ftp://example.test/whip")]

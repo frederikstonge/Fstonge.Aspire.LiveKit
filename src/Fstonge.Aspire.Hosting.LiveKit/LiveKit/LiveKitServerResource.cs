@@ -1,3 +1,5 @@
+using Aspire.Hosting.LiveKit.Configuration.Server;
+
 namespace Aspire.Hosting.ApplicationModel;
 
 /// <summary>
@@ -44,7 +46,7 @@ public sealed class LiveKitServerResource : LiveKitContainerResource, ILiveKitSe
 
     internal string? AdditionalConfiguration { get; set; }
 
-    internal LiveKitServerConfiguration? Configuration { get; set; }
+    internal LiveKitServerUpstreamConfiguration? Configuration { get; set; }
 
     internal int RtcTcpPort { get; }
 

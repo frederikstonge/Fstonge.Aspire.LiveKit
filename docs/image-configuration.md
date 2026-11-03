@@ -1,21 +1,43 @@
 # Image configuration reference
 
-This page lists every setting exposed directly by the Aspire integration for
-its four container images. Settings accepted by newer upstream image versions
-may not have a typed property here; use the corresponding additional
-configuration method when the key is not managed by the integration. Consult
-the upstream references for the complete, version-specific YAML
-configuration.
+This page describes the configuration models and resource settings exposed by
+the Aspire integration for its four container images. The generated models
+cover the upstream configuration schema for the recorded source revisions;
+use the corresponding additional YAML method for settings introduced by a
+newer upstream version or for configuration not represented in those schemas.
 
 For a minimal Aspire setup, see the [getting-started guide](getting-started.md).
 For optional Ingress, Egress, and SIP setup, see the
 [optional services guide](optional-services.md).
 
+## Upstream configuration schemas
+
+The weekly **Monitor LiveKit configuration schemas** workflow clones the
+upstream server, Ingress, Egress, and SIP repositories and generates JSON
+Schemas from their Go configuration types and YAML struct tags, then generates
+C# models from those schemas. When a schema, source revision, or model changes,
+the workflow opens or updates a pull request so upstream configuration changes
+can be reviewed before changing this integration.
+
+The generated schemas and source revisions are stored in
+[`schemas/livekit-upstream/`](../schemas/livekit-upstream/). The generator is
+documented in [`scripts/livekit-config-schema/README.md`](../scripts/livekit-config-schema/README.md).
+Generated upstream model classes are in
+[`src/Fstonge.Aspire.Hosting.LiveKit/UpstreamConfiguration/`](../src/Fstonge.Aspire.Hosting.LiveKit/UpstreamConfiguration/).
+Schemas describe Go types and YAML tags; they do not capture all runtime
+defaults, validation rules, environment-variable behavior, or custom YAML
+unmarshalling. The generated C# models are the types accepted by the four
+typed configuration callbacks. Their properties use C# names while
+`YamlMember` aliases preserve upstream YAML keys.
+
 ## Typed and additional configuration
 
-Typed configuration callbacks expose common settings for each service.
-Additional YAML methods support top-level settings available in the selected
-upstream image version:
+Typed configuration callbacks accept the generated upstream model for each
+service. Aspire-owned credentials, Redis settings, listener ports, TLS, and
+storage remain managed by the resource APIs and cannot be overridden through
+these models. Additional YAML remains available for upstream settings absent
+from the generated model; a top-level setting cannot be specified in both the
+typed model and additional YAML.
 
 ```csharp
 var livekit = builder.AddLiveKitServer("livekit")
@@ -49,7 +71,7 @@ var egress = livekit.AddEgress("egress", redis)
     .WithEgressConfiguration(configuration =>
     {
         configuration.TemplatePort = 7980;
-        configuration.Logging.Level = "info";
+        configuration.EnableChromeSandbox = true;
     });
 
 var sip = livekit.AddSip("sip", redis)
@@ -57,23 +79,22 @@ var sip = livekit.AddSip("sip", redis)
     {
         configuration.MaxCpuUtilization = 0.9;
         configuration.EnableJitterBuffer = true;
-        configuration.Logging.Level = "info";
     });
 ```
 
-Typed configuration objects are available for common settings on all four
-services. Their nested options (`Rtc`, `CpuCost`, and `Logging`) are initialized
-and can be configured directly in the callback; unset nested options are omitted
-from the generated YAML. `WithLiveKitServerAdditionalConfiguration`,
+The root model types are `LiveKitServerUpstreamConfiguration`,
+`LiveKitIngressUpstreamConfiguration`, `LiveKitEgressUpstreamConfiguration`,
+and `LiveKitSipUpstreamConfiguration`, in the service namespaces shown above.
+Unset nullable properties are omitted from YAML. Generated nested model names
+come from the upstream schema and can change when that schema changes.
+`WithLiveKitServerAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
 and `WithSipAdditionalConfiguration` accept additional top-level settings
-supported by each service version. Settings already managed by typed resource
-options (such as credentials, Redis, listener ports, TLS, storage, and JSON
-logging) are reserved and cannot be duplicated. Typed settings are serialized
-with YamlDotNet, and additional YAML is parsed to validate its top-level shape
-and check reserved keys. `Logging.Level` accepts `debug`, `info`, `warn`, or
-`error`; use `.WithJsonLogging()` or `.WithStructuredLogs()` to enable JSON
-logging.
+supported by each service version. Aspire-managed settings and JSON logging
+remain reserved. Typed settings are serialized with YamlDotNet, and additional
+YAML is parsed to validate its top-level shape, reserved keys, and duplicate
+top-level settings. The models mirror upstream data types; they do not add
+custom semantic validation beyond protection of settings managed by Aspire.
 
 ## LiveKit server (`livekit/livekit-server`)
 
@@ -85,15 +106,15 @@ logging.
 | RTC UDP mux port | `AddLiveKitServer(rtcUdpPort: ...)` | `7882` |
 | API key and secret | `AddLiveKitServer(name)` or `AddLiveKitServer(name, apiKey, apiSecret)` | Generated as persisted secret parameters, or supplied as secret parameters |
 | Redis | `WithLiveKitServerRedis(redis)` | Required for distributed operation and shared with companion services |
-| Log level | `WithLiveKitServerConfiguration(c => c.LogLevel = ...)` | Optional override; `debug`, `info`, `warn`, or `error` |
-| RTC external IP discovery | `c.Rtc.UseExternalIp` | Optional; unset by default |
-| RTC media UDP range | `c.Rtc.PortRangeStart` and `c.Rtc.PortRangeEnd` | Optional; set both together; both must be in `1`–`65535` |
+| Log level | `WithLiveKitServerConfiguration(c => c.LogLevel = ...)` | Optional upstream setting |
+| RTC external IP discovery | `c.Rtc.UseExternalIp` | Optional upstream setting |
+| RTC media UDP range | `c.Rtc.PortRangeStart` and `c.Rtc.PortRangeEnd` | Optional; configure both together, within `1`–`65535` |
 | Embedded TURN/UDP | `WithLiveKitServerTurn(udpPort: ...)` | Optional; port defaults to `3478` |
 | Embedded TURN/TLS | `WithLiveKitServerTurnTls(domain, certificateFile, keyFile, tlsPort: ...)` | Optional; TLS port defaults to `5349`; mount certificate and key into the container |
 | Additional YAML | `WithLiveKitServerAdditionalConfiguration(yaml)` | Adds upstream settings not already managed by the integration |
 | JSON logs / structured logs | `WithJsonLogging()` / `WithStructuredLogs()` | Server JSON console logging is enabled by default; structured forwarding requires an AppHost OTLP endpoint |
 
-The integration manages the server's `development`, `port`, `log_level`,
+The integration manages the server's `development`, `port`,
 `rtc`, `redis`, `turn`, `ingress`, `logging`, and `keys` top-level YAML
 settings. Configure those through the corresponding Aspire APIs rather than
 trying to override them with additional YAML. The [LiveKit server deployment
@@ -112,9 +133,9 @@ document the full server configuration.
 | WHIP/RTC UDP port | `AddIngress(whipUdpPort: ...)` | `7885` |
 | API credentials and LiveKit WebSocket URL | Supplied from the parent LiveKit resource | Written to the container environment/configuration |
 | Redis | `AddIngress(..., redis, ...)` | Required; use the same Redis resource as the server |
-| CPU admission costs | `WithIngressConfiguration(c => c.CpuCost...)` | `RtmpCpuCost`, `WhipCpuCost`, `WhipBypassTranscodingCpuCost`, and `UrlCpuCost`; unset by default |
-| Minimum idle CPU ratio | `c.CpuCost.MinIdleRatio` | Optional; must be greater than `0` and at most `1` |
-| Log level | `c.Logging.Level` | Optional override; `debug`, `info`, `warn`, or `error` |
+| CPU admission costs | `WithIngressConfiguration(c => c.CpuCost = new CPUCostConfig { ... })` | Upstream settings; unset by default |
+| Minimum idle CPU ratio | `c.CpuCost.MinIdleRatio` | Optional upstream setting |
+| Logging | `c.Logging` | Upstream logging options; JSON formatting is managed by Aspire |
 | JSON logs / structured logs | `WithJsonLogging()` / `WithStructuredLogs()` | JSON output is opt-in |
 | Additional YAML | `WithIngressAdditionalConfiguration(yaml)` | Adds upstream settings not managed by the integration |
 
@@ -138,12 +159,12 @@ through additional YAML.
 | Local output directory | `WithEgressLocalOutputDirectory(hostPath, containerPath)` | Optional; container path defaults to `/out` |
 | S3 storage | `WithEgressS3Storage(bucket, region, accessKey, secret, endpoint)` | Optional; credentials are Aspire parameters; endpoint is optional |
 | Azure Blob Storage | `WithEgressAzureStorage(containerName, accountName, accountKey)` | Optional; credentials are Aspire parameters |
-| Template server port | `WithEgressConfiguration(c => c.TemplatePort = ...)` | Optional; upstream default is `7980`; valid ports are `1`–`65535` |
-| Debug handler port | `c.DebugHandlerPort` | Optional; `0` disables it upstream; when specified here, valid ports are `1`–`65535` |
-| PulseAudio sink reap grace period | `c.PulseSinkReapGraceSeconds` | Optional; upstream default is `30` seconds; negative disables reaping |
+| Template server port | `WithEgressConfiguration(c => c.TemplatePort = ...)` | Optional; upstream default is `7980` |
+| Debug handler port | `c.DebugHandlerPort` | Optional; `0` disables it upstream |
+| PulseAudio sink reap grace period | `c.PulseSinkReapGraceSec` | Optional; upstream default is `30` seconds; negative disables reaping |
 | Custom template base URL | `c.TemplateBase` | Optional; upstream default is `http://localhost:<template_port>/` |
 | Chrome sandbox | `c.EnableChromeSandbox` | Optional; upstream default is `false` |
-| Log level | `c.Logging.Level` | Optional override; `debug`, `info`, `warn`, or `error` |
+| Logging | `c.Logging` | Upstream logging options; JSON formatting is managed by Aspire |
 | JSON logs / structured logs | `WithJsonLogging()` / `WithStructuredLogs()` | JSON output is opt-in |
 | Additional YAML | `WithEgressAdditionalConfiguration(yaml)` | Adds upstream settings not managed by the integration |
 
@@ -168,14 +189,13 @@ document all options supported by the selected image version.
 | SIP TLS | `WithSipTls(certificateFile, keyFile, tlsPort: ...)` | Optional; port defaults to `5061`; mount certificate and key into the container |
 | API credentials and LiveKit WebSocket URL | Supplied from the parent LiveKit resource | Written to the container environment |
 | Redis | `AddSip(..., redis)` | Required; use the same Redis resource as the server |
-| Cluster ID | `WithSipConfiguration(c => c.ClusterId = ...)` | Optional |
-| Maximum CPU utilization | `c.MaxCpuUtilization` | Optional; greater than `0` and at most `1` |
-| Maximum active calls | `c.MaxActiveCalls` | Optional; non-negative |
-| Signaling external IP / local network / NAT address | `c.UseExternalIp`, `c.LocalNet`, `c.Nat1To1Ip` | Optional; external-IP discovery and static NAT address cannot both be enabled |
-| Media external IP / NAT address | `c.MediaUseExternalIp`, `c.MediaNat1To1Ip` | Optional; external-IP discovery and static NAT address cannot both be enabled |
-| Maximum UDP payload | `c.UdpMaxPayload` | Optional; when specified, must be positive |
-| Jitter buffer | `c.EnableJitterBuffer`, `c.EnableJitterBufferProbability` | Optional; probability must be between `0` and `1` |
-| Log level | `c.Logging.Level` | Optional override; `debug`, `info`, `warn`, or `error` |
+| Cluster ID | `WithSipConfiguration(c => c.ClusterId = ...)` | Optional upstream setting |
+| Maximum CPU utilization | `c.MaxCpuUtilization` | Optional upstream setting |
+| Maximum active calls | `c.MaxActiveCalls` | Optional upstream setting |
+| Signaling external IP / local network / NAT address | `c.UseExternalIp`, `c.LocalNet`, `c.Nat1To1Ip` | Optional upstream settings |
+| Media external IP / NAT address | `c.MediaUseExternalIp`, `c.MediaNat1To1Ip` | Optional upstream settings |
+| Jitter buffer | `c.EnableJitterBuffer`, `c.EnableJitterBufferProb` | Optional upstream settings |
+| Logging | `c.Logging` | Upstream logging options; JSON formatting is managed by Aspire |
 | JSON logs / structured logs | `WithJsonLogging()` / `WithStructuredLogs()` | JSON output is opt-in |
 | Additional YAML | `WithSipAdditionalConfiguration(yaml)` | Adds upstream settings not managed by the integration |
 

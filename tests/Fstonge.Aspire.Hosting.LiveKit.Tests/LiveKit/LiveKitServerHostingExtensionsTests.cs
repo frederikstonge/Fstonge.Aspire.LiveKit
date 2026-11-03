@@ -1,4 +1,5 @@
 using Aspire.Hosting;
+using YamlDotNet.RepresentationModel;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Hosting;
 
@@ -179,12 +180,64 @@ public sealed class LiveKitServerHostingExtensionsTests
     }
 
     [Fact]
+    public async Task WithLiveKitServerConfiguration_ProducesOneValidYamlDocument()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var livekit = builder.AddLiveKitServer("livekit")
+            .WithLiveKitServerConfiguration(configuration =>
+            {
+                configuration.LogLevel = "info";
+                configuration.Rtc.UseExternalIp = true;
+                configuration.Logging.Json = true;
+            });
+
+        var yaml = await DistributedApplicationBuilderTestHost.GetEnvironmentValueAsync(livekit.Resource, "LIVEKIT_CONFIG");
+        var yamlStream = new YamlStream();
+
+        yamlStream.Load(new StringReader(yaml));
+
+        var document = Assert.Single(yamlStream.Documents);
+        var root = Assert.IsType<YamlMappingNode>(document.RootNode);
+        Assert.Contains(new YamlScalarNode("rtc"), root.Children.Keys);
+        Assert.Contains(new YamlScalarNode("logging"), root.Children.Keys);
+        Assert.Contains(new YamlScalarNode("log_level"), root.Children.Keys);
+    }
+
+    [Fact]
     public void WithLiveKitServerConfiguration_RejectsEmptyConfiguration()
     {
         var livekit = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit");
 
         Assert.Throws<InvalidOperationException>(() =>
             livekit.WithLiveKitServerConfiguration(_ => { }));
+    }
+
+    [Theory]
+    [InlineData(0, 100)]
+    [InlineData(1, 65536)]
+    [InlineData(101, 100)]
+    public void WithLiveKitServerConfiguration_RejectsInvalidRtcPortRange(int start, int end)
+    {
+        var livekit = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit");
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            livekit.WithLiveKitServerConfiguration(configuration =>
+            {
+                configuration.Rtc.PortRangeStart = start;
+                configuration.Rtc.PortRangeEnd = end;
+            }));
+    }
+
+    [Fact]
+    public void WithLiveKitServerConfiguration_RejectsResourceManagedRtcPorts()
+    {
+        var livekit = DistributedApplicationBuilderTestHost.CreateBuilder().AddLiveKitServer("livekit");
+
+        var exception = Assert.Throws<ArgumentException>(() =>
+            livekit.WithLiveKitServerConfiguration(configuration =>
+                configuration.Rtc.TcpPort = 9000));
+
+        Assert.Contains("managed by the LiveKit resource configuration", exception.Message);
     }
 
     [Fact]

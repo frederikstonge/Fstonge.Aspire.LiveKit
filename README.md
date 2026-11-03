@@ -77,10 +77,10 @@ var egress = livekit.AddEgress("egress", redis)
 
 Use `WithLiveKitServerConfiguration`, `WithIngressConfiguration`,
 `WithEgressConfiguration`, and `WithSipConfiguration` with a callback to set
-typed service options. Use `WithLiveKitServerAdditionalConfiguration`,
+the generated upstream configuration models. Use `WithLiveKitServerAdditionalConfiguration`,
 `WithIngressAdditionalConfiguration`, `WithEgressAdditionalConfiguration`,
-and `WithSipAdditionalConfiguration` for additional top-level YAML settings
-supported by the selected service version. See the
+and `WithSipAdditionalConfiguration` for top-level YAML settings not present
+in the generated models; Aspire-managed settings cannot be overridden. See the
 [image configuration reference](docs/image-configuration.md)
 for all settings directly exposed by this package and links to the upstream
 configuration references.
