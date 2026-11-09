@@ -1,34 +1,34 @@
 [
-    {
-        "service":  "server",
-        "repository":  "https://github.com/livekit/livekit.git",
-        "branch":  "master",
-        "revision":  "0d762b4e5062c4407712fef74f473dbc5a16cfac",
-        "package":  "./pkg/config",
-        "type":  "Config"
-    },
-    {
-        "service":  "ingress",
-        "repository":  "https://github.com/livekit/ingress.git",
-        "branch":  "main",
-        "revision":  "5fcbc5d5b1248d23d4ba80f7bf0843a1109c5299",
-        "package":  "./pkg/config",
-        "type":  "Config"
-    },
-    {
-        "service":  "egress",
-        "repository":  "https://github.com/livekit/egress.git",
-        "branch":  "main",
-        "revision":  "42824050c93cd10eabc5019d99ca91a2fef2fa12",
-        "package":  "./pkg/config",
-        "type":  "ServiceConfig"
-    },
-    {
-        "service":  "sip",
-        "repository":  "https://github.com/livekit/sip.git",
-        "branch":  "main",
-        "revision":  "d0a2cdcd9385dc40d63da965472bf87315151889",
-        "package":  "./pkg/config",
-        "type":  "Config"
-    }
+  {
+    "service": "server",
+    "repository": "https://github.com/livekit/livekit.git",
+    "branch": "master",
+    "revision": "fc8104b41259e0ae454e86ccd56931adce82349c",
+    "package": "./pkg/config",
+    "type": "Config"
+  },
+  {
+    "service": "ingress",
+    "repository": "https://github.com/livekit/ingress.git",
+    "branch": "main",
+    "revision": "93e17168fc49af9332720e57371e75c61455e591",
+    "package": "./pkg/config",
+    "type": "Config"
+  },
+  {
+    "service": "egress",
+    "repository": "https://github.com/livekit/egress.git",
+    "branch": "main",
+    "revision": "1f990308d5a035a6762d25b1844d38ed44563f2c",
+    "package": "./pkg/config",
+    "type": "ServiceConfig"
+  },
+  {
+    "service": "sip",
+    "repository": "https://github.com/livekit/sip.git",
+    "branch": "main",
+    "revision": "bb253f49e50f49f01fc731ed68468440b23a4851",
+    "package": "./pkg/config",
+    "type": "Config"
+  }
 ]

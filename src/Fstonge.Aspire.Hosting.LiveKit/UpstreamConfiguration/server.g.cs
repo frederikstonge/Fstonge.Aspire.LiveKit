@@ -887,6 +887,18 @@ public sealed class RTCConfig
     [YamlMember(Alias = "external_ip_only")]
     public bool? ExternalIpOnly { get; set; }
 
+    [YamlMember(Alias = "external_ip_retries")]
+    public long? ExternalIpRetries { get; set; }
+
+    [YamlMember(Alias = "external_ip_retry_interval")]
+    public string? ExternalIpRetryInterval { get; set; }
+
+    [YamlMember(Alias = "external_ip_stun_timeout")]
+    public string? ExternalIpStunTimeout { get; set; }
+
+    [YamlMember(Alias = "external_ip_validation_timeout")]
+    public string? ExternalIpValidationTimeout { get; set; }
+
     [YamlMember(Alias = "flexfec")]
     public FlexFECConfig? Flexfec { get; set; }
 

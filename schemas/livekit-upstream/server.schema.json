@@ -1115,6 +1115,25 @@
           "type": "boolean",
           "x-yaml-omitempty": true
         },
+        "external_ip_retries": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_retry_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_stun_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_validation_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
         "flexfec": {
           "$ref": "#/$defs/FlexFECConfig_bfcd52241a51",
           "x-yaml-omitempty": true
