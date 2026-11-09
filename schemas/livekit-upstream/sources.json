@@ -3,7 +3,7 @@
     "service": "server",
     "repository": "https://github.com/livekit/livekit.git",
     "branch": "master",
-    "revision": "fc8104b41259e0ae454e86ccd56931adce82349c",
+    "revision": "a4834dd918d91d04c1a443a1282674c8cf19932d",
     "package": "./pkg/config",
     "type": "Config"
   },
