@@ -1,0 +1,22 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/Fstonge.Aspire.Hosting.LiveKit/Fstonge.Aspire.Hosting.LiveKit.csproj" />
+    <Project Path="src/Fstonge.Aspire.Sdk.LiveKit/Fstonge.Aspire.Sdk.LiveKit.csproj" />
+    <Project Path="src/Fstonge.Aspire.Rtc.LiveKit/Fstonge.Aspire.Rtc.LiveKit.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fstonge.Aspire.Hosting.LiveKit.Tests/Fstonge.Aspire.Hosting.LiveKit.Tests.csproj" />
+    <Project Path="tests/Fstonge.Aspire.Sdk.LiveKit.Tests/Fstonge.Aspire.Sdk.LiveKit.Tests.csproj" />
+    <Project Path="tests/Fstonge.Aspire.Rtc.LiveKit.Tests/Fstonge.Aspire.Rtc.LiveKit.Tests.csproj" />
+  </Folder>
+  <Folder Name="/example/">
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.ApiService/Fstonge.Aspire.LiveKit.Example.ApiService.csproj" />
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.AppHost/Fstonge.Aspire.LiveKit.Example.AppHost.csproj" />
+    <Project Path="example/Fstonge.Aspire.LiveKit.Example.ServiceDefaults/Fstonge.Aspire.LiveKit.Example.ServiceDefaults.csproj" />
+  </Folder>
+</Solution>

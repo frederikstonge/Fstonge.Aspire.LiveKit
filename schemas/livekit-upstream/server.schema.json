@@ -1,0 +1,2431 @@
+{
+  "$defs": {
+    "APIConfig_143a699e3028": {
+      "properties": {
+        "check_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "enable_psrpc_for_get_list_participants": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "execution_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "max_check_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "AudioConfig_d505d9074c0c": {
+      "properties": {
+        "active_level": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "active_red_encoding": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "enable_loss_proxying": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "min_percentile": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "smooth_intervals": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "update_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "AudioMixing_9c872f01d09d": {
+      "type": "integer"
+    },
+    "AutoParticipantEgress_92fdac7bf502": {
+      "properties": {
+        "fileoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/EncodedFileOutput_a007ea87c223"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "options": {
+          "$ref": "#/$defs/isAutoParticipantEgress_Options_3f8016159070"
+        },
+        "segmentoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SegmentedFileOutput_b09d1fc78511"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "AutoTrackEgress_acf0df4fb83d": {
+      "properties": {
+        "disablemanifest": {
+          "type": "boolean"
+        },
+        "filepath": {
+          "type": "string"
+        },
+        "output": {
+          "$ref": "#/$defs/isAutoTrackEgress_Output_e547393ed511"
+        }
+      },
+      "type": "object"
+    },
+    "BatchIOConfig_17f3a9289172": {
+      "properties": {
+        "batch_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_flush_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ChannelObserverConfig_39f9ec89b686": {
+      "properties": {
+        "estimate": {
+          "$ref": "#/$defs/TrendDetectorConfig_4bf607d6cf15",
+          "x-yaml-omitempty": true
+        },
+        "nack": {
+          "$ref": "#/$defs/NackTrackerConfig_44180075c3bc",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CodecSpec_d258cf875d99": {
+      "properties": {
+        "fmtp_line": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "mime": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CompressionConfig_929be9a4585f": {
+      "properties": {
+        "max_decompressed_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "quality": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "Config_6642be211bf8": {
+      "properties": {
+        "ca_cert_file": {
+          "type": "string"
+        },
+        "client_cert_file": {
+          "type": "string"
+        },
+        "client_key_file": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "insecure": {
+          "type": "boolean"
+        },
+        "server_name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Config_a3f1297b5db8": {
+      "properties": {
+        "enable_user_data_recording": {
+          "type": "boolean"
+        },
+        "enable_user_data_redaction": {
+          "type": "boolean"
+        },
+        "endpoints": {
+          "$ref": "#/$defs/EndpointsConfig_4352bc469a31",
+          "x-yaml-omitempty": true
+        },
+        "target_load": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CongestionControlConfig_b80bf83ffcf4": {
+      "properties": {
+        "allow_pause": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "remote_bwe": {
+          "$ref": "#/$defs/RemoteBWEConfig_60b4b1eef778",
+          "x-yaml-omitempty": true
+        },
+        "send_side_bwe": {
+          "$ref": "#/$defs/SendSideBWEConfig_63f957825fd1",
+          "x-yaml-omitempty": true
+        },
+        "send_side_bwe_pacer": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "stream_allocator": {
+          "$ref": "#/$defs/StreamAllocatorConfig_3df1eb6834eb",
+          "x-yaml-omitempty": true
+        },
+        "use_send_side_bwe": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "use_send_side_bwe_interceptor": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CongestionDetectorConfig_0fc5e7a1c322": {
+      "properties": {
+        "congested_ctr_epsilon": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "congested_ctr_trend": {
+          "$ref": "#/$defs/TrendDetectorConfig_4bf607d6cf15",
+          "x-yaml-omitempty": true
+        },
+        "congested_packet_group": {
+          "$ref": "#/$defs/PacketGroupConfig_12e12c1ceb92",
+          "x-yaml-omitempty": true
+        },
+        "dqr_max_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "dqr_max_weighted_loss": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "estimaton_window_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "jqr_min_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "jqr_min_trend_coefficient": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "jqr_min_weighted_loss": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "loss_congested_dqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "loss_congested_jqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "loss_early_warning_dqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "loss_early_warning_jqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "packet_group": {
+          "$ref": "#/$defs/PacketGroupConfig_12e12c1ceb92",
+          "x-yaml-omitempty": true
+        },
+        "packet_group_max_age": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "probe_packet_group": {
+          "$ref": "#/$defs/ProbePacketGroupConfig_734b6235222d",
+          "x-yaml-omitempty": true
+        },
+        "probe_regulator": {
+          "$ref": "#/$defs/ProbeRegulatorConfig_6852417999cc",
+          "x-yaml-omitempty": true
+        },
+        "probe_signal": {
+          "$ref": "#/$defs/ProbeSignalConfig_980b94930a22",
+          "x-yaml-omitempty": true
+        },
+        "queuing_delay_congested_dqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "queuing_delay_congested_jqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "queuing_delay_early_warning_dqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "queuing_delay_early_warning_jqr": {
+          "$ref": "#/$defs/CongestionSignalConfig_21910b749d9e",
+          "x-yaml-omitempty": true
+        },
+        "weighted_loss": {
+          "$ref": "#/$defs/WeightedLossConfig_bb49636324f7",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CongestionSignalConfig_21910b749d9e": {
+      "properties": {
+        "min_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "min_number_of_groups": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "DebugHandlerConfig_b716296b96a1": {
+      "properties": {
+        "port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "EncodedFileOutput_a007ea87c223": {
+      "properties": {
+        "disablemanifest": {
+          "type": "boolean"
+        },
+        "filepath": {
+          "type": "string"
+        },
+        "filetype": {
+          "$ref": "#/$defs/EncodedFileType_0026f2940dbf"
+        },
+        "output": {
+          "$ref": "#/$defs/isEncodedFileOutput_Output_c602c67f993b"
+        }
+      },
+      "type": "object"
+    },
+    "EncodedFileType_0026f2940dbf": {
+      "type": "integer"
+    },
+    "EndpointsConfig_4352bc469a31": {
+      "properties": {
+        "disabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "max_streams": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_tunnels": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "tunnel_drain_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "FilterParams_7efca6f986ad": {
+      "properties": {
+        "exclude_events": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "include_events": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "FilterParams_839ac4a561cb": {
+      "properties": {
+        "excludeevents": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "includeevents": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "FlexFECConfig_bfcd52241a51": {
+      "properties": {
+        "upstream_enabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ForwardStatsConfig_52a81dec01ca": {
+      "properties": {
+        "report_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "report_window": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "summary_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "IPsConfig_52fbf1392671": {
+      "properties": {
+        "excludes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "includes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ImageCodec_6465fba8238a": {
+      "type": "integer"
+    },
+    "ImageFileSuffix_c8037c2f8886": {
+      "type": "integer"
+    },
+    "ImageOutput_4e25eca783c5": {
+      "properties": {
+        "captureinterval": {
+          "type": "integer"
+        },
+        "disablemanifest": {
+          "type": "boolean"
+        },
+        "filenameprefix": {
+          "type": "string"
+        },
+        "filenamesuffix": {
+          "$ref": "#/$defs/ImageFileSuffix_c8037c2f8886"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "imagecodec": {
+          "$ref": "#/$defs/ImageCodec_6465fba8238a"
+        },
+        "output": {
+          "$ref": "#/$defs/isImageOutput_Output_4d70ba3816a6"
+        },
+        "width": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "IngressConfig_eae7bbf1eba5": {
+      "properties": {
+        "enable_udp_url_pull": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "rtmp_base_url": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "whip_base_url": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "InterfacesConfig_1f63ffb71343": {
+      "properties": {
+        "excludes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "includes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "JobRestartPolicy_eb861dc2ead6": {
+      "type": "integer"
+    },
+    "LimitConfig_e2f039fbb501": {
+      "properties": {
+        "agent_signal_message_size_limit": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "bytes_per_sec": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "max_api_request_body_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_attributes_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_data_blob_key_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_data_blobs_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_data_track_custom_encoding_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_metadata_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_participant_identity_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_participant_name_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_room_name_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "num_tracks": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "signal_message_size_limit": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "subscribe_pace_shadow_rates": {
+          "items": {
+            "type": "number"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "subscription_limit_audio": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "subscription_limit_video": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "LoggingConfig_871ed86b4e6a": {
+      "properties": {
+        "component_levels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_seconds": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "json": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "level": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "pion_level": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sample": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "MetricConfig_96f4fc40dec8": {
+      "properties": {
+        "collector": {
+          "$ref": "#/$defs/MetricsCollectorConfig_3c3a855f551f",
+          "x-yaml-omitempty": true
+        },
+        "reporter": {
+          "$ref": "#/$defs/MetricsReporterConfig_895416e34bf4",
+          "x-yaml-omitempty": true
+        },
+        "timestamper_config": {
+          "$ref": "#/$defs/MetricTimestamperConfig_8e42360bda8f",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "MetricTimestamperConfig_8e42360bda8f": {
+      "properties": {
+        "one_way_delay_estimator_max_batch": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "one_way_delay_estimator_min_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "MetricsCollectorConfig_3c3a855f551f": {
+      "properties": {
+        "batch_interval_ms": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sampling_interval_ms": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "MetricsReporterConfig_895416e34bf4": {
+      "properties": {
+        "reporting_interval_ms": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "NackTrackerConfig_44180075c3bc": {
+      "properties": {
+        "ratio_threshold": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "window_max_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "window_min_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "NodeIP_65c74693e30d": {
+      "properties": {
+        "ipv4": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "ipv6": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "NodeSelectorConfig_77be96573411": {
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "cpu_load_limit": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "kind": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "regions": {
+          "items": {
+            "$ref": "#/$defs/RegionConfig_fe4cdcc57898"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "sort_by": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sysload_limit": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "NodeStatsConfig_07fd148909c3": {
+      "properties": {
+        "host_cpu": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "stats_max_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "stats_rate_measurement_intervals": {
+          "items": {
+            "format": "duration",
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "stats_update_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PLIThrottleConfig_b10ce7ddbb51": {
+      "properties": {
+        "high_quality": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "low_quality": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "mid_quality": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PSRPCConfig_bb38bffffcf7": {
+      "properties": {
+        "backoff": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "buffer_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "compression": {
+          "$ref": "#/$defs/CompressionConfig_929be9a4585f",
+          "x-yaml-omitempty": true
+        },
+        "max_attempts": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PacketGroupConfig_12e12c1ceb92": {
+      "properties": {
+        "max_window_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "min_packets": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PlayoutDelayConfig_3ac83e5ba979": {
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "max": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "min": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PortRange_b90c80c0fccc": {
+      "properties": {
+        "end": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "start": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ProbeControllerConfig_d8cfae87c2b1": {
+      "properties": {
+        "probe_regulator": {
+          "$ref": "#/$defs/ProbeRegulatorConfig_6852417999cc",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_max": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_min": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_num_rtt": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ProbeMode_716198e2abff": {
+      "type": "string"
+    },
+    "ProbePacketGroupConfig_734b6235222d": {
+      "properties": {
+        "packet_group": {
+          "$ref": "#/$defs/PacketGroupConfig_12e12c1ceb92",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_max": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_min": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "settle_wait_num_rtt": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ProbeRegulatorConfig_6852417999cc": {
+      "properties": {
+        "backoff_factor": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "base_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "duration_increase_factor": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "max_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "max_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "min_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ProbeSignalConfig_980b94930a22": {
+      "properties": {
+        "dqr_max_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "dqr_max_weighted_loss": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "jqr_min_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "jqr_min_weighted_loss": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "min_bytes_ratio": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "min_duration_ratio": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "weighted_loss": {
+          "$ref": "#/$defs/WeightedLossConfig_bb49636324f7",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PrometheusConfig_84ab414aad7c": {
+      "properties": {
+        "password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RTCConfig_b18269133360": {
+      "properties": {
+        "advertise_internal_ip": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "allow_tcp_fallback": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "allow_udp_unstable_fallback": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "batch_io": {
+          "$ref": "#/$defs/BatchIOConfig_17f3a9289172",
+          "x-yaml-omitempty": true
+        },
+        "congestion_control": {
+          "$ref": "#/$defs/CongestionControlConfig_b80bf83ffcf4",
+          "x-yaml-omitempty": true
+        },
+        "data_channel_max_buffered_amount": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "datachannel_data_track_target_latency": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "datachannel_lossy_target_latency": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "datachannel_slow_threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "enable_loopback_candidate": {
+          "type": "boolean"
+        },
+        "enable_rtp_stream_restart_detection": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "enable_warp": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_only": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_retries": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_retry_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_stun_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_validation_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "flexfec": {
+          "$ref": "#/$defs/FlexFECConfig_bfcd52241a51",
+          "x-yaml-omitempty": true
+        },
+        "force_tcp": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "forward_stats": {
+          "$ref": "#/$defs/ForwardStatsConfig_52a81dec01ca",
+          "x-yaml-omitempty": true
+        },
+        "host_acceptance_min_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "interfaces": {
+          "$ref": "#/$defs/InterfacesConfig_1f63ffb71343",
+          "x-yaml-omitempty": true
+        },
+        "ips": {
+          "$ref": "#/$defs/IPsConfig_52fbf1392671",
+          "x-yaml-omitempty": true
+        },
+        "node_ip": {
+          "$ref": "#/$defs/NodeIP_65c74693e30d",
+          "x-yaml-omitempty": true
+        },
+        "packet_buffer_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "packet_buffer_size_audio": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "packet_buffer_size_video": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "pli_throttle": {
+          "$ref": "#/$defs/PLIThrottleConfig_b10ce7ddbb51",
+          "x-yaml-omitempty": true
+        },
+        "port_range_end": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "port_range_start": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "prflx_acceptance_min_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "reconnect_on_data_channel_error": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "reconnect_on_publication_error": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "reconnect_on_subscription_error": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "relay_acceptance_min_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "require_ipv4": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "rtx_budget": {
+          "$ref": "#/$defs/RTXBudgetConfig_bc1dcd29e78e",
+          "x-yaml-omitempty": true
+        },
+        "sctp_cwnd_ca_step": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sctp_fast_rtx_wnd": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sctp_min_cwnd": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "skip_external_ip_validation": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "srflx_acceptance_min_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "strict_acks": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "stun_servers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "tcp_fallback_rtt_threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "tcp_port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "turn_servers": {
+          "items": {
+            "$ref": "#/$defs/TURNServer_0c2a9ecfeb73"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "udp_port": {
+          "$ref": "#/$defs/PortRange_b90c80c0fccc",
+          "x-yaml-omitempty": true
+        },
+        "use_external_ip": {
+          "type": "boolean"
+        },
+        "use_ice_lite": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "use_mdns": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "use_stun_port_as_ice": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RTXBudgetConfig_bc1dcd29e78e": {
+      "properties": {
+        "audio": {
+          "$ref": "#/$defs/RTXBudgetLimit_7a93005464a4",
+          "x-yaml-omitempty": true
+        },
+        "video": {
+          "$ref": "#/$defs/RTXBudgetLimit_7a93005464a4",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RTXBudgetLimit_7a93005464a4": {
+      "properties": {
+        "burst_bytes": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_ratio": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RedisConfig_be23e1e4c9e1": {
+      "properties": {
+        "address": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "cluster_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "db": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "dial_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_redirects": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "pool_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "pool_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "read_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_master_name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tls": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Config_6642be211bf8"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "use_tls": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "write_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RegionConfig_fe4cdcc57898": {
+      "properties": {
+        "lat": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "lon": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RemoteBWEConfig_60b4b1eef778": {
+      "properties": {
+        "channel_observer_non_probe": {
+          "$ref": "#/$defs/ChannelObserverConfig_39f9ec89b686",
+          "x-yaml-omitempty": true
+        },
+        "channel_observer_probe": {
+          "$ref": "#/$defs/ChannelObserverConfig_39f9ec89b686",
+          "x-yaml-omitempty": true
+        },
+        "expected_usage_threshold": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "nack_ratio_attenuator": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "probe_controller": {
+          "$ref": "#/$defs/ProbeControllerConfig_d8cfae87c2b1",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ResourceURLNotifierConfig_771d4f0ff471": {
+      "properties": {
+        "max_age": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "max_depth": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RoomAgentDispatch_bb8930664ded": {
+      "properties": {
+        "agentname": {
+          "type": "string"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "deployment": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "string"
+        },
+        "restartpolicy": {
+          "$ref": "#/$defs/JobRestartPolicy_eb861dc2ead6"
+        }
+      },
+      "type": "object"
+    },
+    "RoomCompositeEgressRequest_e619cc7149e7": {
+      "properties": {
+        "audiomixing": {
+          "$ref": "#/$defs/AudioMixing_9c872f01d09d"
+        },
+        "audioonly": {
+          "type": "boolean"
+        },
+        "custombaseurl": {
+          "type": "string"
+        },
+        "fileoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/EncodedFileOutput_a007ea87c223"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "imageoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ImageOutput_4e25eca783c5"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "layout": {
+          "type": "string"
+        },
+        "options": {
+          "$ref": "#/$defs/isRoomCompositeEgressRequest_Options_ce96c54feb4c"
+        },
+        "output": {
+          "$ref": "#/$defs/isRoomCompositeEgressRequest_Output_40ac0c2dd842"
+        },
+        "roomname": {
+          "type": "string"
+        },
+        "segmentoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SegmentedFileOutput_b09d1fc78511"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "streamoutputs": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StreamOutput_4cace615f94b"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "videoonly": {
+          "type": "boolean"
+        },
+        "webhooks": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/WebhookConfig_0f037869c736"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "RoomConfig_1ad83f2c67e4": {
+      "properties": {
+        "auto_create": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "create_room_attempts": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "create_room_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "departure_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "empty_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "enable_full_room_in_webhooks": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "enable_remote_unmute": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "enabled_codecs": {
+          "items": {
+            "$ref": "#/$defs/CodecSpec_d258cf875d99"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "max_metadata_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_participant_identity_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_participants": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_room_name_length": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "playout_delay": {
+          "$ref": "#/$defs/PlayoutDelayConfig_3ac83e5ba979",
+          "x-yaml-omitempty": true
+        },
+        "room_configurations": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RoomConfiguration_1f10edf22a2c"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "sync_streams": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "update_batch_target_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RoomConfiguration_1f10edf22a2c": {
+      "properties": {
+        "agents": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RoomAgentDispatch_bb8930664ded"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "departuretimeout": {
+          "type": "integer"
+        },
+        "egress": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RoomEgress_6c364502ee0b"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "emptytimeout": {
+          "type": "integer"
+        },
+        "maxparticipants": {
+          "type": "integer"
+        },
+        "maxplayoutdelay": {
+          "type": "integer"
+        },
+        "metadata": {
+          "type": "string"
+        },
+        "minplayoutdelay": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "syncstreams": {
+          "type": "boolean"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "RoomEgress_6c364502ee0b": {
+      "properties": {
+        "participant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AutoParticipantEgress_92fdac7bf502"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "room": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RoomCompositeEgressRequest_e619cc7149e7"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tracks": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AutoTrackEgress_acf0df4fb83d"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "SIPConfig_3d109c2b7c6b": {
+      "properties": {},
+      "type": "object"
+    },
+    "SegmentedFileOutput_b09d1fc78511": {
+      "properties": {
+        "disablemanifest": {
+          "type": "boolean"
+        },
+        "filenameprefix": {
+          "type": "string"
+        },
+        "filenamesuffix": {
+          "$ref": "#/$defs/SegmentedFileSuffix_22990c65d887"
+        },
+        "liveplaylistname": {
+          "type": "string"
+        },
+        "output": {
+          "$ref": "#/$defs/isSegmentedFileOutput_Output_f812abc32a64"
+        },
+        "playlistname": {
+          "type": "string"
+        },
+        "protocol": {
+          "$ref": "#/$defs/SegmentedFileProtocol_c270fd00834c"
+        },
+        "segmentduration": {
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "SegmentedFileProtocol_c270fd00834c": {
+      "type": "integer"
+    },
+    "SegmentedFileSuffix_22990c65d887": {
+      "type": "integer"
+    },
+    "SendSideBWEConfig_63f957825fd1": {
+      "properties": {
+        "congestion_detector": {
+          "$ref": "#/$defs/CongestionDetectorConfig_0fc5e7a1c322",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "SignalRelayConfig_d6db40c82a4c": {
+      "properties": {
+        "connect_attempts": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_retry_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "min_retry_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "retry_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "stream_buffer_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamAllocatorConfig_3df1eb6834eb": {
+      "properties": {
+        "disable_etimation_unmanaged_tracks": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "min_channel_capacity": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "paused_min_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "probe_min_bps": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "probe_mode": {
+          "$ref": "#/$defs/ProbeMode_716198e2abff",
+          "x-yaml-omitempty": true
+        },
+        "probe_overage_pct": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamDestination_87680b3ba778": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "StreamOutput_4cace615f94b": {
+      "properties": {
+        "destinations": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/StreamDestination_87680b3ba778"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "protocol": {
+          "$ref": "#/$defs/StreamProtocol_1de27158b6bb"
+        },
+        "urls": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "StreamProtocol_1de27158b6bb": {
+      "type": "integer"
+    },
+    "StreamTrackerConfig_1a2168594e81": {
+      "properties": {
+        "bitrate_report_interval": {
+          "additionalProperties": {
+            "format": "duration",
+            "type": "string"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "frame_tracker": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StreamTrackerFrameConfig_0fd0f0fca658"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "packet_tracker": {
+          "additionalProperties": {
+            "$ref": "#/$defs/StreamTrackerPacketConfig_64bcb7d7a562"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "stream_tracker_type": {
+          "$ref": "#/$defs/StreamTrackerType_3bf4bca4298f",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamTrackerFrameConfig_0fd0f0fca658": {
+      "properties": {
+        "min_fps": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamTrackerManagerConfig_d103a808e4bf": {
+      "properties": {
+        "screenshare": {
+          "$ref": "#/$defs/StreamTrackerConfig_1a2168594e81",
+          "x-yaml-omitempty": true
+        },
+        "video": {
+          "$ref": "#/$defs/StreamTrackerConfig_1a2168594e81",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamTrackerPacketConfig_64bcb7d7a562": {
+      "properties": {
+        "cycle_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "cycles_required": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "samples_required": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "StreamTrackerType_3bf4bca4298f": {
+      "type": "string"
+    },
+    "TURNConfig_b732917d7cc8": {
+      "properties": {
+        "allow_restricted_peer_cidrs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "bind_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "cert_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "deny_peer_cidrs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "domain": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "external_tls": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "key_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "per_user_relay_allocation_limit": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "proxy_protocol": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "proxy_protocol_trusted_cidrs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "relay_range_end": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "relay_range_start": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "tls_port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "udp_port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "TURNServer_0c2a9ecfeb73": {
+      "properties": {
+        "credential": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "credentials_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "host": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "protocol": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "secret": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "secret_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "ttl": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "TracingConfig_7a09b41907e4": {
+      "properties": {
+        "jaeger_url": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "TrendDetectorConfig_4bf607d6cf15": {
+      "properties": {
+        "collapse_threshold": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "downward_trend_max_wait": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "downward_trend_threshold": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "required_samples": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "required_samples_min": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "validity_window": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "URLNotifierConfig_e6df2b5cb010": {
+      "properties": {
+        "num_workers": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "queue_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "VideoConfig_55257789ebd6": {
+      "properties": {
+        "codec_regression_threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "dynacast_pause_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "stream_tracker_manager": {
+          "$ref": "#/$defs/StreamTrackerManagerConfig_d103a808e4bf",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "WebHookConfig_1adc2fcf4aed": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "filter_params": {
+          "$ref": "#/$defs/FilterParams_7efca6f986ad",
+          "x-yaml-omitempty": true
+        },
+        "resource_url_notifier": {
+          "$ref": "#/$defs/ResourceURLNotifierConfig_771d4f0ff471",
+          "x-yaml-omitempty": true
+        },
+        "url_notifier": {
+          "$ref": "#/$defs/URLNotifierConfig_e6df2b5cb010",
+          "x-yaml-omitempty": true
+        },
+        "urls": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "WebTransportConfig_a2d3d4a8806c": {
+      "properties": {
+        "port": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "tls_cert_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tls_key_file": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "WebhookConfig_0f037869c736": {
+      "properties": {
+        "filterparams": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FilterParams_839ac4a561cb"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signingkey": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "WeightedLossConfig_bb49636324f7": {
+      "properties": {
+        "base_duration": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "base_pps": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "loss_penalty_factor": {
+          "type": "number",
+          "x-yaml-omitempty": true
+        },
+        "min_duration_for_loss_validity": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "isAutoParticipantEgress_Options_3f8016159070": {},
+    "isAutoTrackEgress_Output_e547393ed511": {},
+    "isEncodedFileOutput_Output_c602c67f993b": {},
+    "isImageOutput_Output_4d70ba3816a6": {},
+    "isRoomCompositeEgressRequest_Options_ce96c54feb4c": {},
+    "isRoomCompositeEgressRequest_Output_40ac0c2dd842": {},
+    "isSegmentedFileOutput_Output_f812abc32a64": {}
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "agents": {
+      "$ref": "#/$defs/Config_a3f1297b5db8",
+      "x-yaml-omitempty": true
+    },
+    "api": {
+      "$ref": "#/$defs/APIConfig_143a699e3028",
+      "x-yaml-omitempty": true
+    },
+    "audio": {
+      "$ref": "#/$defs/AudioConfig_d505d9074c0c",
+      "x-yaml-omitempty": true
+    },
+    "bind_addresses": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "x-yaml-omitempty": true
+    },
+    "debug_handler": {
+      "$ref": "#/$defs/DebugHandlerConfig_b716296b96a1",
+      "x-yaml-omitempty": true
+    },
+    "development": {
+      "type": "boolean",
+      "x-yaml-omitempty": true
+    },
+    "enable_data_tracks": {
+      "type": "boolean",
+      "x-yaml-omitempty": true
+    },
+    "enable_participant_data_blob": {
+      "type": "boolean",
+      "x-yaml-omitempty": true
+    },
+    "ingress": {
+      "$ref": "#/$defs/IngressConfig_eae7bbf1eba5",
+      "x-yaml-omitempty": true
+    },
+    "key_file": {
+      "type": "string",
+      "x-yaml-omitempty": true
+    },
+    "keys": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "type": "object",
+      "x-yaml-omitempty": true
+    },
+    "limit": {
+      "$ref": "#/$defs/LimitConfig_e2f039fbb501",
+      "x-yaml-omitempty": true
+    },
+    "log_level": {
+      "type": "string",
+      "x-yaml-omitempty": true
+    },
+    "logging": {
+      "$ref": "#/$defs/LoggingConfig_871ed86b4e6a",
+      "x-yaml-omitempty": true
+    },
+    "metric": {
+      "$ref": "#/$defs/MetricConfig_96f4fc40dec8",
+      "x-yaml-omitempty": true
+    },
+    "node_selector": {
+      "$ref": "#/$defs/NodeSelectorConfig_77be96573411",
+      "x-yaml-omitempty": true
+    },
+    "node_stats": {
+      "$ref": "#/$defs/NodeStatsConfig_07fd148909c3",
+      "x-yaml-omitempty": true
+    },
+    "port": {
+      "type": "integer",
+      "x-yaml-omitempty": true
+    },
+    "prometheus": {
+      "$ref": "#/$defs/PrometheusConfig_84ab414aad7c",
+      "x-yaml-omitempty": true
+    },
+    "prometheus_port": {
+      "type": "integer",
+      "x-yaml-omitempty": true
+    },
+    "psrpc": {
+      "$ref": "#/$defs/PSRPCConfig_bb38bffffcf7",
+      "x-yaml-omitempty": true
+    },
+    "redis": {
+      "$ref": "#/$defs/RedisConfig_be23e1e4c9e1",
+      "x-yaml-omitempty": true
+    },
+    "region": {
+      "type": "string",
+      "x-yaml-omitempty": true
+    },
+    "room": {
+      "$ref": "#/$defs/RoomConfig_1ad83f2c67e4",
+      "x-yaml-omitempty": true
+    },
+    "rtc": {
+      "$ref": "#/$defs/RTCConfig_b18269133360",
+      "x-yaml-omitempty": true
+    },
+    "signal_relay": {
+      "$ref": "#/$defs/SignalRelayConfig_d6db40c82a4c",
+      "x-yaml-omitempty": true
+    },
+    "sip": {
+      "$ref": "#/$defs/SIPConfig_3d109c2b7c6b",
+      "x-yaml-omitempty": true
+    },
+    "trace": {
+      "$ref": "#/$defs/TracingConfig_7a09b41907e4",
+      "x-yaml-omitempty": true
+    },
+    "turn": {
+      "$ref": "#/$defs/TURNConfig_b732917d7cc8",
+      "x-yaml-omitempty": true
+    },
+    "video": {
+      "$ref": "#/$defs/VideoConfig_55257789ebd6",
+      "x-yaml-omitempty": true
+    },
+    "webhook": {
+      "$ref": "#/$defs/WebHookConfig_1adc2fcf4aed",
+      "x-yaml-omitempty": true
+    },
+    "webtransport": {
+      "$ref": "#/$defs/WebTransportConfig_a2d3d4a8806c",
+      "x-yaml-omitempty": true
+    }
+  },
+  "title": "Config",
+  "type": "object",
+  "x-go-package": "github.com/livekit/livekit-server/pkg/config"
+}

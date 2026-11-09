@@ -1,0 +1,36 @@
+using Aspire.Hosting.LiveKit.Configuration.Egress;
+
+namespace Aspire.Hosting.ApplicationModel;
+
+/// <summary>
+/// Represents a LiveKit Egress service container resource in a .NET Aspire distributed application.
+/// </summary>
+[AspireExport]
+public sealed class LiveKitEgressResource : LiveKitContainerResource
+{
+    internal LiveKitEgressResource(
+        string name,
+        LiveKitServerResource server,
+        int? healthPort,
+        int? prometheusPort)
+        : base(name)
+    {
+        Server = server;
+        HealthPort = healthPort;
+        PrometheusPort = prometheusPort;
+    }
+
+    internal LiveKitServerResource Server { get; }
+
+    internal int? HealthPort { get; }
+
+    internal int? PrometheusPort { get; }
+
+    internal LiveKitEgressUpstreamConfiguration? Configuration { get; set; }
+
+    internal string? AdditionalConfiguration { get; set; }
+
+    internal string? StorageConfiguration { get; set; }
+
+    internal string? LocalOutputContainerPath { get; set; }
+}

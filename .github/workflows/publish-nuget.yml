@@ -1,0 +1,98 @@
+name: Publish NuGet packages
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Run tests
+        run: dotnet test --solution Fstonge.Aspire.LiveKit.slnx --configuration Release --coverage --coverage-output-format cobertura
+
+      - name: Generate code coverage report
+        if: always()
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: TestResults/*.cobertura.xml
+          format: markdown
+          output: file
+          hide_branch_rate: true
+          hide_complexity: true
+          indicators: false
+          fail_below_min: true
+          thresholds: "100 100"
+
+      - name: Add code coverage to workflow summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f code-coverage-results.md ]]; then
+            cat code-coverage-results.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Code coverage" >> "$GITHUB_STEP_SUMMARY"
+            echo "No coverage summary was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload code coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-coverage-report
+          path: TestResults/*.cobertura.xml
+          if-no-files-found: warn
+
+      - name: Pack projects
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$') {
+            throw "Release tag must use the format vMAJOR.MINOR.PATCH, optionally followed by a prerelease suffix."
+          }
+
+          ./scripts/pack-src.ps1 -PackageVersion $Matches.version
+
+      - name: Log in to NuGet.org
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish packages to NuGet.org
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
+            throw "NuGet login did not provide a temporary API key."
+          }
+
+          $packages = @(Get-ChildItem -Path artifacts/packages -Filter "*.nupkg")
+          if ($packages.Count -eq 0) {
+            throw "No NuGet packages were produced."
+          }
+
+          foreach ($package in $packages) {
+            dotnet nuget push $package.FullName `
+              --api-key $env:NUGET_API_KEY `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+
+            if ($LASTEXITCODE -ne 0) {
+              throw "Publishing '$($package.Name)' failed with exit code $LASTEXITCODE."
+            }
+          }

@@ -1,0 +1,873 @@
+{
+  "$defs": {
+    "AliOSSConfig_c6d7f8b4b0c4": {
+      "properties": {
+        "access_key": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "bucket": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "endpoint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "secret": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "AudioTempoController_bd2e6ae48df7": {
+      "properties": {
+        "adjustment_rate": {
+          "type": "number"
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "AzureConfig_334f9d939291": {
+      "properties": {
+        "account_key": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "account_name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "container_name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "endpoint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "CPUCostConfig_1241eff971b6": {
+      "properties": {
+        "audio_room_composite_cpu_cost": {
+          "type": "number"
+        },
+        "audio_web_cpu_cost": {
+          "type": "number"
+        },
+        "cpu_kill_grace_sec": {
+          "type": "integer"
+        },
+        "max_cpu_utilization": {
+          "type": "number"
+        },
+        "max_memory": {
+          "type": "number"
+        },
+        "max_pulse_clients": {
+          "type": "integer"
+        },
+        "memory_cost": {
+          "type": "number"
+        },
+        "memory_kill_grace_sec": {
+          "type": "integer"
+        },
+        "memory_source": {
+          "$ref": "#/$defs/MemorySource_822679c23aae"
+        },
+        "participant_cpu_cost": {
+          "type": "number"
+        },
+        "room_composite_cpu_cost": {
+          "type": "number"
+        },
+        "sdk_audio_room_composite_cpu_cost": {
+          "type": "number"
+        },
+        "sdk_audio_room_composite_memory_cost": {
+          "type": "number"
+        },
+        "track_composite_cpu_cost": {
+          "type": "number"
+        },
+        "track_cpu_cost": {
+          "type": "number"
+        },
+        "web_cpu_cost": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "CompressionConfig_929be9a4585f": {
+      "properties": {
+        "max_decompressed_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "quality": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "threshold": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "Config_6642be211bf8": {
+      "properties": {
+        "ca_cert_file": {
+          "type": "string"
+        },
+        "client_cert_file": {
+          "type": "string"
+        },
+        "client_key_file": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "insecure": {
+          "type": "boolean"
+        },
+        "server_name": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "Config_7837b7412944": {
+      "properties": {
+        "component_levels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "item_sample_seconds": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "json": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "level": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sample": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "sample_initial": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sample_interval": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "DebugConfig_a72ff0b90ff6": {
+      "properties": {
+        "alioss": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AliOSSConfig_c6d7f8b4b0c4"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "azure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AzureConfig_334f9d939291"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "enable_chrome_logging": {
+          "type": "boolean"
+        },
+        "enable_profiling": {
+          "type": "boolean"
+        },
+        "enable_stream_logging": {
+          "type": "boolean"
+        },
+        "enable_track_logging": {
+          "type": "boolean"
+        },
+        "gcp": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GCPConfig_98c10ea2fd83"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "generate_presigned_url": {
+          "type": "boolean"
+        },
+        "oci": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OCIConfig_6ff1df399e58"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "s3": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/S3Config_f8517a20efd4"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "GCPConfig_98c10ea2fd83": {
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "credentials_json": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "endpoint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "proxy_config": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProxyConfig_970fc9d2f4a3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "LatencyConfig_9b09e67399f2": {
+      "properties": {
+        "audio_mixer_latency": {
+          "format": "duration",
+          "type": "string"
+        },
+        "jitter_buffer_latency": {
+          "format": "duration",
+          "type": "string"
+        },
+        "old_packet_threshold": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "pipeline_latency": {
+          "format": "duration",
+          "type": "string"
+        },
+        "rtpdriftadjustmentwindowpercent": {
+          "type": "number"
+        },
+        "rtpmaxallowedtsdiff": {
+          "format": "duration",
+          "type": "string"
+        },
+        "rtpmaxdriftadjustment": {
+          "format": "duration",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "MemorySource_822679c23aae": {
+      "type": "string"
+    },
+    "OCIConfig_6ff1df399e58": {
+      "properties": {
+        "bucket": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "compartment_id": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "endpoint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "fingerprint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "namespace": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "private_key": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "private_key_passphrase": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "region": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tenancy_ocid": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "use_workload_identity": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "user_ocid": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "PSRPCConfig_bb38bffffcf7": {
+      "properties": {
+        "backoff": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "buffer_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "compression": {
+          "$ref": "#/$defs/CompressionConfig_929be9a4585f",
+          "x-yaml-omitempty": true
+        },
+        "max_attempts": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "ProxyConfig_970fc9d2f4a3": {
+      "properties": {
+        "password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "url": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "RedisConfig_be23e1e4c9e1": {
+      "properties": {
+        "address": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "cluster_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "db": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "dial_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_redirects": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "pool_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "pool_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "read_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_addresses": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_master_name": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_password": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "sentinel_username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tls": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Config_6642be211bf8"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "use_tls": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "username": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "write_timeout": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "S3Config_f8517a20efd4": {
+      "properties": {
+        "access_key": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "assume_role_arn": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "assume_role_external_id": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "bucket": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "content_disposition": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "endpoint": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "force_path_style": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "max_retries": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "max_retry_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object",
+          "x-yaml-omitempty": true
+        },
+        "min_retry_delay": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "proxy_config": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProxyConfig_970fc9d2f4a3"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "x-yaml-omitempty": true
+        },
+        "region": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "secret": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "session_token": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "tagging": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
+    "SessionLimits_f17c1dc5e0b4": {
+      "properties": {
+        "file_output_max_duration": {
+          "format": "duration",
+          "type": "string"
+        },
+        "file_output_max_size": {
+          "type": "integer"
+        },
+        "image_output_max_duration": {
+          "format": "duration",
+          "type": "string"
+        },
+        "segment_output_max_duration": {
+          "format": "duration",
+          "type": "string"
+        },
+        "stream_output_max_duration": {
+          "format": "duration",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "StorageConfig_34bf3b6779d3": {
+      "properties": {
+        "alioss": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AliOSSConfig_c6d7f8b4b0c4"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "azure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AzureConfig_334f9d939291"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gcp": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GCPConfig_98c10ea2fd83"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "generate_presigned_url": {
+          "type": "boolean"
+        },
+        "oci": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OCIConfig_6ff1df399e58"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "s3": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/S3Config_f8517a20efd4"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "TestOverrides_a47763d692a4": {
+      "properties": {
+        "disconnect_injection_room": {
+          "type": "string"
+        },
+        "failure_injection_room": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "api_key": {
+      "type": "string"
+    },
+    "api_secret": {
+      "type": "string"
+    },
+    "audio_tempo_controller": {
+      "$ref": "#/$defs/AudioTempoController_bd2e6ae48df7"
+    },
+    "backup": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StorageConfig_34bf3b6779d3"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "x-yaml-omitempty": true
+    },
+    "chrome_flags": {
+      "additionalProperties": {},
+      "type": "object"
+    },
+    "cluster_id": {
+      "type": "string"
+    },
+    "cpu_cost": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CPUCostConfig_1241eff971b6"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "debug": {
+      "$ref": "#/$defs/DebugConfig_a72ff0b90ff6"
+    },
+    "debug_handler_port": {
+      "type": "integer"
+    },
+    "disallow_local_storage": {
+      "type": "boolean"
+    },
+    "enable_chrome_sandbox": {
+      "type": "boolean"
+    },
+    "enable_one_shot_sender_report_sync": {
+      "type": "boolean"
+    },
+    "enable_sync_engine": {
+      "type": "boolean"
+    },
+    "enable_template_sdk": {
+      "type": "boolean"
+    },
+    "health_port": {
+      "type": "integer"
+    },
+    "insecure": {
+      "type": "boolean"
+    },
+    "io_create_timeout": {
+      "format": "duration",
+      "type": "string"
+    },
+    "io_selection_timeout": {
+      "format": "duration",
+      "type": "string"
+    },
+    "io_update_retry_deadline": {
+      "format": "duration",
+      "type": "string"
+    },
+    "io_update_timeout": {
+      "format": "duration",
+      "type": "string"
+    },
+    "io_workers": {
+      "type": "integer"
+    },
+    "latency": {
+      "$ref": "#/$defs/LatencyConfig_9b09e67399f2"
+    },
+    "latency_overrides": {
+      "additionalProperties": {
+        "$ref": "#/$defs/LatencyConfig_9b09e67399f2"
+      },
+      "type": "object"
+    },
+    "logging": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Config_7837b7412944"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "max_upload_queue": {
+      "type": "integer"
+    },
+    "nodeid": {
+      "type": "string"
+    },
+    "prometheus_port": {
+      "type": "integer"
+    },
+    "psrpc": {
+      "$ref": "#/$defs/PSRPCConfig_bb38bffffcf7",
+      "x-yaml-omitempty": true
+    },
+    "pulse_sink_reap_grace_sec": {
+      "type": "integer"
+    },
+    "redis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedisConfig_be23e1e4c9e1"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "s3_allow_request_assume_role_external_id": {
+      "type": "boolean"
+    },
+    "s3_assume_role_arn": {
+      "type": "string"
+    },
+    "s3_assume_role_external_id": {
+      "type": "string"
+    },
+    "s3_assume_role_key": {
+      "type": "string"
+    },
+    "s3_assume_role_secret": {
+      "type": "string"
+    },
+    "session_limits": {
+      "$ref": "#/$defs/SessionLimits_f17c1dc5e0b4"
+    },
+    "storage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StorageConfig_34bf3b6779d3"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "x-yaml-omitempty": true
+    },
+    "template_base": {
+      "type": "string"
+    },
+    "template_port": {
+      "type": "integer"
+    },
+    "test_overrides": {
+      "$ref": "#/$defs/TestOverrides_a47763d692a4"
+    },
+    "video_encoder_threads": {
+      "type": "integer"
+    },
+    "ws_url": {
+      "type": "string"
+    }
+  },
+  "title": "ServiceConfig",
+  "type": "object",
+  "x-go-package": "github.com/livekit/egress/pkg/config"
+}
