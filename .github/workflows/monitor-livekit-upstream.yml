@@ -30,7 +30,7 @@ jobs:
         run: ./scripts/refresh-livekit-upstream.ps1
 
       - name: Create schema update pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/livekit-configuration-schemas
           delete-branch: true
