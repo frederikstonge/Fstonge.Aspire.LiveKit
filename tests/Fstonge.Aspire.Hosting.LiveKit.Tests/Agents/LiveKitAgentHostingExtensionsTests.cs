@@ -17,6 +17,7 @@ public sealed class LiveKitAgentHostingExtensionsTests
         var environment = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(agent.Resource);
 
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_URL");
+        Assert.Contains(environment, pair => pair.Key == "LIVEKIT_WS_URL");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_KEY");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_SECRET");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_AGENT_NAME" && pair.Value == "voice-agent");
