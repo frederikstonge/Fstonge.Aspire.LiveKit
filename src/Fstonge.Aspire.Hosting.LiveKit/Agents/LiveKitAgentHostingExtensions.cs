@@ -28,8 +28,8 @@ public static class LiveKitAgentHostingExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(livekit);
 
-        builder.WithEnvironment("LIVEKIT_URL", livekit.GetEndpoint("http"));
-        builder.WithEnvironment("LIVEKIT_WS_URL", livekit.GetEndpoint("ws"));
+        builder.WithEnvironment("LIVEKIT_URL", livekit.Resource.Url);
+        builder.WithEnvironment("LIVEKIT_WS_URL", livekit.Resource.WebSocketUrl);
         builder.WithEnvironment("LIVEKIT_API_KEY", livekit.Resource.ApiKey);
         builder.WithEnvironment("LIVEKIT_API_SECRET", livekit.Resource.ApiSecret);
 
