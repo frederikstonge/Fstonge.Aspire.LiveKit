@@ -1,13 +1,13 @@
 import logging
 from dotenv import load_dotenv
 
+from livekit import agents
 from livekit.agents import (
-    AutoSubscribe,
     Agent,
+    AgentServer,
     AgentSession,
     JobContext,
     JobProcess,
-    WorkerOptions,
     cli,
 )
 from livekit.plugins import openai, silero
@@ -15,15 +15,7 @@ from livekit.plugins import openai, silero
 load_dotenv()
 logger = logging.getLogger("livekit-voice-agent")
 
-
-class VoiceAssistant(Agent):
-    def __init__(self):
-        super().__init__(
-            instructions=(
-                "You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. "
-                "Your output will be converted to speech. Keep responses concise, warm, and natural."
-            )
-        )
+server = AgentServer()
 
 
 def prewarm(proc: JobProcess):
@@ -31,25 +23,32 @@ def prewarm(proc: JobProcess):
     proc.userdata["vad"] = silero.VAD.load()
 
 
+server.setup_fnc = prewarm
+
+
+@server.rtc_session(agent_name="python-voice-agent")
 async def entrypoint(ctx: JobContext):
     """Main worker entrypoint executed when a job is assigned to this worker."""
     logger.info(f"Connecting to room: {ctx.room.name}")
-    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
-
-    # Wait for the first human participant to join the room
-    participant = await ctx.wait_for_participant()
-    logger.info(f"Starting voice assistant for participant: {participant.identity}")
+    await ctx.connect()
 
     session = AgentSession(
-        vad=ctx.proc.userdata["vad"],
+        vad=ctx.proc.userdata.get("vad") or silero.VAD.load(),
         stt=openai.STT(),
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=openai.TTS(),
     )
 
-    await session.start(room=ctx.room, agent=VoiceAssistant())
-    await session.say("Hello! How can I help you today?", allow_interruptions=True)
+    agent = Agent(
+        instructions=(
+            "You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. "
+            "Your output will be converted to speech. Keep responses concise, warm, and natural."
+        )
+    )
+
+    await session.start(room=ctx.room, agent=agent)
+    await session.generate_reply(instructions="Greet the user and offer your assistance.")
 
 
 if __name__ == "__main__":
-    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, prewarm_fnc=prewarm))
+    cli.run_app(server)

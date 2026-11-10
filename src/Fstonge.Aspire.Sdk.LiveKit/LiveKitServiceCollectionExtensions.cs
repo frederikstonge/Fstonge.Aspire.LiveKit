@@ -30,12 +30,15 @@ public static class LiveKitServiceCollectionExtensions
             {
                 configuration.GetSection(LiveKitOptions.SectionName).Bind(options);
                 options.Url = configuration["LIVEKIT_URL"] ?? options.Url;
+                options.WebSocketUrl = configuration["LIVEKIT_WS_URL"] ?? options.WebSocketUrl;
                 options.ApiKey = configuration["LIVEKIT_API_KEY"] ?? options.ApiKey;
                 options.ApiSecret = configuration["LIVEKIT_API_SECRET"] ?? options.ApiSecret;
             })
             .Validate(options => Uri.TryCreate(options.Url, UriKind.Absolute, out var uri)
                 && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps),
                 "LIVEKIT_URL must be an absolute HTTP or HTTPS URL.")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.WebSocketUrl),
+                "LIVEKIT_WS_URL must be configured.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.ApiKey),
                 "LIVEKIT_API_KEY must be configured.")
             .Validate(options => !string.IsNullOrWhiteSpace(options.ApiSecret),

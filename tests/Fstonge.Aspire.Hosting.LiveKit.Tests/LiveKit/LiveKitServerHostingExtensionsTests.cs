@@ -60,6 +60,7 @@ public sealed class LiveKitServerHostingExtensionsTests
         Assert.Equal("livekit/livekit-server", image.Image);
         Assert.Equal("v1.9.0", image.Tag);
         Assert.Contains("http", endpointNames);
+        Assert.Contains("ws", endpointNames);
         Assert.Contains("rtc-tcp", endpointNames);
         Assert.Contains("rtc-udp", endpointNames);
         Assert.Contains("turn-udp", endpointNames);
@@ -103,8 +104,10 @@ public sealed class LiveKitServerHostingExtensionsTests
         var with = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withCredentials.Resource);
 
         Assert.Contains(without, pair => pair.Key == "LIVEKIT_URL");
+        Assert.Contains(without, pair => pair.Key == "LIVEKIT_WS_URL");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_KEY");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_SECRET");
+        Assert.Contains(with, pair => pair.Key == "LIVEKIT_WS_URL");
         Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "{api-key.value}");
         Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "{api-secret.value}");
     }

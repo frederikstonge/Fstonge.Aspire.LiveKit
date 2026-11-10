@@ -26,6 +26,7 @@ public static class LiveKitServerHostingExtensions
         this IDistributedApplicationBuilder builder,
         [ResourceName] string name,
         IResourceBuilder<ParameterResource> url,
+        IResourceBuilder<ParameterResource> webSocketUrl,
         IResourceBuilder<ParameterResource>? apiKey = null,
         IResourceBuilder<ParameterResource>? apiSecret = null)
     {
@@ -41,6 +42,7 @@ public static class LiveKitServerHostingExtensions
         var resource = new ExternalLiveKitServerResource(
             name,
             ReferenceExpression.Create($"{url}"),
+            ReferenceExpression.Create($"{webSocketUrl}"),
             apiKey,
             apiSecret);
         return builder.AddResource(resource);
@@ -106,7 +108,9 @@ public static class LiveKitServerHostingExtensions
             .WithEndpoint(port: rtcTcpPort, targetPort: rtcTcpPort, name: "rtc-tcp", protocol: ProtocolType.Tcp)
             .WithEndpoint(port: rtcUdpPort, targetPort: rtcUdpPort, name: "rtc-udp", protocol: ProtocolType.Udp);
 
-        resource.SetUrl(ReferenceExpression.Create($"{server.GetEndpoint("http")}"));
+        var httpEndpoint = server.GetEndpoint("http");
+        resource.SetUrl(ReferenceExpression.Create($"{httpEndpoint}"));
+        resource.SetWebSocketUrl(ReferenceExpression.Create($"ws://{httpEndpoint.Property(EndpointProperty.HostAndPort)}"));
         return server.WithEnvironment(
             context => context.EnvironmentVariables["LIVEKIT_CONFIG"] = CreateServerConfiguration(resource));
     }
@@ -269,7 +273,7 @@ public static class LiveKitServerHostingExtensions
     }
 
     /// <summary>
-    /// Injects LiveKit connection environment variables (<c>LIVEKIT_URL</c>, and optionally <c>LIVEKIT_API_KEY</c> and <c>LIVEKIT_API_SECRET</c>) into a dependent project resource.
+    /// Injects LiveKit connection environment variables (<c>LIVEKIT_URL</c>, <c>LIVEKIT_WS_URL</c>, and optionally <c>LIVEKIT_API_KEY</c> and <c>LIVEKIT_API_SECRET</c>) into a dependent project resource.
     /// </summary>
     /// <typeparam name="TProject">The dependent resource type supporting environment variables.</typeparam>
     /// <param name="project">The dependent resource builder.</param>
@@ -288,6 +292,8 @@ public static class LiveKitServerHostingExtensions
         ArgumentNullException.ThrowIfNull(livekit);
 
         project.WithEnvironment("LIVEKIT_URL", livekit.Resource.Url);
+        project.WithEnvironment("LIVEKIT_WS_URL", livekit.Resource.WebSocketUrl);
+
         if (includeCredentials)
         {
             var apiKey = livekit.Resource.ApiKey;

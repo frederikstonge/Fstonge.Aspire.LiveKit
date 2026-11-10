@@ -9,16 +9,20 @@ public sealed class ExternalLiveKitServerResource : Resource, ILiveKitServerReso
     internal ExternalLiveKitServerResource(
         string name,
         ReferenceExpression url,
+        ReferenceExpression webSocketUrl,
         IResourceBuilder<ParameterResource>? apiKey,
         IResourceBuilder<ParameterResource>? apiSecret)
         : base(name)
     {
         Url = url;
+        WebSocketUrl = webSocketUrl;
         ApiKey = apiKey;
         ApiSecret = apiSecret;
     }
 
     public ReferenceExpression Url { get; }
+
+    public ReferenceExpression WebSocketUrl { get; }
 
     public IResourceBuilder<ParameterResource>? ApiKey { get; }
 

@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { cli, WorkerOptions, defineAgent, initializeLogger, log } from '@livekit/agents';
+import { cli, ServerOptions, defineAgent, initializeLogger, log, voice } from '@livekit/agents';
 import * as openai from '@livekit/agents-plugin-openai';
 import dotenv from 'dotenv';
 
@@ -12,24 +12,30 @@ export default defineAgent({
     await ctx.connect();
     log().info({ room: ctx.room.name }, 'Node Agent connected to room');
 
-    const participant = await ctx.waitForParticipant();
-    log().info({ participant: participant.identity }, 'Starting voice session for participant');
-
-    // Set up voice pipeline agent with OpenAI
-    const voice = new openai.VoicePipelineAgent({
-      chatCtx: {
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a helpful voice assistant orchestrated with .NET Aspire and LiveKit.',
-          },
-        ],
-      },
+    const agent = new voice.Agent({
+      instructions:
+        'You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. ' +
+        'Your output will be converted to speech. Keep responses concise, warm, and natural.',
     });
 
-    await voice.start(ctx.room, participant);
-    await voice.say('Hello from the LiveKit Node.js agent! How can I assist you today?');
+    const session = new voice.AgentSession({
+      llm: new openai.LLM({ model: 'gpt-4o-mini' }),
+    });
+
+    await session.start({
+      agent,
+      room: ctx.room,
+    });
+
+    await session.generateReply({
+      instructions: 'Greet the user and offer your assistance.',
+    });
   },
 });
 
-cli.runApp(new WorkerOptions({ agent: fileURLToPath(import.meta.url) }));
+cli.runApp(
+  new ServerOptions({
+    agent: fileURLToPath(import.meta.url),
+    agentName: 'node-voice-agent',
+  }),
+);
