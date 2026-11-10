@@ -9,7 +9,7 @@
     <Description>Configuration and room connection factory for the LiveKit .NET RTC SDK.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Livekit.Rtc.Dotnet" Version="0.1.6" />
+    <PackageReference Include="Livekit.Rtc.Dotnet" Version="0.1.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.14" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.14" />
     <None Include="README.md" Pack="true" PackagePath="\" />
