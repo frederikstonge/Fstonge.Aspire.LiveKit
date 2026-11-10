@@ -16,6 +16,11 @@ public sealed class LiveKitOptions
     public string? Url { get; set; }
 
     /// <summary>
+    /// Gets or sets the LiveKit WebSocket URL (WS or WSS).
+    /// </summary>
+    public string? WebSocketUrl { get; set; }
+
+    /// <summary>
     /// Gets or sets the LiveKit API key.
     /// </summary>
     public string? ApiKey { get; set; }

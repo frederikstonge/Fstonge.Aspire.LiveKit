@@ -10,7 +10,7 @@ public static class LiveKitAgentHostingExtensions
 {
     /// <summary>
     /// Configures a resource to connect to LiveKit as an Agent Framework worker by injecting
-    /// <c>LIVEKIT_URL</c>, <c>LIVEKIT_API_KEY</c>, and <c>LIVEKIT_API_SECRET</c>, and waiting for the LiveKit server.
+    /// <c>LIVEKIT_URL</c>, <c>LIVEKIT_WS_URL</c>, <c>LIVEKIT_API_KEY</c>, and <c>LIVEKIT_API_SECRET</c>, and waiting for the LiveKit server.
     /// In development environments, also sets <c>LIVEKIT_AGENT_DEV</c> to <c>"true"</c>.
     /// </summary>
     /// <typeparam name="T">The resource type supporting environment variables.</typeparam>
@@ -29,6 +29,7 @@ public static class LiveKitAgentHostingExtensions
         ArgumentNullException.ThrowIfNull(livekit);
 
         builder.WithEnvironment("LIVEKIT_URL", livekit.GetEndpoint("http"));
+        builder.WithEnvironment("LIVEKIT_WS_URL", livekit.GetEndpoint("ws"));
         builder.WithEnvironment("LIVEKIT_API_KEY", livekit.Resource.ApiKey);
         builder.WithEnvironment("LIVEKIT_API_SECRET", livekit.Resource.ApiSecret);
 

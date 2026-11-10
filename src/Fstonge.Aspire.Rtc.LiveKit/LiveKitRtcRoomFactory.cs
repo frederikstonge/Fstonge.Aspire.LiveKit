@@ -16,7 +16,7 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
     public LiveKitRtcRoomFactory(IOptions<LiveKitRtcOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        ServerUrl = GetWebSocketUrl(options.Value.Url);
+        ServerUrl = GetWebSocketUrl(options.Value.WebSocketUrl);
     }
 
     /// <inheritdoc />
@@ -52,9 +52,7 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
             return false;
         }
 
-        return uri.Scheme == Uri.UriSchemeHttp
-            || uri.Scheme == Uri.UriSchemeHttps
-            || uri.Scheme == "ws"
+        return uri.Scheme == "ws"
             || uri.Scheme == "wss";
     }
 
@@ -65,15 +63,9 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
             throw new OptionsValidationException(
                 nameof(LiveKitRtcOptions),
                 typeof(LiveKitRtcOptions),
-                ["LIVEKIT_URL must be an absolute HTTP, HTTPS, WS, or WSS URL without credentials, query, or fragment."]);
+                ["LIVEKIT_WS_URL must be an absolute WS or WSS URL without credentials, query, or fragment."]);
         }
 
-        var scheme = uri.Scheme == Uri.UriSchemeHttp
-            ? "ws"
-            : uri.Scheme == Uri.UriSchemeHttps
-                ? "wss"
-                : uri.Scheme;
-
-        return new UriBuilder(uri) { Scheme = scheme }.Uri;
+        return uri;
     }
 }

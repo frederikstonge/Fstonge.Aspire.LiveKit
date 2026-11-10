@@ -9,6 +9,7 @@ namespace Aspire.Hosting.ApplicationModel;
 public sealed class LiveKitServerResource : LiveKitContainerResource, ILiveKitServerResource
 {
     private ReferenceExpression? _url;
+    private ReferenceExpression? _webSocketUrl;
 
     internal LiveKitServerResource(
         string name,
@@ -34,9 +35,16 @@ public sealed class LiveKitServerResource : LiveKitContainerResource, ILiveKitSe
     internal ReferenceExpression Url =>
         _url ?? throw new InvalidOperationException("The LiveKit server URL has not been configured.");
 
+    internal ReferenceExpression WebSocketUrl =>
+        _webSocketUrl ?? throw new InvalidOperationException("The LiveKit server WebSocket URL has not been configured.");
+
     internal void SetUrl(ReferenceExpression url) => _url = url;
 
+    internal void SetWebSocketUrl(ReferenceExpression webSocketUrl) => _webSocketUrl = webSocketUrl;
+
     ReferenceExpression ILiveKitServerResource.Url => Url;
+
+    ReferenceExpression ILiveKitServerResource.WebSocketUrl => WebSocketUrl;
 
     IResourceBuilder<ParameterResource>? ILiveKitServerResource.ApiKey => ApiKey;
 
