@@ -11,12 +11,8 @@
     <ProjectReference Include="..\..\src\Fstonge.Aspire.Rtc.LiveKit\Fstonge.Aspire.Rtc.LiveKit.csproj" />
   </ItemGroup>
 
- <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.*" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
   </ItemGroup>
 
 </Project>
