@@ -525,6 +525,9 @@ public sealed class LimitConfig
     [YamlMember(Alias = "max_data_track_custom_encoding_length")]
     public long? MaxDataTrackCustomEncodingLength { get; set; }
 
+    [YamlMember(Alias = "max_lk_attributes_size")]
+    public long? MaxLkAttributesSize { get; set; }
+
     [YamlMember(Alias = "max_metadata_size")]
     public long? MaxMetadataSize { get; set; }
 
@@ -1140,6 +1143,9 @@ public sealed class RoomAgentDispatch
     [YamlMember(Alias = "restartpolicy")]
     public long? Restartpolicy { get; set; }
 
+    [YamlMember(Alias = "threadid")]
+    public string? Threadid { get; set; }
+
 }
 
 public sealed class RoomCompositeEgressRequest
@@ -1573,8 +1579,17 @@ public sealed class VideoConfig
 
 public sealed class WebHookConfig
 {
+    [YamlMember(Alias = "allowed_cidrs")]
+    public List<string?>? AllowedCidrs { get; set; }
+
     [YamlMember(Alias = "api_key")]
     public string? ApiKey { get; set; }
+
+    [YamlMember(Alias = "block_private_addresses")]
+    public bool? BlockPrivateAddresses { get; set; }
+
+    [YamlMember(Alias = "blocked_cidrs")]
+    public List<string?>? BlockedCidrs { get; set; }
 
     [YamlMember(Alias = "filter_params")]
     public FilterParams_7efca6f986ad? FilterParams { get; set; }

@@ -3,7 +3,7 @@
     "service": "server",
     "repository": "https://github.com/livekit/livekit.git",
     "branch": "master",
-    "revision": "a4834dd918d91d04c1a443a1282674c8cf19932d",
+    "revision": "80cfa6e73f1d4fcbe5ec5e56669e16f5ce42a570",
     "package": "./pkg/config",
     "type": "Config"
   },
@@ -11,7 +11,7 @@
     "service": "ingress",
     "repository": "https://github.com/livekit/ingress.git",
     "branch": "main",
-    "revision": "93e17168fc49af9332720e57371e75c61455e591",
+    "revision": "b212d73a9392c484050ba994b1b0eaf8cbe50ada",
     "package": "./pkg/config",
     "type": "Config"
   },
@@ -19,7 +19,7 @@
     "service": "egress",
     "repository": "https://github.com/livekit/egress.git",
     "branch": "main",
-    "revision": "1f990308d5a035a6762d25b1844d38ed44563f2c",
+    "revision": "8587ec0a7e44c5f66d0590c03f6ca1402eca2fd3",
     "package": "./pkg/config",
     "type": "ServiceConfig"
   },
@@ -27,7 +27,7 @@
     "service": "sip",
     "repository": "https://github.com/livekit/sip.git",
     "branch": "main",
-    "revision": "bb253f49e50f49f01fc731ed68468440b23a4851",
+    "revision": "a26b7342871ee153c200ba95637dee2733f8eff8",
     "package": "./pkg/config",
     "type": "Config"
   }
