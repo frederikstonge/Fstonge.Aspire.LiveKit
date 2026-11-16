@@ -594,6 +594,10 @@
           "type": "integer",
           "x-yaml-omitempty": true
         },
+        "max_lk_attributes_size": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
         "max_metadata_size": {
           "type": "integer",
           "x-yaml-omitempty": true
@@ -1502,6 +1506,9 @@
         },
         "restartpolicy": {
           "$ref": "#/$defs/JobRestartPolicy_eb861dc2ead6"
+        },
+        "threadid": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -2193,8 +2200,26 @@
     },
     "WebHookConfig_1adc2fcf4aed": {
       "properties": {
+        "allowed_cidrs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "x-yaml-omitempty": true
+        },
         "api_key": {
           "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "block_private_addresses": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "blocked_cidrs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
           "x-yaml-omitempty": true
         },
         "filter_params": {
