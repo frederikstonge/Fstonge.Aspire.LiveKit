@@ -117,7 +117,8 @@ public sealed class LiveKitServerHostingExtensionsTests
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var url = builder.AddParameter("external-livekit-url", "https://livekit.example.test");
-        var externalWithoutCredentials = builder.AddExternalLiveKitServer("external-without-credentials", url);
+        var websocketUrl = builder.AddParameter("external-livekit-websocket-url", "wss://livekit.example.test");
+        var externalWithoutCredentials = builder.AddExternalLiveKitServer("external-without-credentials", url, websocketUrl);
         var uncredentialedProject = builder.AddExecutable("uncredentialed-api", "node", ".")
             .WithLiveKitServerReference(externalWithoutCredentials);
         var apiKey = builder.AddParameter("external-api-key", "test-key", secret: true);
