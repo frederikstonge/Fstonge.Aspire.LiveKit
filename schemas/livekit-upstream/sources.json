@@ -19,7 +19,7 @@
     "service": "egress",
     "repository": "https://github.com/livekit/egress.git",
     "branch": "main",
-    "revision": "8587ec0a7e44c5f66d0590c03f6ca1402eca2fd3",
+    "revision": "d3d41fc4e3de26c60ef790a853371392faf884b3",
     "package": "./pkg/config",
     "type": "ServiceConfig"
   },
