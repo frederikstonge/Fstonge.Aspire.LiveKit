@@ -50,7 +50,7 @@ public sealed class LiveKitServiceLoggingExtensionsTests
         var agent = builder.AddExecutable("agent", "node", ".");
         var hostedServicesBefore = builder.Services.Count(service => service.ServiceType == typeof(IHostedService));
 
-        agent.WithAgentStructuredLogs();
+        agent.WithAgentStructuredLogs().WithAgentStructuredLogs();
 
         Assert.Equal(hostedServicesBefore + 1, builder.Services.Count(
             service => service.ServiceType == typeof(IHostedService)));

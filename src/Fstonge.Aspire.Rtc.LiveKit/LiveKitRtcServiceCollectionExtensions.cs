@@ -25,10 +25,12 @@ public static class LiveKitRtcServiceCollectionExtensions
             .Configure(options =>
             {
                 configuration.GetSection(LiveKitRtcOptions.SectionName).Bind(options);
-                options.WebSocketUrl = configuration["LIVEKIT_WS_URL"] ?? options.WebSocketUrl;
+                options.WebSocketUrl = configuration["LIVEKIT_WS_URL"]
+                    ?? configuration["LIVEKIT_URL"]
+                    ?? options.WebSocketUrl;
             })
             .Validate(options => LiveKitRtcRoomFactory.IsValidServerUrl(options.WebSocketUrl),
-                "LIVEKIT_WS_URL must be an absolute WS or WSS URL without credentials, query, or fragment.")
+                "LIVEKIT_URL must be an absolute HTTP, HTTPS, WS, or WSS URL without credentials, query, or fragment.")
             .ValidateOnStart();
 
         services.AddSingleton<ILiveKitRtcRoomFactory, LiveKitRtcRoomFactory>();

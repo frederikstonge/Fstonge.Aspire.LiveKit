@@ -28,10 +28,11 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
     }
 
     [Theory]
-    [InlineData("ws://localhost:7880")]
-    [InlineData("wss://livekit.example.test/path")]
+    [InlineData("ws://localhost:7880", "ws://localhost:7880/")]
+    [InlineData("wss://livekit.example.test/path", "wss://livekit.example.test/path")]
     public void AddLiveKitRtcSdk_NormalizesServerUrl(
-        string configuredUrl)
+        string configuredUrl,
+        string expectedWebSocketUrl)
     {
         var services = new ServiceCollection();
         services.AddLiveKitRtcSdk(CreateConfiguration(("LIVEKIT_WS_URL", configuredUrl)));
@@ -39,7 +40,7 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
 
         var factory = provider.GetRequiredService<ILiveKitRtcRoomFactory>();
-        Assert.Equal(configuredUrl, factory.ServerUrl.AbsoluteUri);
+        Assert.Equal(expectedWebSocketUrl, factory.ServerUrl.AbsoluteUri);
     }
 
     [Fact]

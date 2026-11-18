@@ -49,7 +49,8 @@ public static class LiveKitEgressHostingExtensions
                 .WithHttpEndpoint(
                     port: egressHealthPort,
                     targetPort: egressHealthPort,
-                    name: "health");
+                    name: "health")
+                .WithHttpHealthCheck(path: "/", endpointName: "health");
         }
 
         if (prometheusPort is { } egressPrometheusPort)

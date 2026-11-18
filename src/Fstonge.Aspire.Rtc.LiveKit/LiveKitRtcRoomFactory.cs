@@ -52,7 +52,9 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
             return false;
         }
 
-        return uri.Scheme == "ws"
+        return uri.Scheme == Uri.UriSchemeHttp
+            || uri.Scheme == Uri.UriSchemeHttps
+            || uri.Scheme == "ws"
             || uri.Scheme == "wss";
     }
 
@@ -63,9 +65,15 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
             throw new OptionsValidationException(
                 nameof(LiveKitRtcOptions),
                 typeof(LiveKitRtcOptions),
-                ["LIVEKIT_WS_URL must be an absolute WS or WSS URL without credentials, query, or fragment."]);
+                ["LIVEKIT_URL must be an absolute HTTP, HTTPS, WS, or WSS URL without credentials, query, or fragment."]);
         }
 
-        return uri;
+        var scheme = uri.Scheme == Uri.UriSchemeHttp
+            ? "ws"
+            : uri.Scheme == Uri.UriSchemeHttps
+                ? "wss"
+                : uri.Scheme;
+
+        return new UriBuilder(uri) { Scheme = scheme }.Uri;
     }
 }

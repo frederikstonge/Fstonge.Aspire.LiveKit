@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="11.0.0" />
-    <PackageReference Include="Livekit.Server.Sdk.Dotnet" Version="1.2.6" />
+    <PackageReference Include="Livekit.Server.Sdk.Dotnet" Version="1.2.7" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

@@ -31,6 +31,14 @@ public static class LiveKitServiceCollectionExtensions
                 configuration.GetSection(LiveKitOptions.SectionName).Bind(options);
                 options.Url = configuration["LIVEKIT_URL"] ?? options.Url;
                 options.WebSocketUrl = configuration["LIVEKIT_WS_URL"] ?? options.WebSocketUrl;
+                if (string.IsNullOrWhiteSpace(options.WebSocketUrl) && !string.IsNullOrWhiteSpace(options.Url))
+                {
+                    if (Uri.TryCreate(options.Url, UriKind.Absolute, out var uri))
+                    {
+                        var scheme = uri.Scheme == Uri.UriSchemeHttps ? "wss" : "ws";
+                        options.WebSocketUrl = new UriBuilder(uri) { Scheme = scheme }.Uri.ToString().TrimEnd('/');
+                    }
+                }
                 options.ApiKey = configuration["LIVEKIT_API_KEY"] ?? options.ApiKey;
                 options.ApiSecret = configuration["LIVEKIT_API_SECRET"] ?? options.ApiSecret;
             })

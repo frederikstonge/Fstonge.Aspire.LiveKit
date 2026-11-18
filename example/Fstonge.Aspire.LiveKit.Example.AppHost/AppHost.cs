@@ -1,15 +1,21 @@
+using Aspire.Hosting;
 using Microsoft.Extensions.Configuration;
+
+#pragma warning disable ASPIRERESOURCETRAITS001
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+var cache = builder.AddRedis("cache")
+    .WithTags("database");
+
 var livekit = builder.AddLiveKitServer("livekit")
     .WithLiveKitServerRedis(cache)
     .WithStructuredLogs()
     .WithLiveKitServerConfiguration(config => 
     {
         config.LogLevel = "info";
-    });
+    })
+    .WithTags("livekit");
 
 livekit.AddIngress(
     "ingress",
@@ -20,7 +26,8 @@ livekit.AddIngress(
     .WithIngressConfiguration(config =>
     {
         config.Logging.Level = "info";
-    });
+    })
+    .WithTags("livekit");
 
 livekit.AddEgress(
     "egress",
@@ -31,7 +38,8 @@ livekit.AddEgress(
     .WithEgressConfiguration(config =>
     {
         config.Logging.Level = "info";
-    });
+    })
+    .WithTags("livekit");
 
 livekit.AddSip(
     "sip",
@@ -44,7 +52,8 @@ livekit.AddSip(
     .WithSipConfiguration(config =>
     {
         config.Logging.Level = "info";
-    });
+    })
+    .WithTags("livekit");
 
 var enablePythonAgent = builder.Configuration.GetValue<bool>("LiveKit:EnablePythonAgent", false);
 var enableNodeAgent = builder.Configuration.GetValue<bool>("LiveKit:EnableNodeAgent", false);
@@ -63,7 +72,8 @@ if (enablePythonAgent || enableNodeAgent)
                 "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
                 dockerfilePath: "Dockerfile")
                 .WithOpenAiApiKey(openAiKey)
-                .WithAgentStructuredLogs();
+                .WithAgentStructuredLogs()
+                .WithTags("agents");
         }
         else
         {
@@ -72,7 +82,8 @@ if (enablePythonAgent || enableNodeAgent)
             "../Fstonge.Aspire.LiveKit.Example.PythonAgent",
             scriptPath: "main.py")
             .WithOpenAiApiKey(openAiKey)
-            .WithAgentStructuredLogs();
+            .WithAgentStructuredLogs()
+            .WithTags("agents");
         }
     }
 
@@ -85,7 +96,8 @@ if (enablePythonAgent || enableNodeAgent)
                 "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
                 dockerfilePath: "Dockerfile")
                 .WithOpenAiApiKey(openAiKey)
-                .WithAgentStructuredLogs();
+                .WithAgentStructuredLogs()
+                .WithTags("agents");
         }
         else
         {
@@ -94,14 +106,19 @@ if (enablePythonAgent || enableNodeAgent)
                 "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
                 scriptPath: "agent.js")
                 .WithOpenAiApiKey(openAiKey)
-                .WithAgentStructuredLogs();
+                .WithAgentStructuredLogs()
+                .WithTags("agents");
         }
     }
 }
 
-var apiService = builder.AddProject<Projects.Fstonge_Aspire_LiveKit_Example_ApiService>("apiservice")
+var apiService = builder.AddDotnetProject(
+    "apiservice", 
+    "../Fstonge.Aspire.LiveKit.Example.ApiService/Fstonge.Aspire.LiveKit.Example.ApiService.csproj",
+    options => options.LaunchProfileName = "https")
     .WithLiveKitServerReference(livekit, includeCredentials: true)
     .WaitFor(livekit)
-    .WithHttpHealthCheck("/health");
+    .WithHttpHealthCheck("/health")
+    .WithTags("backend");
 
 builder.Build().Run();

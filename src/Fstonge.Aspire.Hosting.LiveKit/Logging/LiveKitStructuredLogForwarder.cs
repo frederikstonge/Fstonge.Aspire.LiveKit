@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
+using System.Net.Sockets;
 
 namespace Aspire.Hosting;
 
@@ -17,6 +18,11 @@ internal sealed class LiveKitStructuredLogForwarder(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (stoppingToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         var endpointValue = configuration["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"]
             ?? configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
             ?? configuration["ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL"];
@@ -58,17 +64,75 @@ internal sealed class LiveKitStructuredLogForwarder(
             resource.Name,
             endpoint);
 
-        await foreach (var entries in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
+        try
         {
-            foreach (var entry in entries)
+            await foreach (var entries in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
             {
-                var record = logParser.Parse(entry.Content, entry.IsErrorMessage, entry.LineNumber);
-                using (resourceLogger.BeginScope(record.Properties))
+                foreach (var entry in entries)
                 {
-                    resourceLogger.Log(record.Level, "{ResourceLogMessage}", record.Message);
+                    try
+                    {
+                        var record = logParser.Parse(entry.Content, entry.IsErrorMessage, entry.LineNumber);
+                        using (resourceLogger.BeginScope(record.Properties))
+                        {
+                            resourceLogger.Log(record.Level, "{ResourceLogMessage}", record.Message);
+                        }
+                    }
+                    catch (Exception ex) when (IsConnectionOrCancellationException(ex))
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogDebug(
+                            ex,
+                            "Failed to parse or forward log record for resource {ResourceName}",
+                            resource.Name);
+                    }
                 }
             }
         }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Expected cancellation during shutdown.
+        }
+        catch (Exception ex) when (IsConnectionOrCancellationException(ex))
+        {
+            logger.LogDebug(
+                ex,
+                "Log streaming for resource {ResourceName} ended because the connection was closed.",
+                resource.Name);
+        }
+        catch (Exception ex) when (resourceLoggerService is not null)
+        {
+            logger.LogWarning(
+                ex,
+                "An unexpected error occurred while forwarding logs for resource {ResourceName}.",
+                resource.Name);
+        }
+    }
+
+    private static bool IsConnectionOrCancellationException(Exception ex)
+    {
+        if (ex is OperationCanceledException
+            or IOException
+            or SocketException
+            or ObjectDisposedException)
+        {
+            return true;
+        }
+
+        if (ex.GetType().FullName?.StartsWith("StreamJsonRpc", StringComparison.Ordinal) == true)
+        {
+            return true;
+        }
+
+        if (ex is AggregateException agg)
+        {
+            return agg.InnerExceptions.Any(IsConnectionOrCancellationException);
+        }
+
+        return ex.InnerException is not null && IsConnectionOrCancellationException(ex.InnerException);
     }
 
     private static string? GetHeaders(IConfiguration configuration)

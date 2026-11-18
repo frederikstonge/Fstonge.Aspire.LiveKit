@@ -25,6 +25,8 @@ public static class LiveKitServiceLoggingExtensions
         return resourceBuilder;
     }
 
+    private sealed class StructuredLogForwarderAnnotation : IResourceAnnotation;
+
     /// <summary>
     /// Enables forwarding structured logs from the LiveKit container to the configured OpenTelemetry (OTLP) log collector.
     /// </summary>
@@ -39,10 +41,11 @@ public static class LiveKitServiceLoggingExtensions
         ArgumentNullException.ThrowIfNull(resourceBuilder);
 
         var resource = resourceBuilder.Resource;
-        if (!resource.StructuredLogForwardingEnabled)
+        if (!resource.StructuredLogForwardingEnabled && !resource.Annotations.OfType<StructuredLogForwarderAnnotation>().Any())
         {
             resource.StructuredLogForwardingEnabled = true;
             resource.JsonLoggingEnabled = true;
+            resource.Annotations.Add(new StructuredLogForwarderAnnotation());
 
             resourceBuilder.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
                 new LiveKitStructuredLogForwarder(
@@ -63,14 +66,25 @@ public static class LiveKitServiceLoggingExtensions
         ArgumentNullException.ThrowIfNull(resourceBuilder);
 
         var resource = resourceBuilder.Resource;
-        
+        if (resource is LiveKitContainerResource containerResource)
+        {
+            containerResource.StructuredLogForwardingEnabled = true;
+            containerResource.JsonLoggingEnabled = true;
+        }
+
+        if (resource.Annotations.OfType<StructuredLogForwarderAnnotation>().Any())
+        {
+            return resourceBuilder;
+        }
+
+        resource.Annotations.Add(new StructuredLogForwarderAnnotation());
+
         resourceBuilder.ApplicationBuilder.Services.AddSingleton<IHostedService>(serviceProvider =>
             new LiveKitStructuredLogForwarder(
                 resource,
                 serviceProvider.GetRequiredService<ResourceLoggerService>(),
                 serviceProvider.GetRequiredService<IConfiguration>(),
                 serviceProvider.GetRequiredService<ILogger<LiveKitStructuredLogForwarder>>()));
-    
 
         return resourceBuilder;
     }

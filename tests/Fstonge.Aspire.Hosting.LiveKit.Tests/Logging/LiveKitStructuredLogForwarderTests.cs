@@ -96,6 +96,35 @@ public sealed class LiveKitStructuredLogForwarderTests
         Assert.Equal("POST", await exportTask);
     }
 
+    [Fact]
+    public async Task StartAsync_CompletesGracefullyWhenCanceled()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var resource = builder.AddLiveKitServer("livekit").Resource;
+        using var serviceProvider = builder.Services.BuildServiceProvider();
+        var resourceLoggerService = serviceProvider.GetRequiredService<ResourceLoggerService>();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"] = "http://127.0.0.1:4318/v1/logs",
+                ["OTEL_EXPORTER_OTLP_LOGS_PROTOCOL"] = "http/protobuf"
+            })
+            .Build();
+
+        using var cts = new CancellationTokenSource();
+        using var forwarder = new LiveKitStructuredLogForwarder(
+            resource,
+            resourceLoggerService,
+            configuration,
+            NullLogger<LiveKitStructuredLogForwarder>.Instance);
+
+        await forwarder.StartAsync(cts.Token);
+        await cts.CancelAsync();
+
+        await forwarder.ExecuteTask!.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        Assert.True(forwarder.ExecuteTask.IsCompleted);
+    }
+
     private static async Task AssertFailsAfterSetupAsync(
         string endpoint,
         params (string Key, string Value)[] values) =>
