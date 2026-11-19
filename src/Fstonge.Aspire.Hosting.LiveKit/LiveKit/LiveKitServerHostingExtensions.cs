@@ -18,6 +18,7 @@ public static class LiveKitServerHostingExtensions
     /// <param name="builder">The <see cref="IDistributedApplicationBuilder"/> to add the resource to.</param>
     /// <param name="name">The name of the external LiveKit resource.</param>
     /// <param name="url">The parameter resource containing the absolute HTTP or HTTPS API URL.</param>
+    /// <param name="webSocketUrl">The parameter resource containing the absolute WebSocket URL.</param>
     /// <param name="apiKey">An optional parameter resource containing the LiveKit API key.</param>
     /// <param name="apiSecret">An optional parameter resource containing the LiveKit API secret.</param>
     /// <returns>An <see cref="IResourceBuilder{ExternalLiveKitServerResource}"/> for referencing the external server.</returns>

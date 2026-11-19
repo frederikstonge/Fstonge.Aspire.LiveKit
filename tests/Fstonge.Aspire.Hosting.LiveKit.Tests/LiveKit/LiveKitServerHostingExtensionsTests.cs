@@ -2,6 +2,7 @@ using Aspire.Hosting;
 using YamlDotNet.RepresentationModel;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.Extensions.Hosting;
+using System.Net.Sockets;
 
 namespace Fstonge.Aspire.Hosting.LiveKit.Tests.LiveKit;
 
@@ -60,7 +61,11 @@ public sealed class LiveKitServerHostingExtensionsTests
         Assert.Equal("livekit/livekit-server", image.Image);
         Assert.Equal("v1.9.0", image.Tag);
         Assert.Contains("http", endpointNames);
-        Assert.Contains("ws", endpointNames);
+        var httpEndpoint = Assert.Single(
+            livekit.Resource.Annotations.OfType<EndpointAnnotation>(),
+            endpoint => endpoint.Name == "http");
+        Assert.Equal(7880, httpEndpoint.TargetPort);
+        Assert.Equal(ProtocolType.Tcp, httpEndpoint.Protocol);
         Assert.Contains("rtc-tcp", endpointNames);
         Assert.Contains("rtc-udp", endpointNames);
         Assert.Contains("turn-udp", endpointNames);
@@ -104,10 +109,14 @@ public sealed class LiveKitServerHostingExtensionsTests
         var with = await DistributedApplicationBuilderTestHost.BuildEnvironmentAsync(withCredentials.Resource);
 
         Assert.Contains(without, pair => pair.Key == "LIVEKIT_URL");
-        Assert.Contains(without, pair => pair.Key == "LIVEKIT_WS_URL");
+        Assert.Contains(without, pair =>
+            pair.Key == "LIVEKIT_WS_URL" &&
+            pair.Value == "ws://{livekit.bindings.http.host}:{livekit.bindings.http.port}");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_KEY");
         Assert.DoesNotContain(without, pair => pair.Key == "LIVEKIT_API_SECRET");
-        Assert.Contains(with, pair => pair.Key == "LIVEKIT_WS_URL");
+        Assert.Contains(with, pair =>
+            pair.Key == "LIVEKIT_WS_URL" &&
+            pair.Value == "ws://{livekit.bindings.http.host}:{livekit.bindings.http.port}");
         Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "{api-key.value}");
         Assert.Contains(with, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "{api-secret.value}");
     }
@@ -123,7 +132,7 @@ public sealed class LiveKitServerHostingExtensionsTests
             .WithLiveKitServerReference(externalWithoutCredentials);
         var apiKey = builder.AddParameter("external-api-key", "test-key", secret: true);
         var apiSecret = builder.AddParameter("external-api-secret", "test-secret", secret: true);
-        var externalLiveKit = builder.AddExternalLiveKitServer("external-livekit", url, apiKey, apiSecret);
+        var externalLiveKit = builder.AddExternalLiveKitServer("external-livekit", url, websocketUrl, apiKey, apiSecret);
         var project = builder.AddExecutable("api", "node", ".")
             .WithLiveKitServerReference(externalLiveKit, includeCredentials: true);
 
@@ -133,9 +142,13 @@ public sealed class LiveKitServerHostingExtensionsTests
 
         Assert.DoesNotContain(externalLiveKit.Resource.Annotations, annotation => annotation is ContainerImageAnnotation);
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_URL" && pair.Value == "{external-livekit-url.value}");
+        Assert.Contains(environment, pair =>
+            pair.Key == "LIVEKIT_WS_URL" && pair.Value == "{external-livekit-websocket-url.value}");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_KEY" && pair.Value == "{external-api-key.value}");
         Assert.Contains(environment, pair => pair.Key == "LIVEKIT_API_SECRET" && pair.Value == "{external-api-secret.value}");
         Assert.Contains(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_URL");
+        Assert.Contains(uncredentialedEnvironment, pair =>
+            pair.Key == "LIVEKIT_WS_URL" && pair.Value == "{external-livekit-websocket-url.value}");
         Assert.DoesNotContain(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_API_KEY");
         Assert.DoesNotContain(uncredentialedEnvironment, pair => pair.Key == "LIVEKIT_API_SECRET");
         Assert.Throws<InvalidOperationException>(() =>
@@ -148,10 +161,11 @@ public sealed class LiveKitServerHostingExtensionsTests
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
         var url = builder.AddParameter("external-livekit-url", "https://livekit.example.test");
+        var websocketUrl = builder.AddParameter("external-livekit-websocket-url", "wss://livekit.example.test");
         var apiKey = builder.AddParameter("external-api-key", "test-key", secret: true);
 
         Assert.Throws<ArgumentException>(() =>
-            builder.AddExternalLiveKitServer("incomplete-credentials", url, apiKey));
+            builder.AddExternalLiveKitServer("incomplete-credentials", url, websocketUrl, apiKey));
     }
 
     [Fact]

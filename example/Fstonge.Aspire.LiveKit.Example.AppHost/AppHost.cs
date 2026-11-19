@@ -26,6 +26,10 @@ livekit.AddIngress(
     .WithIngressConfiguration(config =>
     {
         config.Logging.Level = "info";
+        config.CpuCost.RtmpCpuCost = 2;
+        config.CpuCost.WhipCpuCost = 2;
+        config.CpuCost.WhipBypassTranscodingCpuCost = 0.1;
+        config.CpuCost.UrlCpuCost = 2;
     })
     .WithTags("livekit");
 

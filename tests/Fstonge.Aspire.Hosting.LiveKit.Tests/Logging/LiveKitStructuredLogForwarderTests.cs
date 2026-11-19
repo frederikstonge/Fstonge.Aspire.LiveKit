@@ -97,6 +97,17 @@ public sealed class LiveKitStructuredLogForwarderTests
     }
 
     [Fact]
+    public void IsConnectionOrCancellationException_DetectsNestedConnectionFailures()
+    {
+        Assert.True(LiveKitStructuredLogForwarder.IsConnectionOrCancellationException(
+            new AggregateException(new IOException("connection closed"))));
+        Assert.True(LiveKitStructuredLogForwarder.IsConnectionOrCancellationException(
+            new InvalidOperationException("outer", new SocketException())));
+        Assert.False(LiveKitStructuredLogForwarder.IsConnectionOrCancellationException(
+            new InvalidOperationException("configuration error")));
+    }
+
+    [Fact]
     public async Task StartAsync_CompletesGracefullyWhenCanceled()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();

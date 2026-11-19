@@ -64,55 +64,70 @@ internal sealed class LiveKitStructuredLogForwarder(
             resource.Name,
             endpoint);
 
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-            await foreach (var entries in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
+            try
             {
-                foreach (var entry in entries)
+                await foreach (var entries in resourceLoggerService.WatchAsync(resource).WithCancellation(stoppingToken))
                 {
-                    try
+                    foreach (var entry in entries)
                     {
-                        var record = logParser.Parse(entry.Content, entry.IsErrorMessage, entry.LineNumber);
-                        using (resourceLogger.BeginScope(record.Properties))
+                        try
                         {
-                            resourceLogger.Log(record.Level, "{ResourceLogMessage}", record.Message);
+                            var record = logParser.Parse(entry.Content, entry.IsErrorMessage, entry.LineNumber);
+                            using (resourceLogger.BeginScope(record.Properties))
+                            {
+                                resourceLogger.Log(record.Level, "{ResourceLogMessage}", record.Message);
+                            }
+                        }
+                        catch (Exception ex) when (IsConnectionOrCancellationException(ex))
+                        {
+                            throw;
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogDebug(
+                                ex,
+                                "Failed to parse or forward log record for resource {ResourceName}",
+                                resource.Name);
                         }
                     }
-                    catch (Exception ex) when (IsConnectionOrCancellationException(ex))
-                    {
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogDebug(
-                            ex,
-                            "Failed to parse or forward log record for resource {ResourceName}",
-                            resource.Name);
-                    }
+                }
+
+                break;
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex) when (IsConnectionOrCancellationException(ex))
+            {
+                logger.LogDebug(
+                    ex,
+                    "Log streaming for resource {ResourceName} was interrupted. Retrying.",
+                    resource.Name);
+
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
                 }
             }
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-            // Expected cancellation during shutdown.
-        }
-        catch (Exception ex) when (IsConnectionOrCancellationException(ex))
-        {
-            logger.LogDebug(
-                ex,
-                "Log streaming for resource {ResourceName} ended because the connection was closed.",
-                resource.Name);
-        }
-        catch (Exception ex) when (resourceLoggerService is not null)
-        {
-            logger.LogWarning(
-                ex,
-                "An unexpected error occurred while forwarding logs for resource {ResourceName}.",
-                resource.Name);
+            catch (Exception ex)
+            {
+                logger.LogWarning(
+                    ex,
+                    "An unexpected error occurred while forwarding logs for resource {ResourceName}.",
+                    resource.Name);
+                throw;
+            }
         }
     }
 
-    private static bool IsConnectionOrCancellationException(Exception ex)
+    internal static bool IsConnectionOrCancellationException(Exception ex)
     {
         if (ex is OperationCanceledException
             or IOException
