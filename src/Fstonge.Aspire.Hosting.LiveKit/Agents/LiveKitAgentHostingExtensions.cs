@@ -43,12 +43,6 @@ public static class LiveKitAgentHostingExtensions
             builder.WithEnvironment("LIVEKIT_AGENT_DEV", "true");
         }
 
-        if (builder.Resource is IResourceWithWaitSupport waitSupportResource)
-        {
-            var waitBuilder = builder.ApplicationBuilder.CreateResourceBuilder<IResourceWithWaitSupport>(waitSupportResource);
-            waitBuilder.WaitFor(livekit.ApplicationBuilder.CreateResourceBuilder<IResource>(livekit.Resource));
-        }
-
         return builder;
     }
 

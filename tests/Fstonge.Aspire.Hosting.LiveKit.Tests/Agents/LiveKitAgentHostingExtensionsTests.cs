@@ -42,6 +42,17 @@ public sealed class LiveKitAgentHostingExtensionsTests
     }
 
     [Fact]
+    public void WithLiveKitAgentReference_DoesNotAddWaitAnnotation()
+    {
+        var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
+        var livekit = builder.AddLiveKitServer("livekit");
+        var agent = builder.AddExecutable("agent", "python", ".")
+            .WithLiveKitAgentReference(livekit);
+
+        Assert.Empty(agent.Resource.Annotations.OfType<WaitAnnotation>());
+    }
+
+    [Fact]
     public void AddPythonNodeNpmAndDockerAgents_AddParentRelationships()
     {
         var builder = DistributedApplicationBuilderTestHost.CreateBuilder();
