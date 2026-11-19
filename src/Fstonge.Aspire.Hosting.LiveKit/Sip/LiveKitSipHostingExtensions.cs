@@ -87,7 +87,9 @@ public static class LiveKitSipHostingExtensions
 
         if (healthPort is { } sipHealthPort)
         {
-            sip = sip.WithHttpEndpoint(port: sipHealthPort, targetPort: sipHealthPort, name: "health");
+            sip = sip
+                .WithHttpEndpoint(port: sipHealthPort, targetPort: sipHealthPort, name: "health")
+                .WithHttpHealthCheck(path: "/", endpointName: "health");
         }
 
         if (prometheusPort is { } sipPrometheusPort)

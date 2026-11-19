@@ -13,7 +13,7 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
     public void LiveKitRtcRoomFactory_RejectsInvalidUrls(string url)
     {
         var exception = Assert.Throws<OptionsValidationException>(() =>
-            new LiveKitRtcRoomFactory(Options.Create(new LiveKitRtcOptions { Url = url })));
+            new LiveKitRtcRoomFactory(Options.Create(new LiveKitRtcOptions { WebSocketUrl = url })));
 
         Assert.Contains("LIVEKIT_URL", exception.Message);
     }
@@ -22,14 +22,12 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
     public async Task LiveKitRtcRoomFactory_RejectsMissingToken()
     {
         var factory = new LiveKitRtcRoomFactory(
-            Options.Create(new LiveKitRtcOptions { Url = "http://localhost:7880" }));
+            Options.Create(new LiveKitRtcOptions { WebSocketUrl = "ws://localhost:7880" }));
 
         await Assert.ThrowsAsync<ArgumentException>(() => factory.ConnectAsync(" "));
     }
 
     [Theory]
-    [InlineData("http://localhost:7880", "ws://localhost:7880/")]
-    [InlineData("https://livekit.example.test/path", "wss://livekit.example.test/path")]
     [InlineData("ws://localhost:7880", "ws://localhost:7880/")]
     [InlineData("wss://livekit.example.test/path", "wss://livekit.example.test/path")]
     public void AddLiveKitRtcSdk_NormalizesServerUrl(
@@ -37,7 +35,7 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
         string expectedWebSocketUrl)
     {
         var services = new ServiceCollection();
-        services.AddLiveKitRtcSdk(CreateConfiguration(("LIVEKIT_URL", configuredUrl)));
+        services.AddLiveKitRtcSdk(CreateConfiguration(("LIVEKIT_WS_URL", configuredUrl)));
 
         using var provider = services.BuildServiceProvider();
 
@@ -50,14 +48,15 @@ public sealed class LiveKitRtcServiceCollectionExtensionsTests
     {
         var configuration = CreateConfiguration(
             ("LiveKit:Url", "https://section.example.test"),
-            ("LIVEKIT_URL", "https://root.example.test"));
+            ("LIVEKIT_URL", "https://root.example.test"),
+            ("LIVEKIT_WS_URL", "wss://root.example.test"));
         var services = new ServiceCollection();
         services.AddLiveKitRtcSdk(configuration);
 
         using var provider = services.BuildServiceProvider();
 
         var options = provider.GetRequiredService<IOptions<LiveKitRtcOptions>>().Value;
-        Assert.Equal("https://root.example.test", options.Url);
+        Assert.Equal("wss://root.example.test", options.WebSocketUrl);
         Assert.Equal("wss://root.example.test/", provider
             .GetRequiredService<ILiveKitRtcRoomFactory>()
             .ServerUrl.AbsoluteUri);

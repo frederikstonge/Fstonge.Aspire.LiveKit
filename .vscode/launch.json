@@ -8,7 +8,7 @@
             "type": "aspire",
             "request": "launch",
             "name": "Aspire: Launch default AppHost",
-            "program": "${workspaceFolder}/example/Fstonge.Aspire.LiveKit.Example.AppHost",
+            "program": "${workspaceFolder}/example/Fstonge.Aspire.LiveKit.Example.AppHost/Fstonge.Aspire.LiveKit.Example.AppHost.csproj"
         }
     ]
 }

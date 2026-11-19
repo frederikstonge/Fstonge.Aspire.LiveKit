@@ -15,6 +15,11 @@ internal sealed class LiveKitLogParser
 
     public ForwardedLogRecord Parse(string content, bool isErrorMessage, int lineNumber)
     {
+        if (string.IsNullOrEmpty(content))
+        {
+            return PlainTextLogParser.Parse(content ?? string.Empty, isErrorMessage, lineNumber, null);
+        }
+
         DateTimeOffset? resourceTimestamp = null;
         var timestampEnd = content.IndexOf(' ');
         if (timestampEnd > 0

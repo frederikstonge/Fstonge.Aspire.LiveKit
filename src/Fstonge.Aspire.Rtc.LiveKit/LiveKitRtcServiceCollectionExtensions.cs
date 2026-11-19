@@ -25,9 +25,11 @@ public static class LiveKitRtcServiceCollectionExtensions
             .Configure(options =>
             {
                 configuration.GetSection(LiveKitRtcOptions.SectionName).Bind(options);
-                options.Url = configuration["LIVEKIT_URL"] ?? options.Url;
+                options.WebSocketUrl = configuration["LIVEKIT_WS_URL"]
+                    ?? configuration["LIVEKIT_URL"]
+                    ?? options.WebSocketUrl;
             })
-            .Validate(options => LiveKitRtcRoomFactory.IsValidServerUrl(options.Url),
+            .Validate(options => LiveKitRtcRoomFactory.IsValidServerUrl(options.WebSocketUrl),
                 "LIVEKIT_URL must be an absolute HTTP, HTTPS, WS, or WSS URL without credentials, query, or fragment.")
             .ValidateOnStart();
 

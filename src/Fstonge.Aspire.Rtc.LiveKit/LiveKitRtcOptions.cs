@@ -11,7 +11,7 @@ public sealed class LiveKitRtcOptions
     public const string SectionName = "LiveKit";
 
     /// <summary>
-    /// Gets or sets the LiveKit server URL (HTTP, HTTPS, WS, or WSS).
+    /// Gets or sets the LiveKit WebSocket URL (WS or WSS).
     /// </summary>
-    public string? Url { get; set; }
+    public string? WebSocketUrl { get; set; }
 }

@@ -16,7 +16,7 @@ public sealed class LiveKitRtcRoomFactory : ILiveKitRtcRoomFactory
     public LiveKitRtcRoomFactory(IOptions<LiveKitRtcOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        ServerUrl = GetWebSocketUrl(options.Value.Url);
+        ServerUrl = GetWebSocketUrl(options.Value.WebSocketUrl);
     }
 
     /// <inheritdoc />

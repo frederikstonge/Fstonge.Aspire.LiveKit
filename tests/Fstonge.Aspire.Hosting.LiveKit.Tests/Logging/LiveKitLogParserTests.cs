@@ -32,4 +32,15 @@ public sealed class LiveKitLogParserTests
         Assert.Equal(LogLevel.Information, record.Level);
         Assert.Equal(content, record.Message);
     }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void Parse_HandlesNullOrEmptyContentGracefully(string? content)
+    {
+        var record = parser.Parse(content!, isErrorMessage: false, lineNumber: 1);
+
+        Assert.Equal(LogLevel.Information, record.Level);
+        Assert.Equal(string.Empty, record.Message);
+    }
 }

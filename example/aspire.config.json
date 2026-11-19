@@ -1,5 +1,8 @@
 {
   "appHost": {
     "path": "Fstonge.Aspire.LiveKit.Example.AppHost/Fstonge.Aspire.LiveKit.Example.AppHost.csproj"
+  },
+  "sdk": {
+    "version": "17.0.0"
   }
 }
