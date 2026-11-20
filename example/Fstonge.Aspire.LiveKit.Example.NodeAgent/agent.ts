@@ -1,25 +1,43 @@
 import { fileURLToPath } from 'node:url';
-import { cli, ServerOptions, defineAgent, initializeLogger, log, voice } from '@livekit/agents';
+import {
+  cli,
+  ServerOptions,
+  defineAgent,
+  initializeLogger,
+  log,
+  voice,
+  type VAD,
+} from '@livekit/agents';
 import * as openai from '@livekit/agents-plugin-openai';
+import * as silero from '@livekit/agents-plugin-silero';
 import dotenv from 'dotenv';
 
+type ProcessUserData = {
+  vad?: VAD;
+};
+
 dotenv.config();
+initializeLogger({ pretty: false, level: 'info' });
 
-export default defineAgent({
+const agentDefinition = defineAgent<ProcessUserData>({
+  prewarm: async (proc) => {
+    proc.userData.vad = await silero.VAD.load();
+  },
   entry: async (ctx) => {
-    initializeLogger({ pretty: false, level: 'info' });
-
-    await ctx.connect();
     log().info({ room: ctx.room.name }, 'Node Agent connected to room');
+    await ctx.connect();
+
+    const session = new voice.AgentSession({
+      vad: ctx.proc.userData.vad ?? await silero.VAD.load(),
+      stt: new openai.STT(),
+      llm: new openai.LLM({ model: 'gpt-4o-mini' }),
+      tts: new openai.TTS(),
+    });
 
     const agent = new voice.Agent({
       instructions:
         'You are a friendly and helpful voice AI assistant powered by LiveKit and .NET Aspire. ' +
         'Your output will be converted to speech. Keep responses concise, warm, and natural.',
-    });
-
-    const session = new voice.AgentSession({
-      llm: new openai.LLM({ model: 'gpt-4o-mini' }),
     });
 
     await session.start({
@@ -32,6 +50,8 @@ export default defineAgent({
     });
   },
 });
+
+export default agentDefinition;
 
 cli.runApp(
   new ServerOptions({

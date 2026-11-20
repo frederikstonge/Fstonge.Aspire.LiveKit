@@ -105,10 +105,9 @@ if (enablePythonAgent || enableNodeAgent)
         }
         else
         {
-            livekit.AddNodeAgent(
+            livekit.AddNpmAgent(
                 "node-voice-agent",
-                "../Fstonge.Aspire.LiveKit.Example.NodeAgent",
-                scriptPath: "agent.js")
+                "../Fstonge.Aspire.LiveKit.Example.NodeAgent")
                 .WithOpenAiApiKey(openAiKey)
                 .WithAgentStructuredLogs()
                 .WithTags("agents");
