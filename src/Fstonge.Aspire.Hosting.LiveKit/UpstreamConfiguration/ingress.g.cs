@@ -65,6 +65,9 @@ public sealed class LiveKitIngressUpstreamConfiguration
     [YamlMember(Alias = "service_name")]
     public string? ServiceName { get; set; }
 
+    [YamlMember(Alias = "url_pull_proxy")]
+    public string? UrlPullProxy { get; set; }
+
     [YamlMember(Alias = "whip_port")]
     public long? WhipPort { get; set; }
 
@@ -240,6 +243,18 @@ public sealed class RTCConfig
 
     [YamlMember(Alias = "external_ip_only")]
     public bool? ExternalIpOnly { get; set; }
+
+    [YamlMember(Alias = "external_ip_retries")]
+    public long? ExternalIpRetries { get; set; }
+
+    [YamlMember(Alias = "external_ip_retry_interval")]
+    public string? ExternalIpRetryInterval { get; set; }
+
+    [YamlMember(Alias = "external_ip_stun_timeout")]
+    public string? ExternalIpStunTimeout { get; set; }
+
+    [YamlMember(Alias = "external_ip_validation_timeout")]
+    public string? ExternalIpValidationTimeout { get; set; }
 
     [YamlMember(Alias = "force_tcp")]
     public bool? ForceTcp { get; set; }

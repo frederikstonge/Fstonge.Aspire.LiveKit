@@ -226,6 +226,25 @@
           "type": "boolean",
           "x-yaml-omitempty": true
         },
+        "external_ip_retries": {
+          "type": "integer",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_retry_interval": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_stun_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
+        "external_ip_validation_timeout": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
         "force_tcp": {
           "type": "boolean",
           "x-yaml-omitempty": true
@@ -487,6 +506,10 @@
     },
     "service_name": {
       "type": "string"
+    },
+    "url_pull_proxy": {
+      "type": "string",
+      "x-yaml-omitempty": true
     },
     "whip_port": {
       "type": "integer"
