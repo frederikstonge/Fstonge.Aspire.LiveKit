@@ -89,6 +89,9 @@ public sealed class LiveKitServerUpstreamConfiguration
     [YamlMember(Alias = "sip")]
     public SIPConfig Sip { get; set; } = new();
 
+    [YamlMember(Alias = "token_revocation")]
+    public TokenRevocationConfig TokenRevocation { get; set; } = new();
+
     [YamlMember(Alias = "trace")]
     public TracingConfig Trace { get; set; } = new();
 
@@ -844,6 +847,9 @@ public sealed class PrometheusConfig
     [YamlMember(Alias = "port")]
     public long? Port { get; set; }
 
+    [YamlMember(Alias = "room_exclude_regex")]
+    public string? RoomExcludeRegex { get; set; }
+
     [YamlMember(Alias = "username")]
     public string? Username { get; set; }
 
@@ -1522,6 +1528,16 @@ public sealed class TURNServer
 
     [YamlMember(Alias = "username")]
     public string? Username { get; set; }
+
+}
+
+public sealed class TokenRevocationConfig
+{
+    [YamlMember(Alias = "enabled")]
+    public bool? Enabled { get; set; }
+
+    [YamlMember(Alias = "ttl")]
+    public string? Ttl { get; set; }
 
 }
 

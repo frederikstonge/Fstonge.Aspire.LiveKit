@@ -1050,6 +1050,10 @@
           "type": "integer",
           "x-yaml-omitempty": true
         },
+        "room_exclude_regex": {
+          "type": "string",
+          "x-yaml-omitempty": true
+        },
         "username": {
           "type": "string",
           "x-yaml-omitempty": true
@@ -2126,6 +2130,20 @@
       },
       "type": "object"
     },
+    "TokenRevocationConfig_396fb6522221": {
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "x-yaml-omitempty": true
+        },
+        "ttl": {
+          "format": "duration",
+          "type": "string",
+          "x-yaml-omitempty": true
+        }
+      },
+      "type": "object"
+    },
     "TracingConfig_7a09b41907e4": {
       "properties": {
         "jaeger_url": {
@@ -2427,6 +2445,10 @@
     },
     "sip": {
       "$ref": "#/$defs/SIPConfig_3d109c2b7c6b",
+      "x-yaml-omitempty": true
+    },
+    "token_revocation": {
+      "$ref": "#/$defs/TokenRevocationConfig_396fb6522221",
       "x-yaml-omitempty": true
     },
     "trace": {
